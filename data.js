@@ -19,8 +19,7 @@ var data = [
   region: "NY",
   population: 19,
   // population: 19453561,
-  days: ["Mar 27"],
-  deaths: [140],
+  days: ["Mar 27", "Mar 28"],
   source: "https://www.worldometers.info/coronavirus/country/us/"
 }
 ]
