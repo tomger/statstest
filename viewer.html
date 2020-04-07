@@ -1,0 +1,185 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Covid</title>
+    <style>
+        .tooltip {
+            position: absolute;
+            text-align: center;
+            padding: 2px;
+            font-size: 12px;
+            background: #eee;
+            border: 0px;
+            pointer-events: none;
+        }
+    </style>
+
+</head>
+<body>
+
+    <div class="graph">
+        <h2>Daily CoVid-19 deaths per capita</h2>
+        <svg id="state_total_time"> </svg>
+    </div>
+
+</body>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script>
+    const appState = {
+        covidData: null,
+        populationData: null
+    };
+
+    renderTotalOverTime("New York");
+    // renderTotalOverTime("Washington");
+
+    function formateDate (date) {
+        const d = new Date(date);
+        return `${(d.getMonth() + 1)}.${ (d.getDate() + 1)}.${d.getFullYear()}`
+    }
+
+
+    const tooltipDiv = d3.select("body").append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0);
+
+    window.onresize = function () {
+        renderTotalOverTime(appState.currentState);
+    }
+
+
+    async function renderTotalOverTime () {
+        const states = ["Washington", "New York"]
+        let data = await getCovidDataForState(states[0]);
+
+        const {x,y,width,height,margin} = getBounds();
+
+
+        console.log(data);
+        // format the data
+        data = data.map(function(d) {
+            d.cases = +d.cases;
+            return d
+        }).sort((a,b) => {
+            if(a.date == b.date) return 0
+            else if(a.date > b.date) return 1
+            else return -1
+        });
+
+        var state_svg = d3.select("#state_total_time")
+        .html("")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+                .attr("transform",
+                    "translate(" + margin.left + "," + margin.top + ")");
+
+        // Scale the range of the data in the domains
+        x.domain(data.map(function(d) { return d.date; }));
+        y.domain([0, d3.max(data, function(d) { return d.cases; })]);
+
+
+        // append the rectangles for the bar chart
+        state_svg //.selectAll(".bar")
+            .datum(data)
+            // .enter()
+            .append("path")
+            .attr("fill", "none")
+            .attr("stroke", "black")
+            .attr("stroke-width", 1.5)
+            .attr("d", d3.line()
+                .x(function(d) { return x(d.date) })
+                .y(function(d) { return y(d.cases) })
+                )
+
+        state_svg
+            .append('g')
+            .selectAll("dot")
+            .data(data)
+            .enter()
+            .append("circle")
+            .attr("cx", function (d) { return x(d.date); } )
+            .attr("cy", function (d) { return y(d.cases); } )
+            .attr("r", 4)
+            .style("fill", "#000000")
+            .on("mouseover", function(d) {
+                tooltipDiv.transition()
+                    .duration(200)
+                    .style("opacity", .9);
+                tooltipDiv.html(d.date + "<br/>"  + d.cases)
+                    .style("left", (d3.event.pageX) + "px")
+                    .style("top", (d3.event.pageY - 28) + "px");
+                })
+            .on("mouseout", function(d) {
+                tooltipDiv.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+            });
+
+
+        // add the x Axis
+        state_svg.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + height + ")")
+            .call(d3.axisBottom(x).tickFormat(formateDate))
+            .selectAll("text")
+            .style("text-anchor", "end")
+            .attr("dx", "-.8em")
+            .attr("dy", ".15em")
+            .attr("transform", function(d) {
+                return "rotate(-65)"
+                });
+
+        // add the y Axis
+        state_svg.append("g")
+            .call(d3.axisLeft(y));
+
+
+        // })
+    }
+
+
+    function getBounds() {
+        const margin = {top: 20, right: 40, bottom: 60, left: 70};
+        const width = window.innerWidth - 48 - margin.left - margin.right;
+        const height = 410 - margin.top - margin.bottom;
+
+        const x = d3.scaleBand()
+                .range([0, width])
+                .padding(0.1);
+
+        const y = d3.scaleLinear()
+                .range([height, 0]);
+        return {x,y,width,height,margin};
+    }
+
+    async function getPopulationData(state) {
+        d3.csv("nst-est2019-alldata.csv").then(function(data) {
+          console.log(data[0]);
+        });
+        // appState.stateData[state] = appState.stateData[state]
+        //     ? appState.stateData[state]
+        //     : fetch(`/covid_api/state_case?state=${state}&days=28`).then((response) => response.json());
+
+        return await appState.stateData[state]
+    }
+
+    async function getCovidDataForState(state) {
+      let data = await getCovidData()
+      return data.filter(line => line.state === state)
+    }
+
+    async function getCovidData() {
+        appState.covidData = appState.covidData
+            ? appState.covidData
+            : d3.csv("us-states.csv")
+
+        return await appState.covidData
+    }
+
+</script>
+</html>

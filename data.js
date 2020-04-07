@@ -1,3 +1,7 @@
+// https://www.census.gov/data/datasets/time-series/demo/popest/2010s-state-total.html
+// https://github.com/nytimes/covid-19-data
+
+
 var data = [
 {
   region: "BE",
