@@ -22,7 +22,7 @@
 <body>
 
     <div class="graph">
-        <h2>Daily CoVid-19 deaths per capita</h2>
+        <h2>Daily CoVid-19 deaths per 1M People</h2>
         <svg id="state_total_time"> </svg>
     </div>
 
@@ -34,7 +34,7 @@
         populationData: null
     };
 
-    renderTotalOverTime("New York");
+    renderTotalOverTime();
     // renderTotalOverTime("Washington");
 
     function formateDate (date) {
@@ -53,22 +53,11 @@
 
 
     async function renderTotalOverTime () {
-        const states = ["Washington", "New York"]
+        const states = ["Washington", "New York", "New Jersey"]
+        const colors = ["#417dc1", "#c14541", "#50C8C8"]
         let data = await getCovidDataForState(states[0]);
 
         const {x,y,width,height,margin} = getBounds();
-
-
-        console.log(data);
-        // format the data
-        data = data.map(function(d) {
-            d.cases = +d.cases;
-            return d
-        }).sort((a,b) => {
-            if(a.date == b.date) return 0
-            else if(a.date > b.date) return 1
-            else return -1
-        });
 
         var state_svg = d3.select("#state_total_time")
         .html("")
@@ -78,47 +67,57 @@
                 .attr("transform",
                     "translate(" + margin.left + "," + margin.top + ")");
 
+        let maxY = 0;
+        for (let i = 0; i < states.length; i++) {
+          let stateData = await getCovidDataForState(states[i])
+          let stateMax = d3.max(stateData, function(d) { return parseInt(d.dailyDeathsPerCapita, 10); })
+          maxY = Math.max(maxY, stateMax)
+        }
+
         // Scale the range of the data in the domains
         x.domain(data.map(function(d) { return d.date; }));
-        y.domain([0, d3.max(data, function(d) { return d.cases; })]);
+        y.domain([0, maxY]);
 
 
-        // append the rectangles for the bar chart
-        state_svg //.selectAll(".bar")
-            .datum(data)
-            // .enter()
-            .append("path")
-            .attr("fill", "none")
-            .attr("stroke", "black")
-            .attr("stroke-width", 1.5)
-            .attr("d", d3.line()
-                .x(function(d) { return x(d.date) })
-                .y(function(d) { return y(d.cases) })
-                )
+        for (let i = 0; i < states.length; i++) {
 
-        state_svg
-            .append('g')
-            .selectAll("dot")
-            .data(data)
-            .enter()
-            .append("circle")
-            .attr("cx", function (d) { return x(d.date); } )
-            .attr("cy", function (d) { return y(d.cases); } )
-            .attr("r", 4)
-            .style("fill", "#000000")
-            .on("mouseover", function(d) {
-                tooltipDiv.transition()
-                    .duration(200)
-                    .style("opacity", .9);
-                tooltipDiv.html(d.date + "<br/>"  + d.cases)
-                    .style("left", (d3.event.pageX) + "px")
-                    .style("top", (d3.event.pageY - 28) + "px");
-                })
-            .on("mouseout", function(d) {
-                tooltipDiv.transition()
-                    .duration(500)
-                    .style("opacity", 0);
-            });
+           let state_data = await getCovidDataForState(states[i]);
+           state_svg
+               .datum(state_data)
+               // .enter()
+               .append("path")
+               .attr("fill", "none")
+               .attr("stroke", colors[i])
+               .attr("stroke-width", 1.5)
+               .attr("d", d3.line()
+                   .x(function(d) { return x(d.date) })
+                   .y(function(d) { return y(d.dailyDeathsPerCapita) })
+               )
+
+           state_svg
+               .append('g')
+               .selectAll("dot")
+               .data(state_data)
+               .enter()
+               .append("circle")
+               .attr("cx", function (d) { return x(d.date); } )
+               .attr("cy", function (d) { return y(d.dailyDeathsPerCapita); } )
+               .attr("r", 4)
+               .style("fill", colors[i])
+               .on("mouseover", function(d) {
+                   tooltipDiv.transition()
+                       .duration(200)
+                       .style("opacity", .9);
+                   tooltipDiv.html(states[i] + "<br/>" + d.date + "<br/>"  + d.dailyDeathsPerCapita)
+                       .style("left", (d3.event.pageX) + "px")
+                       .style("top", (d3.event.pageY - 28) + "px");
+                   })
+               .on("mouseout", function(d) {
+                   tooltipDiv.transition()
+                       .duration(500)
+                       .style("opacity", 0);
+               });
+        }
 
 
         // add the x Axis
@@ -157,20 +156,41 @@
         return {x,y,width,height,margin};
     }
 
-    async function getPopulationData(state) {
-        d3.csv("nst-est2019-alldata.csv").then(function(data) {
-          console.log(data[0]);
-        });
-        // appState.stateData[state] = appState.stateData[state]
-        //     ? appState.stateData[state]
-        //     : fetch(`/covid_api/state_case?state=${state}&days=28`).then((response) => response.json());
+    async function getPopulationDataForState(state) {
+      let data = await getPopulationData()
+      data = data.filter(line => line.NAME === state)
+      return data[0].CENSUS2010POP;
+    }
 
-        return await appState.stateData[state]
+    async function getPopulationData(state) {
+        appState.populationData = appState.populationData
+            ? appState.populationData
+            : d3.csv("nst-est2019-alldata.csv")
+        return await appState.populationData
     }
 
     async function getCovidDataForState(state) {
+      // death data is cummulative
       let data = await getCovidData()
-      return data.filter(line => line.state === state)
+      data = data.filter(line => line.state === state)
+      // .sort((a,b) => {
+      //     if(a.date == b.date) return 0
+      //     else if(a.date > b.date) return 1
+      //     else return -1
+      //   });
+
+      let population = await getPopulationDataForState(state)
+      data.forEach((day, index) => {
+        if (!data[index-1]) {
+          day.dailyDeaths = 0
+          day.dailyDeathsPerCapita = 0
+        } else {
+          day.dailyDeaths = day.deaths - data[index-1].deaths
+          day.dailyDeathsPerCapita = (day.dailyDeaths / population) * 1000000
+        }
+
+      })
+      return data;
     }
 
     async function getCovidData() {
