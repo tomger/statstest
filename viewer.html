@@ -16,13 +16,17 @@
             border: 0px;
             pointer-events: none;
         }
+        svg {overflow: visible}
+        h2 {
+          text-align: center;
+        }
     </style>
 
 </head>
 <body>
 
     <div class="graph">
-        <h2>2-Daily Rolling Avg CoVid-19 deaths per 1M People</h2>
+        <h2>Rolling Avg Daily CoVid-19 deaths per 1M People</h2>
         <svg id="state_total_time"> </svg>
     </div>
 
@@ -54,24 +58,24 @@
 
     async function renderTotalOverTime () {
         const variable = "rolling";
-        const states = ["Vermont", "Illinois"]
+        const states =  ["California", "Florida"]
         const colors = ["#5b95f6", "#db4437", "#50C8C8"]
         let data = await getCovidDataForState(states[0]);
 
         const {x,y,width,height,margin} = getBounds();
 
         var state_svg = d3.select("#state_total_time")
-        .html("")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-                .attr("transform",
-                    "translate(" + margin.left + "," + margin.top + ")");
+          .html("")
+          // .attr("width", width -800 )
+          // .attr("height", height + margin.top + margin.bottom)
+              .append("g")
+                  .attr("transform",
+                      "translate(" + margin.left + "," + margin.top + ")");
 
         let maxY = 0;
         for (let i = 0; i < states.length; i++) {
           let stateData = await getCovidDataForState(states[i])
-          let stateMax = d3.max(stateData, function(d) { return parseInt(d[variable], 10); })
+          let stateMax = d3.max(stateData, function(d) { return d[variable]; })
           maxY = Math.max(maxY, stateMax)
         }
 
@@ -83,20 +87,29 @@
         for (let i = 0; i < states.length; i++) {
 
            let state_data = await getCovidDataForState(states[i]);
-           console.log(i,state_data)
+           // console.log(i,state_data)
            state_svg
                .datum(state_data)
                // .enter()
                .append("path")
                .attr("fill", "none")
                .attr("stroke", colors[i])
-               .attr("stroke-width", 1.5)
+               .attr("stroke-width", 1.25)
                .attr("d", d3.line()
                    .x(function(d) { return x(d.date) })
                    .y(function(d) {
+                     if (i==1)console.log('--',d[variable])
                       return y(d[variable])
                     })
                )
+
+           state_svg
+              .append("text")
+           		.attr("transform", "translate(" + (width+3) + "," + y(state_data[state_data.length-1][variable]) + ")")
+           		.attr("dy", ".35em")
+           		.attr("text-anchor", "start")
+           		.style("fill", colors[i])
+           		.text(states[i]);
 
            state_svg
                .append('g')
@@ -128,7 +141,7 @@
         state_svg.append("g")
             .attr("class", "x axis")
             .attr("transform", "translate(0," + height + ")")
-            .call(d3.axisBottom(x).tickFormat(formateDate))
+            .call(d3.axisBottom(x).ticks(5).tickFormat(formateDate))
             .selectAll("text")
             .style("text-anchor", "end")
             .attr("dx", "-.8em")
