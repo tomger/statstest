@@ -22,7 +22,7 @@
 <body>
 
     <div class="graph">
-        <h2>Daily CoVid-19 deaths per 1M People</h2>
+        <h2>2-Daily Rolling Avg CoVid-19 deaths per 1M People</h2>
         <svg id="state_total_time"> </svg>
     </div>
 
@@ -53,8 +53,9 @@
 
 
     async function renderTotalOverTime () {
-        const states = ["Washington", "New York", "New Jersey"]
-        const colors = ["#417dc1", "#c14541", "#50C8C8"]
+        const variable = "rolling";
+        const states = ["Vermont", "Illinois"]
+        const colors = ["#5b95f6", "#db4437", "#50C8C8"]
         let data = await getCovidDataForState(states[0]);
 
         const {x,y,width,height,margin} = getBounds();
@@ -70,7 +71,7 @@
         let maxY = 0;
         for (let i = 0; i < states.length; i++) {
           let stateData = await getCovidDataForState(states[i])
-          let stateMax = d3.max(stateData, function(d) { return parseInt(d.dailyDeathsPerCapita, 10); })
+          let stateMax = d3.max(stateData, function(d) { return parseInt(d[variable], 10); })
           maxY = Math.max(maxY, stateMax)
         }
 
@@ -82,6 +83,7 @@
         for (let i = 0; i < states.length; i++) {
 
            let state_data = await getCovidDataForState(states[i]);
+           console.log(i,state_data)
            state_svg
                .datum(state_data)
                // .enter()
@@ -91,7 +93,9 @@
                .attr("stroke-width", 1.5)
                .attr("d", d3.line()
                    .x(function(d) { return x(d.date) })
-                   .y(function(d) { return y(d.dailyDeathsPerCapita) })
+                   .y(function(d) {
+                      return y(d[variable])
+                    })
                )
 
            state_svg
@@ -101,14 +105,14 @@
                .enter()
                .append("circle")
                .attr("cx", function (d) { return x(d.date); } )
-               .attr("cy", function (d) { return y(d.dailyDeathsPerCapita); } )
+               .attr("cy", function (d) { return y(d[variable]); } )
                .attr("r", 4)
                .style("fill", colors[i])
                .on("mouseover", function(d) {
                    tooltipDiv.transition()
                        .duration(200)
                        .style("opacity", .9);
-                   tooltipDiv.html(states[i] + "<br/>" + d.date + "<br/>"  + d.dailyDeathsPerCapita)
+                   tooltipDiv.html(states[i] + "<br/>" + d.date + "<br/>"  + d[variable])
                        .style("left", (d3.event.pageX) + "px")
                        .style("top", (d3.event.pageY - 28) + "px");
                    })
@@ -190,6 +194,16 @@
         }
 
       })
+
+
+      data.forEach((line, index) => {
+        const before = 2;
+        const after = 2;
+        const start = Math.max(0, index - before);
+        const end   = Math.min(data.length, index + after + 1);
+        line.rolling = average(data.slice(start, end))
+      })
+
       return data;
     }
 
@@ -200,6 +214,18 @@
 
         return await appState.covidData
     }
+
+    function sum(numbers) {
+      return numbers.reduce((a, b) => {
+        return a + b.dailyDeathsPerCapita
+      }, 0);
+    }
+
+    function average(numbers) {
+
+      return sum(numbers) / (numbers.length || 1);
+    }
+
 
 </script>
 </html>
