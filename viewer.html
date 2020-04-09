@@ -45,10 +45,11 @@
     renderTotalOverTime();
     // renderTotalOverTime("Washington");
 
+
     function formateDate (date) {
-        const d = new Date(date);
-        return `${(d.getMonth() + 1)}.${ (d.getDate() + 1)}.${d.getFullYear()}`
-    }
+         const d = date.split('-')
+         return `${(d[1])}.${ (d[2])}.${d[0]}`
+     }
 
 
     const tooltipDiv = d3.select("body").append("div")
@@ -266,8 +267,8 @@
 
 
       data.forEach((line, index) => {
-        const before = 2;
-        const after = 2;
+        const before = 4;
+        const after = 0;
         const start = Math.max(0, index - before);
         const end   = Math.min(data.length, index + after + 1);
         line.rolling = average(data.slice(start, end))
