@@ -58,8 +58,9 @@
 
     async function renderTotalOverTime () {
         const variable = "rolling";
-        const states =  ["California", "Florida"]
-        const colors = ["#5b95f6", "#db4437", "#50C8C8"]
+        // const states =  ["Washington", "Belgium", "Texas", "Maine", "New Jersey", "New York"]
+        const states =  ["New York", "Belgium"]
+        const colors = ["#5b95f6", "#db4437", "#50C8C8", "#6C6ACB", "#DF9F22", "#000"]
         let data = await getCovidDataForState(states[0]);
 
         const {x,y,width,height,margin} = getBounds();
@@ -98,7 +99,6 @@
                .attr("d", d3.line()
                    .x(function(d) { return x(d.date) })
                    .y(function(d) {
-                     if (i==1)console.log('--',d[variable])
                       return y(d[variable])
                     })
                )
@@ -141,7 +141,7 @@
         state_svg.append("g")
             .attr("class", "x axis")
             .attr("transform", "translate(0," + height + ")")
-            .call(d3.axisBottom(x).ticks(5).tickFormat(formateDate))
+            .call(d3.axisBottom(x).tickFormat(formateDate))
             .selectAll("text")
             .style("text-anchor", "end")
             .attr("dx", "-.8em")
@@ -187,26 +187,76 @@
     }
 
     async function getCovidDataForState(state) {
-      // death data is cummulative
-      let data = await getCovidData()
-      data = data.filter(line => line.state === state)
-      // .sort((a,b) => {
-      //     if(a.date == b.date) return 0
-      //     else if(a.date > b.date) return 1
-      //     else return -1
-      //   });
+      let population = 0;
+      let needsDailyDeathCalculation = false;
+      let data = [];
 
-      let population = await getPopulationDataForState(state)
-      data.forEach((day, index) => {
-        if (!data[index-1]) {
-          day.dailyDeaths = 0
-          day.dailyDeathsPerCapita = 0
-        } else {
-          day.dailyDeaths = day.deaths - data[index-1].deaths
-          day.dailyDeathsPerCapita = (day.dailyDeaths / population) * 1000000
-        }
+      try {
+        population = await getPopulationDataForState(state)
+        needsDailyDeathCalculation = true;
 
+      } catch(e) {
+        console.log("not found in US NST")
+      }
+
+      let dataus = await getCovidDataUS()
+      // XXX US death data is cummulative
+      // date: "2020-02-25"
+      // state: "Wisconsin"
+      // fips: "55"
+      // cases: "1"
+      // deaths: "0"
+
+      let dataeu = await getCovidDataEU()
+      // dateRep: "29/03/2020"
+      // day: "29"
+      // month: "3"
+      // year: "2020"
+      // cases: "11"
+      // deaths: "1"
+      // countriesAndTerritories: "Albania"
+      // geoId: "AL"
+      // countryterritoryCode: "ALB"
+      // popData2018: "2866376"
+
+
+
+      data = dataus.filter(line => line.state === state);
+
+      dataeu
+        .filter(line => line.countriesAndTerritories === state)
+        .forEach(line => {
+          population = line.popData2018;
+          data.push({
+            date: `${line.year}-${pad(line.month)}-${pad(line.day)}`,
+            state: line.countriesAndTerritories,
+            dailyDeaths: line.deaths,
+            dailyDeathsPerCapita: (line.deaths / line.popData2018) * 1000000
+          })
       })
+
+      data = data.sort((a,b) => {
+            if(a.date == b.date) return 0
+            else if(new Date(a.date) > new Date(b.date)) return 1
+            else return -1
+          });
+
+
+      let cutOff = Date.now() - 34*  24*60*60*1000;
+      data = data.filter(day => new Date(day.date) > cutOff)
+
+      if (needsDailyDeathCalculation) {
+        data.forEach((day, index) => {
+          if (!data[index-1]) {
+            day.dailyDeaths = 0
+            day.dailyDeathsPerCapita = 0
+          } else {
+            day.dailyDeaths = day.deaths - data[index-1].deaths
+            day.dailyDeathsPerCapita = (day.dailyDeaths / population) * 1000000
+          }
+        })
+
+      }
 
 
       data.forEach((line, index) => {
@@ -217,10 +267,11 @@
         line.rolling = average(data.slice(start, end))
       })
 
+      console.log(state,data.map(e=>e.date))
       return data;
     }
 
-    async function getCovidData() {
+    async function getCovidDataUS() {
         appState.covidData = appState.covidData
             ? appState.covidData
             : d3.csv("us-states.csv")
@@ -228,10 +279,24 @@
         return await appState.covidData
     }
 
+    async function getCovidDataEU() {
+        appState.covidDataEu = appState.covidDataEu
+            ? appState.covidDataEu
+            : d3.csv("eu-states.csv")
+
+        return await appState.covidDataEu
+    }
+
     function sum(numbers) {
       return numbers.reduce((a, b) => {
         return a + b.dailyDeathsPerCapita
       }, 0);
+    }
+
+    function pad(num) {
+        var s = num+"";
+        while (s.length < 2) s = "0" + s;
+        return s;
     }
 
     function average(numbers) {
