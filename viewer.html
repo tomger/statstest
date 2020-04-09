@@ -7,12 +7,16 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Covid</title>
     <style>
+        body {
+          font-family: sans-serif;
+        }
         .tooltip {
             position: absolute;
-            text-align: center;
-            padding: 2px;
+            text-align: left;
+            padding: 4px;
             font-size: 12px;
-            background: #eee;
+            color: #fff;
+            background: #000;
             border: 0px;
             pointer-events: none;
         }
@@ -59,8 +63,8 @@
     async function renderTotalOverTime () {
         const variable = "rolling";
         // const states =  ["Washington", "Belgium", "Texas", "Maine", "New Jersey", "New York"]
-        const states =  ["New York", "Belgium"]
-        const colors = ["#5b95f6", "#db4437", "#50C8C8", "#6C6ACB", "#DF9F22", "#000"]
+        const states =  ["Italy", "Belgium", "Netherlands", "Germany", "California", "New York" , "Japan"]
+        const colors = ["#5b95f6", "#db4437", "#50C8C8", "#6C6ACB", "#DF9F22", "#000", "#000", "#000"]
         let data = await getCovidDataForState(states[0]);
 
         const {x,y,width,height,margin} = getBounds();
@@ -105,11 +109,13 @@
 
            state_svg
               .append("text")
-           		.attr("transform", "translate(" + (width+3) + "," + y(state_data[state_data.length-1][variable]) + ")")
+           		.attr("transform", "translate(" + (width-10) + "," + y(state_data[state_data.length-1][variable]) + ")")
            		.attr("dy", ".35em")
            		.attr("text-anchor", "start")
            		.style("fill", colors[i])
-           		.text(states[i]);
+           		.style("font-size", "12px")
+           		.style("font-weight", 300)
+           		.html(states[i]);
 
            state_svg
                .append('g')
@@ -119,15 +125,15 @@
                .append("circle")
                .attr("cx", function (d) { return x(d.date); } )
                .attr("cy", function (d) { return y(d[variable]); } )
-               .attr("r", 4)
+               .attr("r", 2)
                .style("fill", colors[i])
                .on("mouseover", function(d) {
                    tooltipDiv.transition()
                        .duration(200)
                        .style("opacity", .9);
-                   tooltipDiv.html(states[i] + "<br/>" + d.date + "<br/>"  + d[variable])
-                       .style("left", (d3.event.pageX) + "px")
-                       .style("top", (d3.event.pageY - 28) + "px");
+                   tooltipDiv.html(`${states[i]}<br/>${d.date}<br/>${Math.round(d[variable]*100)/100} Deaths/Mil<br/>${d.dailyDeaths} Deaths`)
+                       .style("left", (d3.event.pageX + 10) + "px")
+                       .style("top", (d3.event.pageY - 0) + "px");
                    })
                .on("mouseout", function(d) {
                    tooltipDiv.transition()
