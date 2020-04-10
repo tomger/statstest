@@ -13,21 +13,26 @@
         .tooltip {
             position: absolute;
             text-align: left;
-            padding: 4px;
+            padding: 6px;
+            padding-right: 20px;
             font-size: 12px;
             color: #fff;
             background: #000;
             border: 0px;
             pointer-events: none;
+            font-weight: 300;
         }
         svg {overflow: visible}
         h2 {
 
         }
+        .menu {
+          max-width: 700px;
+        }
         .menuItem {
-          border: 1px solid #ccc;
+          border: 1px solid #eee;
           padding: 5px 10px;
-          border-radius: 20px;
+          border-radius: 100px;
           display: inline-block;
           font-size: 12px;
           margin-right: 4px;
@@ -35,6 +40,11 @@
           font-weight: 300;
           cursor: pointer;
           user-select: none;
+          color: #000;
+          text-decoration: none;
+        }
+        .menuItem:hover {
+          background: #eee
         }
         .menuItem.selected {
           background: #000;
@@ -70,9 +80,9 @@
         ...new Set((await getCovidDataEU()).map(line => line.countriesAndTerritories))
       ].sort();
       list = statesMenu
-        .map(name => {
+        .map(function(name){
           let selected = appState.selectedStates.indexOf(name) !== -1 ? "selected" : "";
-          return `<span onClick="toggleMenu('${name}')" class="menuItem ${selected}">${name}</span>`;
+          return `<a href="#" onClick="toggleMenu('${name}')" class="menuItem ${selected}">${name}</a>`;
         })
         .join('')
       d3.select(".menu")
@@ -97,7 +107,7 @@
 
     function formateDate (date) {
          const d = date.split('-')
-         return `${(d[1])}.${ (d[2])}.${d[0]}`
+         return `${(d[1])}/${ (d[2])}`
      }
 
 
@@ -114,7 +124,7 @@
         const variable = "rolling";
         // const states =  ["Washington", "Belgium", "Texas", "Maine", "New Jersey", "New York"]
         let states = appState.selectedStates;
-        const colors = ["#5b95f6", "#db4437", "#50C8C8", "#6C6ACB", "#DF9F22", "#000", "#000", "#000"]
+        const colors = ["#000","#5b95f6", "#db4437", "#50C8C8", "#6C6ACB", "#DF9F22", "#000", "#000", "#000"]
         let data = await getCovidDataForState(states[0]);
 
         const {x,y,width,height,margin} = getBounds();
@@ -149,7 +159,7 @@
                .append("path")
                .attr("fill", "none")
                .attr("stroke", colors[i])
-               .attr("stroke-width", 1.25)
+               .attr("stroke-width", 1.5)
                .attr("d", d3.line()
                    .x(function(d) { return x(d.date) })
                    .y(function(d) {
@@ -175,13 +185,15 @@
                .append("circle")
                .attr("cx", function (d) { return x(d.date); } )
                .attr("cy", function (d) { return y(d[variable]); } )
-               .attr("r", 2)
-               .style("fill", colors[i])
+               .attr("r", 4)
+               .style("fill", "white")
+               .style("stroke", colors[i])
                .on("mouseover", function(d) {
+                   // this.style.opacity = 1;
                    tooltipDiv.transition()
                        .duration(200)
                        .style("opacity", .9);
-                   tooltipDiv.html(`${states[i]}<br/>${d.date}<br/>${Math.round(d[variable]*100)/100} Deaths/Mil<br/>${d.dailyDeaths} Deaths`)
+                   tooltipDiv.html(`<b>${states[i]}</b><br/>${d.date}<br/><br/>${Math.round(d[variable]*100)/100} Deaths/Mil<br/>${d.dailyDeaths} Deaths`)
                        .style("left", (d3.event.pageX + 10) + "px")
                        .style("top", (d3.event.pageY - 0) + "px");
                    })
@@ -298,10 +310,6 @@
             else return -1
           });
 
-
-      let cutOff = Date.now() - 34*  24*60*60*1000;
-      data = data.filter(day => new Date(day.date) > cutOff)
-
       if (needsDailyDeathCalculation) {
         data.forEach((day, index) => {
           if (!data[index-1]) {
@@ -324,7 +332,11 @@
         line.rolling = average(data.slice(start, end))
       })
 
-      console.log(state,data.map(e=>e.date))
+      let dayCutOff = 20;
+      let cutOff = Date.now() - dayCutOff *  24*60*60*1000;
+      data = data.filter(day => new Date(day.date) > cutOff)
+
+
       return data;
     }
 
