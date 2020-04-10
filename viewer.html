@@ -22,29 +22,72 @@
         }
         svg {overflow: visible}
         h2 {
-          text-align: center;
+
+        }
+        .menuItem {
+          border: 1px solid #ccc;
+          padding: 5px 10px;
+          border-radius: 20px;
+          display: inline-block;
+          font-size: 12px;
+          margin-right: 4px;
+          margin-bottom: 4px;
+          font-weight: 300;
+          cursor: pointer;
+          user-select: none;
+        }
+        .menuItem.selected {
+          background: #000;
+          color: #fff;
+          border-color: #000;
         }
     </style>
 
 </head>
 <body>
 
-    <div class="graph">
-        <h2>Rolling Avg Daily CoVid-19 deaths per 1M People</h2>
-        <svg id="state_total_time"> </svg>
-    </div>
-
+      <div class="graph">
+          <h2>Rolling Avg Daily CoVid-19 deaths per 1M People</h2>
+          <svg id="state_total_time"> </svg>
+      </div>
+      <div class="menu"></div>
 </body>
 <script src="https://d3js.org/d3.v5.min.js"></script>
 <script>
     const appState = {
         covidData: null,
-        populationData: null
+        populationData: null,
+        selectedStates: ["New York"]//["Italy", "Belgium", "Netherlands", "Germany", "California", "New York" , "Japan"]
     };
 
     renderTotalOverTime();
     // renderTotalOverTime("Washington");
+    renderMenu();
 
+    async function renderMenu() {
+      let statesMenu = [
+        ...new Set((await getCovidDataUS()).map(line => line.state)),
+        ...new Set((await getCovidDataEU()).map(line => line.countriesAndTerritories))
+      ].sort();
+      list = statesMenu
+        .map(name => {
+          let selected = appState.selectedStates.indexOf(name) !== -1 ? "selected" : "";
+          return `<span onClick="toggleMenu('${name}')" class="menuItem ${selected}">${name}</span>`;
+        })
+        .join('')
+      d3.select(".menu")
+        .html(list)
+    }
+    function toggleMenu(state) {
+      let index = appState.selectedStates.indexOf(state);
+      if (index === -1) {
+        appState.selectedStates.push(state)
+      } else {
+        appState.selectedStates.splice(index, 1)
+      }
+      renderMenu();
+      renderTotalOverTime();
+    }
 
     function formateDate (date) {
          const d = date.split('-')
@@ -64,7 +107,7 @@
     async function renderTotalOverTime () {
         const variable = "rolling";
         // const states =  ["Washington", "Belgium", "Texas", "Maine", "New Jersey", "New York"]
-        const states =  ["Italy", "Belgium", "Netherlands", "Germany", "California", "New York" , "Japan"]
+        let states = appState.selectedStates;
         const colors = ["#5b95f6", "#db4437", "#50C8C8", "#6C6ACB", "#DF9F22", "#000", "#000", "#000"]
         let data = await getCovidDataForState(states[0]);
 
@@ -72,8 +115,8 @@
 
         var state_svg = d3.select("#state_total_time")
           .html("")
-          // .attr("width", width -800 )
-          // .attr("height", height + margin.top + margin.bottom)
+          .attr("width", width )
+          .attr("height", height + margin.top + margin.bottom)
               .append("g")
                   .attr("transform",
                       "translate(" + margin.left + "," + margin.top + ")");
@@ -167,9 +210,9 @@
 
 
     function getBounds() {
-        const margin = {top: 20, right: 40, bottom: 60, left: 70};
-        const width = window.innerWidth - 48 - margin.left - margin.right;
-        const height = 410 - margin.top - margin.bottom;
+        const margin = {top: 20, right: 100, bottom: 60, left: 70};
+        const width = document.querySelector(".graph").offsetWidth - 48 - margin.left - margin.right;
+        const height = 400 - margin.top - margin.bottom;
 
         const x = d3.scaleBand()
                 .range([0, width])
@@ -177,6 +220,7 @@
 
         const y = d3.scaleLinear()
                 .range([height, 0]);
+
         return {x,y,width,height,margin};
     }
 
