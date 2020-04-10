@@ -76,7 +76,13 @@
         })
         .join('')
       d3.select(".menu")
-        .html(list)
+        .html(`<span onClick="resetMenu()" class="menuItem">Reset</span>` +list)
+    }
+
+    function resetMenu() {
+      appState.selectedStates = [];
+      renderMenu();
+      renderTotalOverTime();
     }
     function toggleMenu(state) {
       let index = appState.selectedStates.indexOf(state);
