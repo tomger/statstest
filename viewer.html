@@ -57,7 +57,8 @@
 <body>
 
       <div class="graph">
-          <h2>Rolling Avg Daily CoVid-19 deaths per 1M People</h2>
+          <h2>CoVid-19: Daily reported deaths per 1M people</h2>
+          <h4>Rolling 2 day average</h4>
           <svg id="state_total_time"> </svg>
       </div>
       <div class="menu"></div>
@@ -121,13 +122,13 @@
 
 
     async function renderTotalOverTime () {
+        const margin = {top: 20, right: 100, bottom: 60, left: 30};
+        const width = document.querySelector(".graph").offsetWidth - 48 - margin.left - margin.right;
+        const height = 400 - margin.top - margin.bottom;
         const variable = "rolling";
-        // const states =  ["Washington", "Belgium", "Texas", "Maine", "New Jersey", "New York"]
         let states = appState.selectedStates;
         const colors = ["#000","#5b95f6", "#db4437", "#50C8C8", "#6C6ACB", "#DF9F22", "#000", "#000", "#000"]
         let data = await getCovidDataForState(states[0]);
-
-        const {x,y,width,height,margin} = getBounds();
 
         var state_svg = d3.select("#state_total_time")
           .html("")
@@ -138,16 +139,31 @@
                       "translate(" + margin.left + "," + margin.top + ")");
 
         let maxY = 0;
+        let minX = new Date("2222-01-01");
+        let maxX = new Date("1900-01-01");
+
         for (let i = 0; i < states.length; i++) {
           let stateData = await getCovidDataForState(states[i])
-          let stateMax = d3.max(stateData, function(d) { return d[variable]; })
-          maxY = Math.max(maxY, stateMax)
+
+          maxX = Math.max(maxX, d3.max(stateData, function(d) { return new Date(d.date); }));
+          minX = Math.min(minX, d3.min(stateData, function(d) { return new Date(d.date); }));
+          maxY = Math.max(maxY, d3.max(stateData, function(d) { return d[variable]; }))
         }
+        // console.log("any?",[new Date(minX), new Date(maxX)])
+        const xScale =
+                d3.scaleBand()
+                  .range([0, width])
+                  .domain(data.map(function(d) { return d.date; }));
+                  // .domain([new Date(minX), new Date(maxX)]);
+                // d3.scaleTime()
+                // .paddingInner(0)
+                // .align(0.5)
 
-        // Scale the range of the data in the domains
-        x.domain(data.map(function(d) { return d.date; }));
-        y.domain([0, maxY]);
+        const yScale = d3.scaleLinear()
+                .range([height, 0])
+                .domain([0, maxY]);
 
+// console.log('bananas', d3.timeDay.range(new Date(minX), new Date(maxX), 1));
 
         for (let i = 0; i < states.length; i++) {
 
@@ -161,15 +177,15 @@
                .attr("stroke", colors[i])
                .attr("stroke-width", 1.5)
                .attr("d", d3.line()
-                   .x(function(d) { return x(d.date) })
+                   .x(function(d) { return xScale(d.date) })
                    .y(function(d) {
-                      return y(d[variable])
+                      return yScale(d[variable])
                     })
                )
 
            state_svg
               .append("text")
-           		.attr("transform", "translate(" + (width-10) + "," + y(state_data[state_data.length-1][variable]) + ")")
+           		.attr("transform", "translate(" + (width-10) + "," + yScale(state_data[state_data.length-1][variable]) + ")")
            		.attr("dy", ".35em")
            		.attr("text-anchor", "start")
            		.style("fill", colors[i])
@@ -183,8 +199,8 @@
                .data(state_data)
                .enter()
                .append("circle")
-               .attr("cx", function (d) { return x(d.date); } )
-               .attr("cy", function (d) { return y(d[variable]); } )
+               .attr("cx", function (d) { return xScale(d.date); } )
+               .attr("cy", function (d) { return yScale(d[variable]); } )
                .attr("r", 4)
                .style("fill", "white")
                .style("stroke", colors[i])
@@ -205,11 +221,11 @@
         }
 
 
-        // add the x Axis
+
         state_svg.append("g")
             .attr("class", "x axis")
             .attr("transform", "translate(0," + height + ")")
-            .call(d3.axisBottom(x).tickFormat(formateDate))
+            .call(d3.axisBottom(xScale).tickFormat(formateDate))
             .selectAll("text")
             .style("text-anchor", "end")
             .attr("dx", "-.8em")
@@ -220,27 +236,13 @@
 
         // add the y Axis
         state_svg.append("g")
-            .call(d3.axisLeft(y));
+            .call(d3.axisLeft(yScale));
 
 
         // })
     }
 
 
-    function getBounds() {
-        const margin = {top: 20, right: 100, bottom: 60, left: 70};
-        const width = document.querySelector(".graph").offsetWidth - 48 - margin.left - margin.right;
-        const height = 400 - margin.top - margin.bottom;
-
-        const x = d3.scaleBand()
-                .range([0, width])
-                .padding(0.1);
-
-        const y = d3.scaleLinear()
-                .range([height, 0]);
-
-        return {x,y,width,height,margin};
-    }
 
     async function getPopulationDataForState(state) {
       let data = await getPopulationData()
@@ -313,8 +315,8 @@
       if (needsDailyDeathCalculation) {
         data.forEach((day, index) => {
           if (!data[index-1]) {
-            day.dailyDeaths = 0
-            day.dailyDeathsPerCapita = 0
+            day.dailyDeaths = null;
+            day.dailyDeathsPerCapita = null;
           } else {
             day.dailyDeaths = day.deaths - data[index-1].deaths
             day.dailyDeathsPerCapita = (day.dailyDeaths / population) * 1000000
@@ -324,8 +326,10 @@
       }
 
 
+      console.log(state, data);
+
       data.forEach((line, index) => {
-        const before = 4;
+        const before = 0;
         const after = 0;
         const start = Math.max(0, index - before);
         const end   = Math.min(data.length, index + after + 1);
@@ -343,7 +347,7 @@
     async function getCovidDataUS() {
         appState.covidData = appState.covidData
             ? appState.covidData
-            : d3.csv("us-states.csv")
+            : d3.csv("us-states.csv?rnd=" + Date.now())
 
         return await appState.covidData
     }
@@ -351,7 +355,7 @@
     async function getCovidDataEU() {
         appState.covidDataEu = appState.covidDataEu
             ? appState.covidDataEu
-            : d3.csv("eu-states.csv")
+            : d3.csv("eu-states.csv?rnd=" + Date.now())
 
         return await appState.covidDataEu
     }
