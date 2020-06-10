@@ -215,7 +215,6 @@
               //         "translate(" + margin.left + "," + margin.top + ")");
 
         let maxY = 0;
-        let maxY2 = 0;
         let minX = new Date("2222-01-01");
         let maxX = new Date("1900-01-01");
 
@@ -227,7 +226,6 @@
           maxX = Math.max(maxX, d3.max(stateData, function(d) { return d.date; }));
           minX = Math.min(minX, d3.min(stateData, function(d) { return d.date; }));
           maxY = Math.max(maxY, d3.max(stateData, function(d) { return d[variable]; }))
-          maxY2 = Math.max(maxY2, d3.max(stateData, function(d) { return d.rollingTestsPerDay; }))
         }
         // console.log("any?",[new Date(minX), new Date(maxX)])
         // const xScale =
@@ -247,9 +245,7 @@
         const yScale = d3.scaleLinear()
                 .range([height , 0])
                 .domain([0, maxY]);
-        const yScale2 = d3.scaleLinear()
-                .range([height , 0])
-                .domain([0, maxY2]);
+
 
         state_svg.append("g")
             .attr("class", "axis x-axis")
@@ -320,20 +316,7 @@
                       return yScale(d[variable])
                     })
                )
-             state_svg
-                 .datum(state_data)
-                 // .enter()
-                 .append("path")
-                 .attr("fill", "none")
-                 .attr("stroke", "red")
-                 .attr("stroke-dasharray", 2)
-                 .attr("stroke-width", 1)
-                 .attr("d", d3.line()
-                     .x(function(d) { return xScale(d.date) })
-                     .y(function(d) {
-                        return yScale2(d.rollingTestsPerDay)
-                      })
-                 )
+
 
            // state_svg
            //     .datum(state_data)
@@ -362,6 +345,21 @@
         legendHtml.sort((a,b) => b[0] - a[0])
         d3.select(".legend").html(legendHtml.map(a => a[1]).join(''));
 
+    }
+
+
+
+    async function getPopulationDataForState(state) {
+      let data = await getPopulationData()
+      data = data.filter(line => line.NAME === state)
+      return data[0].CENSUS2010POP;
+    }
+
+    async function getPopulationData(state) {
+        appState.populationData = appState.populationData
+            ? appState.populationData
+            : d3.csv("nst-est2019-alldata.csv")
+        return await appState.populationData
     }
 
     async function getCovidDataForState(state) {
@@ -397,25 +395,12 @@
       // countryterritoryCode: "ALB"
       // popData2018: "2866376"
 
-      let dataTestingUS = await getTestingDataForState(state)
-      dataTestingUS.forEach(line => {
-        // 20200430
-        if (line.date.substr) {
-          line.date = new Date(`${line.date.substr(0,4)}-${line.date.substr(4,2)}-${line.date.substr(6,2)}`)
-        }
-      })
 
 
       data = dataus.filter(line => line.state === state);
       data.forEach(line => {
         line.date = new Date(line.date)
-        line.testing = dataTestingUS.find(testing => testing.date.getTime() == line.date.getTime())
-        if (line.testing) {
-          line.testsPerDay = line.testing.totalTestResultsIncrease / population;
-
-        }
       })
-      // console.log(data, dataTestingUS)
       dataeu
         .filter(line => line.countriesAndTerritories === state)
         .forEach(line => {
@@ -453,55 +438,15 @@
         const after = 1;
         const start = Math.max(0, index - before);
         const end   = Math.min(data.length, index + after + 1);
-        line.rollingTestsPerDay = average(data.slice(start, end), "testsPerDay") || 0
+        line.rolling = average(data.slice(start, end))
       })
 
-      data.forEach((line, index) => {
-        const before = 7;
-        const after = 1;
-        const start = Math.max(0, index - before);
-        const end   = Math.min(data.length, index + after + 1);
-        line.rolling = average(data.slice(start, end), "dailyDeathsPerCapita")
-      })
-
-      let dayCutOff = 80;
+      let dayCutOff = 40;
       let cutOff = Date.now() - dayCutOff *  24*60*60*1000;
       data = data.filter(day => new Date(day.date) > cutOff)
 
 
       return data;
-    }
-
-
-
-    async function getPopulationDataForState(state) {
-      let data = await getPopulationData()
-      data = data.filter(line => line.NAME === state)
-      return data[0].CENSUS2010POP;
-    }
-
-    async function getPopulationData() {
-        appState.populationData = appState.populationData
-            ? appState.populationData
-            : d3.csv("nst-est2019-alldata.csv")
-        return await appState.populationData
-    }
-
-    async function getTestingDataForState(state) {
-      const map = {
-        "New York": "NY"
-      }
-      let data = await getTestingDataUS()
-      data = data.filter(line => line.state === map[state])
-      return data;
-    }
-
-    async function getTestingDataUS() {
-        appState.usTestingData = appState.usTestingData
-            ? appState.usTestingData
-            : d3.csv("us-testing.csv?rnd=" + Date.now())
-
-        return await appState.usTestingData
     }
 
     async function getCovidDataUS() {
@@ -520,9 +465,9 @@
         return await appState.covidDataEu
     }
 
-    function sum(numbers, prop) {
+    function sum(numbers) {
       return numbers.reduce((a, b) => {
-        return a + b[prop]
+        return a + b.dailyDeathsPerCapita
       }, 0);
     }
 
@@ -532,9 +477,9 @@
         return s;
     }
 
-    function average(numbers, prop) {
+    function average(numbers) {
 
-      return sum(numbers, prop) / (numbers.length || 1);
+      return sum(numbers) / (numbers.length || 1);
     }
 
 
