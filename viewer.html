@@ -295,7 +295,6 @@
         for (let i = 0; i < states.length; i++) {
 
            let state_data = await getCovidDataForState(states[i]);
-
            legendHtml.push([state_data[state_data.length-1].rolling,
             `<div style="" onClick="toggleState('${states[i]}')">
                 <div style="height: 20px; width: 20px; background-color: ${colorScale(states[i])}; display: inline-block;"></div>
@@ -370,7 +369,7 @@
         needsDailyDeathCalculation = true;
 
       } catch(e) {
-        console.log("not found in US NST")
+        console.log(`${state} not found in US NST`)
       }
 
       let dataus = await getCovidDataUS()
@@ -415,14 +414,14 @@
       dataeu
         .filter(line => line.countriesAndTerritories === state)
         .forEach(line => {
-          population = line.popData2018;
+          population = line.popData2019;
           data.push({
             date: new Date(`${line.year}-${pad(line.month)}-${pad(line.day)}`),
             state: line.countriesAndTerritories,
             dailyCases: line.cases,
-            dailyCasesPerCapita: (line.cases / line.popData2018) * 1000000,
+            dailyCasesPerCapita: (line.cases / line.popData2019) * 1000000,
             dailyDeaths: line.deaths,
-            dailyDeathsPerCapita: (line.deaths / line.popData2018) * 1000000
+            dailyDeathsPerCapita: (line.deaths / line.popData2019) * 1000000
           })
       })
 
@@ -465,7 +464,7 @@
         line.rollingCases = average(data.slice(start, end), "dailyCasesPerCapita")
       })
 
-      let dayCutOff = 80;
+      let dayCutOff = 62;
       let cutOff = Date.now() - dayCutOff *  24*60*60*1000;
       data = data.filter(day => new Date(day.date) > cutOff)
 
