@@ -3,12 +3,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Covid</title>
     <style>
         body {
           font-family: sans-serif;
+          display: flex;
+          justify-content: center;
+        }
+        .wrapper {
+          width: 100%;
+          max-width: 500px;
+          overflow: hidden;
+
         }
         .tooltip {
             position: absolute;
@@ -23,35 +31,7 @@
             font-weight: 300;
         }
         svg {overflow: visible}
-        h2 {
-
-        }
-        .menu {
-          max-width: 700px;
-        }
-        .menuItem {
-          border-bottom: 1px solid #eee;
-          line-height: 48px;
-          padding: 0 8px;
-          display: block;
-          font-size: 16px;
-          font-weight: 300;
-          cursor: pointer;
-          user-select: none;
-          color: #000;
-          text-decoration: none;
-
-          overflow: hidden;
-
-        }
-        .menuItem:hover {
-          background: #eee
-        }
-        .menuItem.selected {
-          background: #000;
-          color: #fff;
-          border-color: #000;
-        }
+     
 
         .axis line {
           stroke: #fff;
@@ -99,8 +79,8 @@
         .titlebar {
           background: #fff;
           text-align: center;
-          line-height: 44px;
-          border-bottom: 1px solid #ccc;
+          line-height: 84px;
+
           font-weight: 400;
           font-size: 16px;
         }
@@ -110,20 +90,28 @@
           line-height: 32px;
         }
         .legend > div {
+          padding: 8px 0 8px 0;
           border-bottom: 1px solid #ccc;
+          display:flex;justify-content: space-between;
+          font-size:16px;
+        }
+
+        .state_selector {
+          margin-top: 20px;
+          font-size: 16px;
+          max-width: 100%;
         }
     </style>
 
 </head>
 <body>
-    <div class="menu"></div>
-      <div style="position:fixed;">
-      <div class="titlebar">Corona tracker</div>
-      <div class="graph">
-          <svg class="state_total_time"> </svg>
-          <div class="legend"></div>
-          <select class="state_selector" onChange="toggleState(this.value)"></select>
-      </div>
+      <div class="wrapper">
+        <div class="titlebar">Corona tracker</div>
+        <div class="graph">
+            <svg class="state_total_time"> </svg>
+            <div class="legend"></div>
+            <select class="state_selector" onChange="toggleState(this.value)"></select>
+        </div>
       </div>
 </body>
 <script src="https://d3js.org/d3.v5.min.js"></script>
@@ -193,7 +181,7 @@
 
     async function renderTotalOverTime () {
         const formatDate = d3.timeFormat("%B %e");
-        const width = Math.min(700, document.body.offsetWidth);
+        const width = document.querySelector(".wrapper").offsetWidth;
         const height = 200;
         let states = appState.selectedStates;
         // const colors = ["#510000", "#879772", "#325d8a", "#6C6ACB", "#DF9F22",]
@@ -219,6 +207,10 @@
 
         for (let i = 0; i < states.length; i++) {
           let stateData = await getCovidDataForState(states[i])
+          if (!stateData[stateData.length-1]) {
+            console.error(`no data for ${states[i]}`);
+            continue;
+          }
 
           maxX = Math.max(maxX, d3.max(stateData, function(d) { return d.date; }));
           minX = Math.min(minX, d3.min(stateData, function(d) { return d.date; }));
@@ -294,15 +286,24 @@
 
         for (let i = 0; i < states.length; i++) {
 
-           let state_data = await getCovidDataForState(states[i]);
-           legendHtml.push([state_data[state_data.length-1].rolling,
-            `<div style="" onClick="toggleState('${states[i]}')">
-                <div style="height: 20px; width: 20px; background-color: ${colorScale(states[i])}; display: inline-block;"></div>
-                ${states[i]}
-                ${Math.round(state_data[state_data.length-1].rollingDeaths)} deaths/1M on ${formatDate(state_data[state_data.length-1].date)}
-              </div>`
-           ]);
-           state_svg
+          let state_data = await getCovidDataForState(states[i]);
+
+          if (!state_data[state_data.length-1]) {
+            legendHtml.push([0, `<div style="" onClick="toggleState('${states[i]}')">Error ${states[i]}</div>`])
+            console.error(`no data for ${states[i]}`);
+            continue;
+          }
+          legendHtml.push([state_data[state_data.length-1].rolling,
+          `<div onClick="toggleState('${states[i]}')">
+              <div><div style="position:relative;top:2px;height: 16px; width: 16px; background-color: ${colorScale(states[i])}; display: inline-block;"></div>
+              <div style="display:inline-block; font-weight: 500">${states[i]}</div></div>
+              <div>
+              ${Math.round(state_data[state_data.length-1].rollingDeaths)} deaths/1M on ${formatDate(state_data[state_data.length-1].date)}
+              </div>
+            </div>`
+          ]);
+
+          state_svg
                .datum(state_data)
                // .enter()
                .append("path")
