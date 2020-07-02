@@ -120,11 +120,9 @@
       <div style="position:fixed;">
       <div class="titlebar">Corona tracker</div>
       <div class="graph">
-        <div class="button" style="cursor: pointer; font-size: 14px; display: inline-block;font-weight: 300;" onClick="resetMenu()">Reset states</div>
-        <div class="button" style="cursor: pointer; font-size: 14px; display: inline-block;font-weight: 300;" onClick="toggleMenuVisibility()">Select states</div>
           <svg class="state_total_time"> </svg>
           <div class="legend"></div>
-
+          <select class="state_selector" onChange="toggleState(this.value)"></select>
       </div>
       </div>
 </body>
@@ -133,47 +131,24 @@
     const appState = {
         covidData: null,
         populationData: null,
-        selectedStates: ["New York", "Belgium", "Italy"]//["Italy", "Belgium", "Netherlands", "Germany", "California", "New York" , "Japan"]
+        selectedStates: ["New York", "Belgium"]
     };
     try {
-      appState.selectedStates = localStorage.getItem('states0').split(',')
+      let storage =  localStorage.getItem('states0');
+      if (!storage) {
+        appState.selectedStates = [];
+      } else {
+        appState.selectedStates = localStorage.getItem('states0').split(',')
+      }
     } catch(e) {}
 
     renderTotalOverTime();
     // renderTotalOverTime("Washington");
     renderMenu();
-
-    async function renderMenu() {
-      let statesMenu = [
-        ...new Set((await getCovidDataUS()).map(line => line.state)),
-        ...new Set((await getCovidDataEU()).map(line => line.countriesAndTerritories))
-      ].sort();
-      list = statesMenu
-        .map(function(name){
-          let selected = appState.selectedStates.indexOf(name) !== -1 ? "selected" : "";
-          return `<div onClick="toggleMenu('${name}')" class="menuItem ${selected}">${name}</div>`;
-        })
-        .join('')
-
-        let navbar = `<div class="button" style="position:sticky;top:0;cursor: pointer; font-size: 14px; display: inline-block;font-weight: 300;" onClick="toggleMenuVisibility()">Select states</div>`
-        d3.select(".menu").html(navbar + list)
-    }
-
-    function resetMenu() {
-      appState.selectedStates = [];
-      localStorage.setItem('states0', appState.selectedStates)
-      renderMenu();
-      renderTotalOverTime();
-    }
-    function toggleMenuVisibility() {
-      let menu = document.querySelector(".menu");
-      if (menu.style.display === "block") {
-        menu.style.display = "none"
-      } else {
-        menu.style.display = "block"
+    function toggleState(state) {
+      if (!state) {
+        return
       }
-    }
-    function toggleMenu(state) {
       let index = appState.selectedStates.indexOf(state);
       if (index === -1) {
         appState.selectedStates.push(state)
@@ -181,9 +156,31 @@
         appState.selectedStates.splice(index, 1)
       }
       localStorage.setItem('states0', appState.selectedStates)
-      renderMenu();
+      renderMenu()
       renderTotalOverTime();
     }
+
+    async function renderMenu() {
+      let statesMenu = [
+        ...new Set((await getCovidDataUS()).map(line => line.state)),
+        ...new Set((await getCovidDataEU()).map(line => line.countriesAndTerritories))
+      ].sort();
+
+      list = statesMenu
+        .filter((name) => appState.selectedStates.indexOf(name) === -1)
+        .map(function(name){
+          return `<option value="${name}">${name}</option>`;
+        }).join('')
+        d3.select(".state_selector").html(`<option value="">Add a state</option>` + list)
+    }
+
+    // function resetMenu() {
+    //   appState.selectedStates = [];
+    //   localStorage.setItem('states0', appState.selectedStates)
+    //   renderMenu();
+    //   renderTotalOverTime();
+    // }
+
 
     const tooltipDiv = d3.select("body").append("div")
             .attr("class", "tooltip")
@@ -198,7 +195,6 @@
         const formatDate = d3.timeFormat("%B %e");
         const width = Math.min(700, document.body.offsetWidth);
         const height = 200;
-        const variable = "rolling";
         let states = appState.selectedStates;
         // const colors = ["#510000", "#879772", "#325d8a", "#6C6ACB", "#DF9F22",]
         const colors = ["#2E4F60","#226C5B","#637F3E","#B5843D"];
@@ -226,8 +222,8 @@
 
           maxX = Math.max(maxX, d3.max(stateData, function(d) { return d.date; }));
           minX = Math.min(minX, d3.min(stateData, function(d) { return d.date; }));
-          maxY = Math.max(maxY, d3.max(stateData, function(d) { return d[variable]; }))
-          maxY2 = Math.max(maxY2, d3.max(stateData, function(d) { return d.rollingTestsPerDay; }))
+          maxY = Math.max(maxY, d3.max(stateData, function(d) { return d.rollingDeaths; }))
+          maxY2 = Math.max(maxY2, d3.max(stateData, function(d) { return d.rollingCases; }))
         }
         // console.log("any?",[new Date(minX), new Date(maxX)])
         // const xScale =
@@ -301,10 +297,10 @@
            let state_data = await getCovidDataForState(states[i]);
 
            legendHtml.push([state_data[state_data.length-1].rolling,
-            `<div style="">
+            `<div style="" onClick="toggleState('${states[i]}')">
                 <div style="height: 20px; width: 20px; background-color: ${colorScale(states[i])}; display: inline-block;"></div>
                 ${states[i]}
-                ${Math.round(state_data[state_data.length-1].rolling)} deaths/1M on ${formatDate(state_data[state_data.length-1].date)}
+                ${Math.round(state_data[state_data.length-1].rollingDeaths)} deaths/1M on ${formatDate(state_data[state_data.length-1].date)}
               </div>`
            ]);
            state_svg
@@ -317,7 +313,7 @@
                .attr("d", d3.line()
                    .x(function(d) { return xScale(d.date) })
                    .y(function(d) {
-                      return yScale(d[variable])
+                      return yScale(d.rollingDeaths)
                     })
                )
              state_svg
@@ -325,13 +321,13 @@
                  // .enter()
                  .append("path")
                  .attr("fill", "none")
-                 .attr("stroke", "red")
+                 .attr("stroke",  colorScale(states[i]))
                  .attr("stroke-dasharray", 2)
                  .attr("stroke-width", 1)
                  .attr("d", d3.line()
                      .x(function(d) { return xScale(d.date) })
                      .y(function(d) {
-                        return yScale2(d.rollingTestsPerDay)
+                        return yScale2(d.rollingCases)
                       })
                  )
 
@@ -397,23 +393,23 @@
       // countryterritoryCode: "ALB"
       // popData2018: "2866376"
 
-      let dataTestingUS = await getTestingDataForState(state)
-      dataTestingUS.forEach(line => {
-        // 20200430
-        if (line.date.substr) {
-          line.date = new Date(`${line.date.substr(0,4)}-${line.date.substr(4,2)}-${line.date.substr(6,2)}`)
-        }
-      })
+      // let dataTestingUS = await getTestingDataForState(state)
+      // dataTestingUS.forEach(line => {
+      //   // 20200430
+      //   if (line.date.substr) {
+      //     line.date = new Date(`${line.date.substr(0,4)}-${line.date.substr(4,2)}-${line.date.substr(6,2)}`)
+      //   }
+      // })
 
 
       data = dataus.filter(line => line.state === state);
       data.forEach(line => {
         line.date = new Date(line.date)
-        line.testing = dataTestingUS.find(testing => testing.date.getTime() == line.date.getTime())
-        if (line.testing) {
-          line.testsPerDay = line.testing.totalTestResultsIncrease / population;
+        // line.testing = dataTestingUS.find(testing => testing.date.getTime() == line.date.getTime())
+        // if (line.testing) {
+        //   line.testsPerDay = line.testing.totalTestResultsIncrease / population;
 
-        }
+        // }
       })
       // console.log(data, dataTestingUS)
       dataeu
@@ -423,6 +419,8 @@
           data.push({
             date: new Date(`${line.year}-${pad(line.month)}-${pad(line.day)}`),
             state: line.countriesAndTerritories,
+            dailyCases: line.cases,
+            dailyCasesPerCapita: (line.cases / line.popData2018) * 1000000,
             dailyDeaths: line.deaths,
             dailyDeathsPerCapita: (line.deaths / line.popData2018) * 1000000
           })
@@ -437,9 +435,13 @@
       if (needsDailyDeathCalculation) {
         data.forEach((day, index) => {
           if (!data[index-1]) {
+            day.dailyCases = null;
+            day.dailyCasesPerCapita = null;
             day.dailyDeaths = null;
             day.dailyDeathsPerCapita = null;
           } else {
+            day.dailyCases = day.cases - data[index-1].cases
+            day.dailyCasesPerCapita = (day.dailyCases / population) * 1000000
             day.dailyDeaths = day.deaths - data[index-1].deaths
             day.dailyDeathsPerCapita = (day.dailyDeaths / population) * 1000000
           }
@@ -447,21 +449,20 @@
 
       }
 
-
       data.forEach((line, index) => {
-        const before = 7;
+        const before = 8;
         const after = 1;
         const start = Math.max(0, index - before);
         const end   = Math.min(data.length, index + after + 1);
-        line.rollingTestsPerDay = average(data.slice(start, end), "testsPerDay") || 0
+        line.rollingDeaths = average(data.slice(start, end), "dailyDeathsPerCapita")
       })
 
       data.forEach((line, index) => {
-        const before = 7;
+        const before = 8;
         const after = 1;
         const start = Math.max(0, index - before);
         const end   = Math.min(data.length, index + after + 1);
-        line.rolling = average(data.slice(start, end), "dailyDeathsPerCapita")
+        line.rollingCases = average(data.slice(start, end), "dailyCasesPerCapita")
       })
 
       let dayCutOff = 80;
