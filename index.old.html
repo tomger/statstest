@@ -8,7 +8,7 @@
     <title>Covid</title>
     <style>
         body {
-          font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+          font-family: sans-serif;
           display: flex;
           justify-content: center;
           background: #F2F2F7;
@@ -17,9 +17,8 @@
           width: 100%;
           max-width: 500px;
           overflow: hidden;
-          
+
         }
-   
         .tooltip {
             position: absolute;
             text-align: left;
@@ -39,7 +38,7 @@
           stroke: #fff;
         }
         .axis .domain{
-          stroke: #eee
+          stroke: #111
         }
         .axis {
           font-size: 14px;
@@ -53,24 +52,12 @@
         body, html {
           padding: 0; margin: 0
         }
-        .columns {
-          display: flex;
-          flex-direction: row;
-        }
-        .graph > div > h3 {
-          font-size: 16px;
-          font-weight: 600;
-          margin: 0 0 16px 0;
-        }
-        .graph > div{
+        .graph {
           background: #fff;
-          padding: 16px 16px 4px 16px;
-          border-radius: 12px;
-          margin: 12px;
+          padding: 20px 10px 40px 10px;
         }
-
         .graph svg{
-          margin: 16px auto 40px; auto;
+          margin: 0px auto 40px; auto;
           /* transform: translateX(-100px); */
           display: block;
         }
@@ -91,12 +78,13 @@
           margin-right: 8px
         }
         .titlebar {
-          font-size: 36px; 
-          font-weight: 700;
-          line-height: 50px;
-          margin: 20px 16px 16px 16px;
-        }
+          background: #fff;
+          text-align: center;
+          line-height: 84px;
 
+          font-weight: 400;
+          font-size: 16px;
+        }
         .legend {
           font-size: 14px;
           font-weight: 300;
@@ -110,9 +98,9 @@
         }
 
         .state_selector {
-          margin: 20px 0 40px 20px;
+          margin-top: 20px;
           font-size: 16px;
-          width: calc(100% - 40px);
+          max-width: 100%;
         }
     </style>
 
@@ -121,9 +109,10 @@
       <div class="wrapper">
         <div class="titlebar">Corona tracker</div>
         <div class="graph">
-
+            <svg class="state_total_time"> </svg>
+            <div class="legend"></div>
+            <select multiple class="state_selector" onChange="toggleState(this.value)"></select>
         </div>
-        <select class="state_selector" onChange="toggleState(this.value)"></select>
       </div>
 </body>
 <script src="https://d3js.org/d3.v5.min.js"></script>
@@ -193,81 +182,183 @@
 
     async function renderTotalOverTime () {
         const formatDate = d3.timeFormat("%B %e");
+        const width = document.querySelector(".wrapper").offsetWidth;
+        const height = 200;
         let states = appState.selectedStates;
-        const colorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(states);
         // const colors = ["#510000", "#879772", "#325d8a", "#6C6ACB", "#DF9F22",]
         const colors = ["#2E4F60","#226C5B","#637F3E","#B5843D"];
         // const colors = ["#000", "#000", "#000", "#000", "#879772",]
         let data = await getCovidDataForState(states[0]);
 
-        var graphs = d3.select(".graph").html("")
-        const width = (document.querySelector(".wrapper").offsetWidth - 32) / 2;
-        const height = 100;
+
+        var state_svg = d3.select(".state_total_time")
+          .html("")
+          .attr("width", width )
+          .attr("height", height)
+              // .append("g")
+              //     .attr("transform",
+              //         "translate(" + margin.left + "," + margin.top + ")");
+
+        let maxY = 0;
+        let maxY2 = 0;
+        let minX = new Date("2222-01-01");
+        let maxX = new Date("1900-01-01");
+
+        var legendHtml = []
+
         for (let i = 0; i < states.length; i++) {
-          let graph = graphs.append("div")
-              .on('click', toggleState.bind(this, states[i]));
+          let stateData = await getCovidDataForState(states[i])
+          if (!stateData[stateData.length-1]) {
+            console.error(`no data for ${states[i]}`);
+            continue;
+          }
 
-          graph.append('h3')
-              .style('color', colorScale(states[i]))
-              .html(`${states[i]}`);
-
-          let columns = graph.append('div').attr('class', 'columns');
-
-
-          ['rollingDeaths', 'rollingCases'].forEach(async function (variable) {
-            let state_data = await getCovidDataForState(states[i]);
-            let maxY = d3.max(state_data, function(d) { return d[variable]; })
-            let state_svg = columns.append("svg")
-                .html("")
-                .attr("width", width )
-                .attr("height", height);
-            let minX = d3.min(state_data, function(d) { return d.date; })
-            let maxX = d3.max(state_data, function(d) { return d.date; });
-
-
-
-
-            const xScale =
-                    d3.scaleTime()
-                      .range([0, width -50])
-                      .domain([minX, maxX]);
-            state_svg.append("g")
-                .attr("class", "axis x-axis")
-                .attr("transform", "translate(0," + (height) + ")")
-                .call(d3.axisBottom(xScale)
-                  .tickValues( xScale.ticks( 0 ).concat( xScale.domain() ) )
-                  .tickFormat(formatDate))
-            state_svg.selectAll(".x-axis .tick text").style("text-anchor", "start")
-            state_svg.selectAll(".x-axis .tick:last-child text").style("text-anchor", "end");
-      
-            const yScale = d3.scaleLinear()
-                  .range([height , 0])
-                  .domain([0, maxY]);
-            let yTicks =  yScale.ticks( 2 );
-            state_svg.append("g")
-                .attr("class", "axis y-axis")
-                .attr("transform", `translate(${width-50}, 0)`)
-                .call(d3.axisRight(yScale).tickValues(yTicks ));
-
-
-            state_svg
-                .datum(state_data)
-                .append("path")
-                .attr("fill", "none")
-                .attr("stroke", colorScale(states[i]))
-                .attr("stroke-width", variable === 'rollingCases' ? 1 : 2)
-                .attr("stroke-dasharray", variable === 'rollingCases' ? 4 : 0)
-                .attr("d", d3.line()
-                    .x(function(d) { return xScale(d.date) })
-                    .y(function(d) {
-                      return yScale(d[variable])
-                    })
-                )
-          })
-       
-           
+          maxX = Math.max(maxX, d3.max(stateData, function(d) { return d.date; }));
+          minX = Math.min(minX, d3.min(stateData, function(d) { return d.date; }));
+          maxY = Math.max(maxY, d3.max(stateData, function(d) { return d.rollingDeaths; }))
+          maxY2 = Math.max(maxY2, d3.max(stateData, function(d) { return d.rollingCases; }))
         }
- 
+        // console.log("any?",[new Date(minX), new Date(maxX)])
+        // const xScale =
+        //         d3.scaleBand()
+        //           .range([0, width])
+        //           .domain(data.map(function(d) {
+        //             return d.date;
+        //           }));
+
+        const colorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(states);
+
+        const xScale =
+                d3.scaleTime()
+                  .range([0, width -50])
+                  .domain([minX, maxX]);
+
+        const yScale = d3.scaleLinear()
+                .range([height , 0])
+                .domain([0, maxY]);
+        const yScale2 = d3.scaleLinear()
+                .range([height , 0])
+                .domain([0, maxY2]);
+
+        state_svg.append("g")
+            .attr("class", "axis x-axis")
+            .attr("transform", "translate(0," + (height) + ")")
+            .call(d3.axisBottom(xScale)
+              .tickValues( xScale.ticks( 0 ).concat( xScale.domain() ) )
+              .tickFormat(formatDate))
+        state_svg.selectAll(".x-axis .tick text").style("text-anchor", "start")
+        state_svg.selectAll(".x-axis .tick:last-child text").style("text-anchor", "end")
+
+        let yTicks =  yScale.ticks( 3 );
+
+        state_svg.append("g")
+            .attr("class", "axis y-axis")
+            .attr("transform", `translate(${width-50}, 0)`)
+            .call(d3.axisRight(yScale).tickValues(yTicks ));
+
+        yTicks.forEach((tick) => {
+          state_svg
+              .datum([minX, maxX])
+              .append("path")
+              .attr("fill", "none")
+              .attr("stroke", "#000")
+              .attr("opacity", .05)
+              // .attr("stroke-dasharray",4)
+              .attr("stroke-width", 1)
+              .attr("d", d3.line()
+                  .x(function(d) { return xScale(d) })
+                  .y(function(d) { return yScale(tick) })
+              )
+        });
+
+
+
+
+// console.log('bananas', d3.timeDay.range(new Date(minX), new Date(maxX), 1));
+
+         // state_svg
+         //    .append("text")
+         // 		.attr("transform", "translate(0,15)")
+         // 		.attr("text-anchor", "start")
+         // 		.style("fill", "#000")
+         // 		.style("font-size", "12px")
+         // 		.style("font-weight", 600)
+         // 		.html(`Coronavirus impact`);
+
+        for (let i = 0; i < states.length; i++) {
+
+          let state_data = await getCovidDataForState(states[i]);
+
+          if (!state_data[state_data.length-1]) {
+            legendHtml.push([0, `<div style="" onClick="toggleState('${states[i]}')">Error ${states[i]}</div>`])
+            console.error(`no data for ${states[i]}`);
+            continue;
+          }
+          legendHtml.push([state_data[state_data.length-1].rolling,
+          `<div onClick="toggleState('${states[i]}')">
+              <div><div style="position:relative;top:2px;height: 16px; width: 16px; background-color: ${colorScale(states[i])}; display: inline-block;"></div>
+              <div style="display:inline-block; font-weight: 500">${states[i]}</div></div>
+              <div>
+              ${Math.round(state_data[state_data.length-1].rollingDeaths)} deaths/1M on ${formatDate(state_data[state_data.length-1].date)}
+              </div>
+            </div>`
+          ]);
+
+          state_svg
+               .datum(state_data)
+               // .enter()
+               .append("path")
+               .attr("fill", "none")
+               .attr("stroke", colorScale(states[i]))
+               .attr("stroke-width", 1.8)
+               .attr("d", d3.line()
+                   .x(function(d) { return xScale(d.date) })
+                   .y(function(d) {
+                      return yScale(d.rollingDeaths)
+                    })
+               )
+             state_svg
+                 .datum(state_data)
+                 // .enter()
+                 .append("path")
+                 .attr("fill", "none")
+                 .attr("stroke",  colorScale(states[i]))
+                 .attr("stroke-dasharray", 2)
+                 .attr("stroke-width", 1)
+                 .attr("d", d3.line()
+                     .x(function(d) { return xScale(d.date) })
+                     .y(function(d) {
+                        return yScale2(d.rollingCases)
+                      })
+                 )
+
+           // state_svg
+           //     .datum(state_data)
+           //     .append("path")
+           //     .attr("fill", colors[i])
+           //     .attr("opacity", .02)
+           //     .attr("d", d3.area()
+           //         .x(function(d) { return xScale(d.date) })
+           //         .y0(height)
+           //         .y1(function(d) { return yScale(d[variable]); })
+           //     )
+
+
+
+           // state_svg
+           //    .append("text")
+           // 		.attr("transform", "translate(" + (xScale(maxX) + 10) + "," + yScale(state_data[state_data.length-1][variable]) + ")")
+           // 		.attr("dy", ".35em")
+           // 		.attr("text-anchor", "start")
+           // 		.style("fill", "#000")
+           // 		.style("font-size", "12px")
+           // 		.style("font-weight", 300)
+           // 		.html(`<tspan style="font-weight: 600">${states[i]}</tspan><tspan x="0" dy="15" >${Math.round(state_data[state_data.length-1].dailyDeathsPerCapita)} deaths/1M on ${formatDate(state_data[state_data.length-1].date)}</tspan>`);
+
+        }
+        legendHtml.sort((a,b) => b[0] - a[0])
+        d3.select(".legend").html(legendHtml.map(a => a[1]).join(''));
+
     }
 
     async function getCovidDataForState(state) {
