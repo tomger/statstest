@@ -11,7 +11,7 @@
           font-family: -apple-system, BlinkMacSystemFont, sans-serif;
           display: flex;
           justify-content: center;
-          background: #F2F2F7;
+          background: #fff;
         }
         .wrapper {
           width: 100%;
@@ -49,7 +49,7 @@
           opacity: .5;
         }
         .y-axis .domain{
-          stroke: #fff;
+          /* stroke: #fff; */
           /* text-anchor: start; */
         }
         body, html {
@@ -57,7 +57,7 @@
         }
         .columns {
           display: flex;
-          flex-direction: row;
+          flex-direction: column;
         }
         .graph > div > h3 {
           font-size: 16px;
@@ -66,16 +66,15 @@
         }
         .graph > div{
           background: #fff;
-          padding: 16px 16px 4px 16px;
-          border-radius: 12px;
-          margin: 12px;
+          padding: 16px 16px 16px 16px;
+          border-bottom:1px solid #eee;
+          margin: 12px 0;
+        }
+        .rollingDeaths .tick {
+          display: none;
         }
 
-        .graph svg{
-          margin: 16px auto 40px; auto;
-          /* transform: translateX(-100px); */
-          display: block;
-        }
+     
         .menu {
           position: absolute;
           top: 0;
@@ -93,9 +92,9 @@
           margin-right: 8px
         }
         .titlebar {
-          font-size: 36px; 
+          font-size: 20px; 
           font-weight: 700;
-          line-height: 50px;
+          line-height: 30px;
           margin: 20px 16px 16px 16px;
         }
 
@@ -203,7 +202,7 @@
         let data = await getCovidDataForState(states[0]);
 
         var graphs = d3.select(".graph").html("")
-        const width = (document.querySelector(".wrapper").offsetWidth - 32) / 2;
+        const width = (document.querySelector(".wrapper").offsetWidth - 10);
         const height = 100;
         for (let i = 0; i < states.length; i++) {
           let graph = graphs.append("div")
@@ -222,10 +221,9 @@
             let state_svg = columns.append("svg")
                 .html("")
                 .attr("width", width )
-                .attr("height", height);
+                .attr("height", variable === 'rollingDeaths' ? height-20:height);
             let minX = d3.min(state_data, function(d) { return d.date; })
             let maxX = d3.max(state_data, function(d) { return d.date; });
-
 
 
 
@@ -233,37 +231,40 @@
                     d3.scaleTime()
                       .range([0, width -50])
                       .domain([minX, maxX]);
-            state_svg.append("g")
-                .attr("class", "axis x-axis")
-                .attr("transform", "translate(0," + (height) + ")")
-                .call(d3.axisBottom(xScale)
-                  .tickValues( xScale.ticks( 0 ).concat( xScale.domain() ) )
-                  .tickFormat(formatDate))
-            state_svg.selectAll(".x-axis .tick text").style("text-anchor", "start")
-            state_svg.selectAll(".x-axis .tick:last-child text").style("text-anchor", "end");
-            state_svg.append("g").append('text')
-              .attr("transform", `translate(0,${height-7})`)
-              .style('font-size', 11)
-              .style('font-weight', 300)
-              .style('opacity', .5)
-              .html(variable == 'rollingDeaths' ? 'Deaths per capita' : 'Cases per capita')
+              state_svg.append("g")
+                  .attr("class", `axis x-axis ${variable}`)
+                  .attr("transform", "translate(0," + (height-20) + ")")
+                  .call(d3.axisBottom(xScale)
+                    .tickValues( xScale.ticks( 0 ).concat( xScale.domain() ) )
+                    .tickFormat(formatDate))
+
+              state_svg.append("g")
+                  .attr("class", `axis x-axis`)
+                  .attr("transform", "translate(0,0)")
+                  .call(d3.axisBottom(xScale).tickValues( xScale.ticks( 0 )))
+              state_svg.selectAll(".x-axis .tick text").style("text-anchor", "start")
+              state_svg.selectAll(".x-axis .tick:last-child text").style("text-anchor", "end");
+
+     
             const yScale = d3.scaleLinear()
-                  .range([height , 0])
-                  .domain([0, maxY]);
+                  .range([height-20 , 0])
+                  .domain([0, maxY*1.3]);
             let yTicks =  yScale.ticks( 2 );
             state_svg.append("g")
                 .attr("class", "axis y-axis")
                 .attr("transform", `translate(${width-50}, 0)`)
                 .call(d3.axisRight(yScale).tickValues(yTicks ));
-
+              state_svg.append("g")
+                .attr("class", "axis y-axis")
+                .attr("transform", `translate(0, 0)`)
+                .call(d3.axisLeft(yScale).tickValues(yScale.ticks(0) ));
 
             state_svg
                 .datum(state_data)
                 .append("path")
                 .attr("fill", "none")
                 .attr("stroke", colorScale(states[i]))
-                .attr("stroke-width", variable === 'rollingCases' ? 2 : 2)
-                .attr("stroke-dasharray", variable === 'rollingCases' ? 2 : 0)
+                .attr("stroke-width",1.75)
                 .attr("d", d3.line()
                     .x(function(d) { 
                       return xScale(d.date) 
@@ -272,6 +273,22 @@
                       return yScale(d[variable])
                     })
                 )
+
+            let summary_pos = 16; //height -28
+            state_svg.append("g").append('text')
+              .attr("transform", `translate(7,${summary_pos})`)
+              .style('font-size', '12px')
+              .style('font-weight', 500)
+              .style('opacity', 1)
+              .html(variable == 'rollingDeaths' ? 'Deaths per capita' : 'Cases per capita')
+            state_svg.append("g").append('text')
+              .attr("transform", `translate(${width-60},${summary_pos})`)
+              .attr("text-anchor", "end")
+              .style('font-size', '12px')
+              .style('font-weight', 500)
+              .style('opacity', 1)
+              .html(`${Math.round(state_data[state_data.length-1][variable]) } on ${formatDate(state_data[state_data.length-1].date)}`)
+
           })
        
            
