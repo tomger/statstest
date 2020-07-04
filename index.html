@@ -216,6 +216,7 @@
 
 
           ['rollingDeaths', 'rollingCases'].forEach(async function (variable) {
+
             let state_data = await getCovidDataForState(states[i]);
             let maxY = d3.max(state_data, function(d) { return d[variable]; })
             let state_svg = columns.append("svg")
@@ -224,7 +225,6 @@
                 .attr("height", variable === 'rollingDeaths' ? height-20:height);
             let minX = d3.min(state_data, function(d) { return d.date; })
             let maxX = d3.max(state_data, function(d) { return d.date; });
-
 
 
             const xScale =
@@ -249,6 +249,12 @@
             const yScale = d3.scaleLinear()
                   .range([height-20 , 0])
                   .domain([0, maxY*1.3]);
+            let last_item = state_data[state_data.length -1];
+            let first_item = state_data[0];
+            let y1 = Math.min(yScale(first_item[variable]), yScale(last_item[variable]));
+            let y2 = Math.max(yScale(first_item[variable]), yScale(last_item[variable]));
+            let color = first_item[variable] > last_item[variable] ? '#2ca02c' : '#d62728';
+
 
             state_svg.append("g")
                 .attr("class", "axis y-axis")
@@ -259,14 +265,10 @@
                 .attr("transform", `translate(0, 0)`)
                 .call(d3.axisLeft(yScale).tickValues(yScale.ticks(0) ));
 
-            let last_item = state_data[state_data.length -1];
-            let first_item = state_data[0];
-            let y1 = Math.min(yScale(first_item[variable]), yScale(last_item[variable]));
-            let y2 = Math.max(yScale(first_item[variable]), yScale(last_item[variable]));
 
             state_svg.append("rect")
               .style('opacity', 0.05)
-              .style('fill', colorScale(states[i]))
+              .style('fill', color)
               .attr('x', xScale(first_item.date))
               .attr('y', y1)
               .attr('width', xScale(last_item.date))
@@ -276,7 +278,7 @@
               .attr("transform", `translate(${width- 40}, ${y2})`)
               .style('font-size', '12px')
               .style('font-weight', 500)
-              .style('fill', colorScale(states[i]))
+              .style('fill', color)
               .html(Math.round(yScale.invert(y2)), 2);
 
             if (Math.abs(y1 - y2) > 20 ) {
@@ -284,7 +286,7 @@
                 .attr("transform", `translate(${width- 40}, ${y1})`)
                 .style('font-size', '12px')
                 .style('font-weight', 500)
-                .style('fill', colorScale(states[i]))
+                .style('fill', color)
                 .html(Math.round(yScale.invert(y1)), 2);
 
             }
@@ -293,7 +295,7 @@
                 .datum(state_data)
                 .append("path")
                 .attr("fill", "none")
-                .attr("stroke", colorScale(states[i]))
+                .attr("stroke", color)
                 .attr("stroke-width",1.75)
                 .attr("d", d3.line()
                     .x(function(d) { 
@@ -310,7 +312,7 @@
               .style('font-size', '12px')
               .style('font-weight', 500)
               .style('opacity', 1)
-              .style('fill', colorScale(states[i]))
+              .style('fill', '#000')
               .html(variable == 'rollingDeaths' ? 'Deaths per capita' : 'Cases per capita')
             // state_svg.append("g").append('text')
             //   .attr("transform", `translate(${width-60},${summary_pos})`)
