@@ -189,8 +189,6 @@
 
     renderTotalOverTime();
     renderMenu();
-    d3.select('.state_selector_wrapper').style('display', 'block')
-    d3.select('.loading').style('display', 'none')
 
     getLastUpdate().then(lastUpdate => {
       d3.select('.lastupdated').html(`Last refreshed data on ${new Date(lastUpdate.date).toLocaleDateString()}`)
@@ -250,7 +248,8 @@
         const colors = ["#2E4F60","#226C5B","#637F3E","#B5843D"];
         // const colors = ["#000", "#000", "#000", "#000", "#879772",]
         let data = await getCovidDataForState(states[0]);
-
+        d3.select('.state_selector_wrapper').style('display', 'block')
+    d3.select('.loading').style('display', 'none')
         var graphs = d3.select(".graph").html("")
         const width = (document.querySelector(".wrapper").offsetWidth - 10);
         const height = 100;
