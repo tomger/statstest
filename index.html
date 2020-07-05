@@ -558,19 +558,19 @@
     async function getTestingDataUS() {
         appState.usTestingData = appState.usTestingData
             ? appState.usTestingData
-            : d3.csv("us-testing.csv?rnd=" + Date.now())
+            : d3.csv("us-testing.csv")
 
         return await appState.usTestingData
     }
 
     async function getLastUpdate() {
-        return (await d3.csv("lastupdate?rnd=" + Date.now()))[0]
+        return (await d3.csv("lastupdate")[0]
     }
 
     async function getCovidDataUS() {
         appState.covidData = appState.covidData
             ? appState.covidData
-            : d3.csv("us-states.csv?rnd=" + Date.now())
+            : d3.csv("us-states.csv")
 
         return await appState.covidData
     }
