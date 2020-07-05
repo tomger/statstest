@@ -319,6 +319,15 @@
                 .call(d3.axisLeft(yScale).tickValues(yScale.ticks(0) ));
 
 
+            state_svg.append("line")
+              .style('stroke', "#ccc")
+              .attr("stroke-dasharray", 4)
+              .attr("stroke-width", 0.5)
+              .attr('x1', xScale(first_item.date))
+              .attr('y1', yScale(last_item[variable]) == y1 ? y2 : y1)
+              .attr('x2', xScale(last_item.date))
+              .attr('y2', yScale(last_item[variable]) == y1 ? y2 : y1);
+
             // state_svg.append("rect")
             //   .style('opacity', 0.05)
             //   .style('fill', color)
@@ -330,7 +339,7 @@
             state_svg.append("g").append('circle')
               .attr('cx' , xScale(last_item['date']))
               .attr('cy' , yScale(last_item[variable]))
-              .attr('r' , 1.7)
+              .attr('r' , 3)
               .style('fill', color);
 
 
