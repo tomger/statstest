@@ -266,7 +266,7 @@
 
 
           ['rollingDeaths', 'rollingCases'].forEach(async function (variable) {
-
+            let nonRollingVar = (variable == 'rollingDeaths') ? 'dailyDeathsPerCapita' : 'dailyCasesPerCapita'
             let state_data = await getCovidDataForState(states[i]);
             let maxY = d3.max(state_data, function(d) { return d[variable]; })
             let state_svg = columns.append("svg")
@@ -277,10 +277,10 @@
             let maxX = d3.max(state_data, function(d) { return d.date; });
 
             const xScaleBand = d3.scaleBand()
-              .range ([0, width -50])
-              .padding(0.5)
-              .paddingInner(.1)
-              .align(0.5)
+              .range([0, width/52])
+              .padding(0)
+              .paddingInner(0.005)
+              .align(.5)
               .domain([minX, maxX]);
 
             const xScale =
@@ -383,20 +383,18 @@
                 .html(round(yScale.invert(y1)));
 
             // }
-            let nonRollingVar = (variable == 'rollingDeath') ? 'dailyDeathsPerCapita' : 'dailyCasesPerCapita'
-            // let nonRollingVar = 'dailyDeathsPerCapita'
+
             state_svg
               .selectAll('rect')
               .data(state_data)
               .enter()
               .append("rect")
-              .attr("class", "bar")
               .attr("fill", color)
               .attr("opacity", .1)
               .attr("x", function(d) { return xScale(d.date); })
-              .attr("y", function(d) { return yScale(d[variable]); })
-              .attr("width", 7)
-              .attr("height", function(d) { return (height-20) - yScale(d[variable]); });
+              .attr("y", function(d) { return yScale(d[nonRollingVar]); })
+              .attr("width", xScaleBand.bandwidth())
+              .attr("height", function(d) { return (height-20) - yScale(d[nonRollingVar]); });
 
 
             state_svg
