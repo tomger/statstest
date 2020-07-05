@@ -178,13 +178,11 @@
     const appState = {
         covidData: null,
         populationData: null,
-        selectedStates: ["New York", "Belgium"]
+        selectedStates: ["New York"]
     };
     try {
       let storage =  localStorage.getItem('states0');
-      if (!storage) {
-        appState.selectedStates = [];
-      } else {
+      if (storage) {
         appState.selectedStates = localStorage.getItem('states0').split(',')
       }
     } catch(e) {}
@@ -525,7 +523,7 @@
         line.rollingCases = average(data.slice(start, end), "dailyCasesPerCapita")
       })
 
-      let dayCutOff = 62;
+      let dayCutOff = 61;
       let cutOff = Date.now() - dayCutOff *  24*60*60*1000;
       data = data.filter(day => new Date(day.date) > cutOff)
 
