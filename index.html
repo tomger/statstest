@@ -578,7 +578,7 @@
     async function getCovidDataEU() {
         appState.covidDataEu = appState.covidDataEu
             ? appState.covidDataEu
-            : d3.csv("eu-states.csv?rnd=" + Date.now())
+            : d3.csv("eu-states.csv")
 
         return await appState.covidDataEu
     }
