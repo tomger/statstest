@@ -352,6 +352,12 @@
               .html(0);
             }
 
+            function round(n) {
+              if (n > 10) {
+                return Math.round(n);
+              }
+              return Math.round(n*100)/100;
+            }
             // if (Math.abs(y1 - y2) > 10 || yScale(last_item[variable]) == y2 ) {
             state_svg.append("g").append('text')
               .attr("transform", `translate(${yScale(last_item[variable]) == y2 ? width- 40 : -3 }, ${Math.round(y2+4)})`)
@@ -359,7 +365,7 @@
               .style('font-size', '12px')
               .style('font-weight', 500)
               .style('fill', yScale(last_item[variable]) == y2 ? color : "#fff")
-              .html(Math.round(yScale.invert(y2)), 2);
+              .html(round(yScale.invert(y2)));
             // }
 
 
@@ -370,7 +376,7 @@
                 .style('font-size', '12px')
                 .style('font-weight', 500)
                 .style('fill', yScale(last_item[variable]) == y1 ? color : "#fff")
-                .html(Math.round(yScale.invert(y1)), 2);
+                .html(round(yScale.invert(y1)));
 
             // }
 
