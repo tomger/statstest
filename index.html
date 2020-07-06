@@ -270,9 +270,10 @@
 
 
           let state_data = await getCovidDataForState(states[i]);
-          let variables = ['rollingDeaths', 'rollingCases', 'rollingTests'].filter(variable => {
-            return !!state_data[0][variable];
-          });
+          let variables = ['rollingDeaths', 'rollingCases'];
+          // let variables = ['rollingDeaths', 'rollingCases', 'rollingTests'].filter(variable => {
+          //   return !!state_data[0][variable];
+          // });
           variables.forEach(async function (variable, variableIndex) {
             let nonRollingVar = ['dailyDeathsPerCapita', 'dailyCasesPerCapita', 'dailyTestsPerCapita'][variableIndex];
             let variableTitle = ['New deaths per million residents', 'New cases per million residents', 'New tests per million residents'][variableIndex];
