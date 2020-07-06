@@ -69,11 +69,10 @@
           /* border-bottom:1px solid #eee; */
           margin: 12px 0;
         }
-        .rollingDeaths .tick {
+        .noTicks .tick {
           display: none;
         }
-
-     
+    
         .menu {
           position: absolute;
           top: 0;
@@ -97,6 +96,11 @@
           margin: 20px 16px 16px 16px;
           border-bottom: 1px solid #ddd;
           padding-bottom: 20px;;
+        }
+        .titlebar span {
+          display: inline-block;
+          font-weight: 300;
+          color: #888;
         }
 
         .legend {
@@ -156,7 +160,7 @@
 </head>
 <body>
       <div class="wrapper">
-        <div class="titlebar">COVID-19 Tracker</div>
+        <div class="titlebar">COVID-19 <span>Just the data</span></div>
         <div class="graph">
 
         </div>
@@ -265,15 +269,19 @@
           let columns = graph.append('div').attr('class', 'columns');
 
 
-          ['rollingDeaths', 'rollingCases'].forEach(async function (variable) {
-            let nonRollingVar = (variable == 'rollingDeaths') ? 'dailyDeathsPerCapita' : 'dailyCasesPerCapita'
-            let state_data = await getCovidDataForState(states[i]);
+          let state_data = await getCovidDataForState(states[i]);
+          let variables = ['rollingDeaths', 'rollingCases', 'rollingTests'].filter(variable => {
+            return !!state_data[0][variable];
+          });
+          variables.forEach(async function (variable, variableIndex) {
+            let nonRollingVar = ['dailyDeathsPerCapita', 'dailyCasesPerCapita', 'dailyTestsPerCapita'][variableIndex];
+            let variableTitle = ['New deaths per million residents', 'New cases per million residents', 'New tests per million residents'][variableIndex];
             let maxY = d3.max(state_data, function(d) { return d[nonRollingVar]; })
             let minY = d3.min(state_data, function(d) { return d[nonRollingVar]; })
             let state_svg = columns.append("svg")
                 .html("")
                 .attr("width", width )
-                .attr("height", variable === 'rollingDeaths' ? height-20:height);
+                .attr("height", variableIndex < variables.length ? height-20:height);
             let minX = d3.min(state_data, function(d) { return d.date; })
             let maxX = d3.max(state_data, function(d) { return d.date; });
 
@@ -289,7 +297,7 @@
                       .range([0, width -50])
                       .domain([minX, maxX]);
               state_svg.append("g")
-                  .attr("class", `axis x-axis ${variable}`)
+                  .attr("class", `axis x-axis ${variableIndex < variables.length -1 ? "noTicks" : ""}`)
                   .style("font-family", "-apple-system, BlinkMacSystemFont, sans-serif")
                   .attr("transform", "translate(0," + (height-20) + ")")
                   .call(d3.axisBottom(xScale)
@@ -312,7 +320,9 @@
             let y1 = Math.min(yScale(first_item[variable]), yScale(last_item[variable]));
             let y2 = Math.max(yScale(first_item[variable]), yScale(last_item[variable]));
             let color = first_item[variable] > last_item[variable] ? '#2ca02c' : '#d62728';
-
+            if (variable === 'rollingTests') {
+              color = "#333"
+            }
 
             state_svg.append("g")
                 .attr("class", "axis y-axis")
@@ -420,7 +430,7 @@
               .style('font-weight', 500)
               .style('opacity', 1)
               .style('fill', '#000')
-              .html(variable == 'rollingDeaths' ? 'New deaths per million residents' : 'New cases per million residents')
+              .html(variableTitle)
             state_svg.append("g").append('text')
               .attr("transform", `translate(${width-56},${summary_pos})`)
               .attr("text-anchor", "end")
@@ -470,13 +480,13 @@
       // countryterritoryCode: "ALB"
       // popData2018: "2866376"
 
-      // let dataTestingUS = await getTestingDataForState(state)
-      // dataTestingUS.forEach(line => {
-      //   // 20200430
-      //   if (line.date.substr) {
-      //     line.date = new Date(`${line.date.substr(0,4)}-${line.date.substr(4,2)}-${line.date.substr(6,2)}`)
-      //   }
-      // })
+      let dataTestingUS = []; //await getTestingDataForState(state) // enable for testing data
+      dataTestingUS.forEach(line => {
+        // 20200430
+        if (line.date.substr) {
+          line.date = new Date(`${line.date.substr(0,4)}-${line.date.substr(4,2)}-${line.date.substr(6,2)}T12:00:00Z`)
+        }
+      })
 
 
       data = dataus.filter(line => line.state === state);
@@ -484,11 +494,13 @@
         if (typeof line.date == 'string') {
           line.date = new Date(`${line.date}T12:00:00Z`)
         }
-        // line.testing = dataTestingUS.find(testing => testing.date.getTime() == line.date.getTime())
-        // if (line.testing) {
-        //   line.testsPerDay = line.testing.totalTestResultsIncrease / population;
 
-        // }
+
+        line.testing = dataTestingUS.find(testing => testing.date.getTime() == line.date.getTime())
+        if (line.testing) {
+          line.dailyTestsPerCapita = (line.testing.totalTestResultsIncrease / population) * 1000000;
+
+        }
       })
       // console.log(data, dataTestingUS)
       dataeu
@@ -544,6 +556,14 @@
         line.rollingCases = average(data.slice(start, end), "dailyCasesPerCapita")
       })
 
+      data.forEach((line, index) => {
+        const before = 8;
+        const after = 1;
+        const start = Math.max(0, index - before);
+        const end   = Math.min(data.length, index + after + 1);
+        line.rollingTests = average(data.slice(start, end), "dailyTestsPerCapita")
+      })
+
       let dayCutOff = 61;
       let cutOff = Date.now() - dayCutOff *  24*60*60*1000;
       data = data.filter(day => new Date(day.date) > cutOff)
@@ -569,7 +589,8 @@
 
     async function getTestingDataForState(state) {
       const map = {
-        "New York": "NY"
+        "New York": "NY",
+        "Kansas": "KS",
       }
       let data = await getTestingDataUS()
       data = data.filter(line => line.state === map[state])
