@@ -268,7 +268,8 @@
           ['rollingDeaths', 'rollingCases'].forEach(async function (variable) {
             let nonRollingVar = (variable == 'rollingDeaths') ? 'dailyDeathsPerCapita' : 'dailyCasesPerCapita'
             let state_data = await getCovidDataForState(states[i]);
-            let maxY = d3.max(state_data, function(d) { return d[variable]; })
+            let maxY = d3.max(state_data, function(d) { return d[nonRollingVar]; })
+            let minY = d3.min(state_data, function(d) { return d[nonRollingVar]; })
             let state_svg = columns.append("svg")
                 .html("")
                 .attr("width", width )
@@ -305,7 +306,7 @@
      
             const yScale = d3.scaleLinear()
                   .range([height-20 , 0])
-                  .domain([0, maxY*1.3]);
+                  .domain([0, maxY*1.2]);
             let last_item = state_data[state_data.length -1];
             let first_item = state_data[0];
             let y1 = Math.min(yScale(first_item[variable]), yScale(last_item[variable]));
@@ -368,7 +369,7 @@
               .attr("text-anchor", yScale(last_item[variable]) == y2 ? "start" : "end")
               .style('font-size', '12px')
               .style('font-weight', 500)
-              .style('fill', yScale(last_item[variable]) == y2 ? color : "#fff")
+              .style('fill', yScale(last_item[variable]) == y2 ? '#000' : "#fff")
               .html(round(yScale.invert(y2)));
             // }
 
@@ -379,7 +380,7 @@
                 .attr("text-anchor", yScale(last_item[variable]) == y1 ? "start" : "end")
                 .style('font-size', '12px')
                 .style('font-weight', 500)
-                .style('fill', yScale(last_item[variable]) == y1 ? color : "#fff")
+                .style('fill', yScale(last_item[variable]) == y1 ? '#000' : "#fff")
                 .html(round(yScale.invert(y1)));
 
             // }
@@ -393,7 +394,7 @@
               .attr("opacity", .1)
               .attr("x", function(d) { return xScale(d.date); })
               .attr("y", function(d) { return yScale(d[nonRollingVar]); })
-              .attr("width", xScaleBand.bandwidth())
+              .attr("width", xScaleBand.bandwidth()*1.3)
               .attr("height", function(d) { return (height-20) - yScale(d[nonRollingVar]); });
 
 
@@ -419,13 +420,14 @@
               .style('font-weight', 500)
               .style('opacity', 1)
               .style('fill', '#000')
-              .html(variable == 'rollingDeaths' ? 'Deaths per million residents' : 'Cases per million residents')
+              .html(variable == 'rollingDeaths' ? 'New deaths per million residents' : 'New cases per million residents')
             state_svg.append("g").append('text')
-              .attr("transform", `translate(${width-60},${summary_pos})`)
+              .attr("transform", `translate(${width-56},${summary_pos})`)
               .attr("text-anchor", "end")
               .style('font-size', '12px')
               .style('font-weight', 500)
               .style('opacity', 1)
+              .style('fill', color)
               .html((last_item[variable] > first_item[variable] ? `+${Math.round(100*((last_item[variable]-first_item[variable])/first_item[variable]))}%` : `${Math.round(100*((last_item[variable]-first_item[variable])/first_item[variable]))}%`))
 
           })
