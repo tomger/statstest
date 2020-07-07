@@ -120,7 +120,7 @@
           border-radius: 8px;
           background: #f0f0f3;
           box-sizing: border-box;
-          margin: 20px 0 20px 16px;
+          margin: 40px 0 20px 16px;
           line-height: 44px;;
           text-align: center;
           font-size: 14px;
@@ -182,7 +182,7 @@
     const appState = {
         covidData: null,
         populationData: null,
-        selectedStates: ["New York", "Germany"]
+        selectedStates: ["New York", "Germany", "Brazil"]
     };
     try {
       let storage =  localStorage.getItem('states0');
@@ -263,7 +263,7 @@
               
 
           graph.append('h3')
-              .html(`${states[i]}`)
+              .html(`${states[i].replace("_", " ")}`)
               
           graph.append('div')
               .attr('style', "position:absolute;top: 22px; right: 40px")
