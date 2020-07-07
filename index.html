@@ -266,7 +266,7 @@
               
 
           graph.append('h3')
-              .html(`${states[i].replace("_", " ")}`)
+              .html(`${states[i].replace(/_/g, " ")}`)
               
           graph.append('div')
               .attr('style', "position:absolute;top: 22px; right: 14px")
@@ -385,14 +385,16 @@
             let startvalue = yScale(last_item[variable]) == y2 ? y1 : y2;
             let endvalue = yScale(last_item[variable]) == y2 ? y2 : y1;
             // if (Math.abs(y1 - y2) > 10 || yScale(last_item[variable]) == y2 ) {
+
+            if (endvalue > 40) {
             state_svg.append("g").append('text')
-              .attr("transform", `translate(${width - 6 }, ${endvalue > height -50 ? endvalue-7 : endvalue+17})`)
+              .attr("transform", `translate(${width - 6 }, ${ endvalue-7})`)
               .attr("text-anchor", "end")
               .style('font-size', '12px')
               .style('font-weight', 500)
               .style('fill', '#000')
               .html(round(yScale.invert(endvalue)));
-            // }
+            }
 
 
             // // if (Math.abs(y1 - y2) > 10 || yScale(last_item[variable]) == y1 ) {
@@ -457,6 +459,13 @@
               .style('opacity', 1)
               .style('fill', '#000')
               .html(variableTitle)
+
+
+            let summary = last_item[variable] > first_item[variable] ? `↗${Math.round(100*((last_item[variable]-first_item[variable])/first_item[variable]))}%` : `↘${Math.abs(Math.round(100*((last_item[variable]-first_item[variable])/first_item[variable])))}%`
+            if (endvalue <= 40) {
+              summary += `<tspan style="fill:#000"> · ${round(yScale.invert(endvalue))}</tspan>`
+            }
+
             state_svg.append("g").append('text')
               .attr("transform", `translate(${width-6},${summary_pos})`)
               .attr("text-anchor", "end")
@@ -464,7 +473,7 @@
               .style('font-weight', 500)
               .style('opacity', 1)
               .style('fill', color)
-              .html((last_item[variable] > first_item[variable] ? `+${Math.round(100*((last_item[variable]-first_item[variable])/first_item[variable]))}%` : `${Math.round(100*((last_item[variable]-first_item[variable])/first_item[variable]))}%`))
+              .html(summary)
 
           })
        
