@@ -254,9 +254,8 @@
         // const colors = ["#510000", "#879772", "#325d8a", "#6C6ACB", "#DF9F22",]
         const colors = ["#2E4F60","#226C5B","#637F3E","#B5843D"];
         // const colors = ["#000", "#000", "#000", "#000", "#879772",]
-        let data = await getCovidDataForState(states[0]);
         d3.select('.state_selector_wrapper').style('display', 'block')
-    d3.select('.loading').style('display', 'none')
+        d3.select('.loading').style('display', 'none')
         var graphs = d3.select(".graph").html("")
         const width = (document.querySelector(".wrapper").offsetWidth - 32);
         const height = 130;
@@ -277,10 +276,10 @@
 
 
           let state_data = await getCovidDataForState(states[i]);
-          let variables = ['rollingDeaths', 'rollingCases'];
-          // let variables = ['rollingDeaths', 'rollingCases', 'rollingTests'].filter(variable => {
-          //   return !!state_data[0][variable];
-          // });
+          // let variables = ['rollingDeaths', 'rollingCases'];
+          let variables = ['rollingDeaths', 'rollingCases', 'rollingTests'].filter(variable => {
+            return !!state_data[0][variable];
+          });
           variables.forEach(async function (variable, variableIndex) {
             let nonRollingVar = ['dailyDeathsPerCapita', 'dailyCasesPerCapita', 'dailyTestsPerCapita'][variableIndex];
             let variableTitle = ['New deaths per million residents', 'New cases per million residents', 'New tests per million residents'][variableIndex];
@@ -515,7 +514,7 @@
       // countryterritoryCode: "ALB"
       // popData2018: "2866376"
 
-      let dataTestingUS = []; //await getTestingDataForState(state) // enable for testing data
+      let dataTestingUS = await getTestingDataForState(state) // enable for testing data
       dataTestingUS.forEach(line => {
         // 20200430
         if (line.date.substr) {
@@ -626,6 +625,7 @@
       const map = {
         "New York": "NY",
         "Kansas": "KS",
+        "Colorado": "CO",
       }
       let data = await getTestingDataUS()
       data = data.filter(line => line.state === map[state])
@@ -633,11 +633,19 @@
     }
 
     async function getTestingDataUS() {
-        appState.usTestingData = appState.usTestingData
-            ? appState.usTestingData
-            : d3.csv("us-testing.csv")
+        if (!appState.usTestingData) {
+          appState.usTestingData = d3.csv(`us-testing.csv?cache=${new Date().getDate()}-${new Date().getHours()}`);
+          appState.usTestingData.then(data => {
+            appState.usTestingData = data;
+            renderTotalOverTime(); // XXX terrible
+          })
+          return await [];
+        } else if (appState.usTestingData instanceof Array) {
+          return await appState.usTestingData
+        } else {
+          return await [];
+        }
 
-        return await appState.usTestingData
     }
 
     async function getLastUpdate() {
