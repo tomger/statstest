@@ -254,12 +254,13 @@
         // const colors = ["#510000", "#879772", "#325d8a", "#6C6ACB", "#DF9F22",]
         const colors = ["#2E4F60","#226C5B","#637F3E","#B5843D"];
         // const colors = ["#000", "#000", "#000", "#000", "#879772",]
-        d3.select('.state_selector_wrapper').style('display', 'block')
-        d3.select('.loading').style('display', 'none')
         var graphs = d3.select(".graph").html("")
         const width = (document.querySelector(".wrapper").offsetWidth - 32);
         const height = 130;
         for (let i = 0; i < states.length; i++) {
+          let state_data = await getCovidDataForState(states[i]);
+          d3.select('.state_selector_wrapper').style('display', 'block')
+          d3.select('.loading').style('display', 'none')
           let graph = graphs.append("div")
             .attr('style', "position:relative")
               
@@ -275,11 +276,13 @@
           let columns = graph.append('div').attr('class', 'columns');
 
 
-          let state_data = await getCovidDataForState(states[i]);
+          
           // let variables = ['rollingDeaths', 'rollingCases'];
           let variables = ['rollingDeaths', 'rollingCases', 'rollingTests'].filter(variable => {
             return !!state_data[0][variable];
           });
+
+
           variables.forEach(async function (variable, variableIndex) {
             let nonRollingVar = ['dailyDeathsPerCapita', 'dailyCasesPerCapita', 'dailyTestsPerCapita'][variableIndex];
             let variableTitle = ['New deaths', 'New cases', 'New tests'][variableIndex];
