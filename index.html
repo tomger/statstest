@@ -329,9 +329,16 @@
             let first_item = state_data[0];
             let y1 = Math.min(yScale(first_item[variable]), yScale(last_item[variable]));
             let y2 = Math.max(yScale(first_item[variable]), yScale(last_item[variable]));
-            let color = first_item[variable] > last_item[variable] ? '#2ca02c' : '#d62728';
-            if (variable === 'rollingTests') {
-              color = "#333"
+
+
+            let direction = (last_item[variable] - first_item[variable]) / first_item[variable];
+            let color =  '#89846E'
+            if (Math.abs(direction) > 0.2) {
+              let smaller = first_item[variable] > last_item[variable];
+              if (variable == 'rollingTests') {
+                smaller = !smaller;
+              }
+              color = smaller ? '#5CA330' : '#D8691A';
             }
 
             state_svg.append("g")
@@ -345,9 +352,9 @@
 
 
             state_svg.append("line")
-              .style('stroke', "#ccc")
+              .style('stroke', "#ddd")
               .attr("stroke-dasharray", 4)
-              .attr("stroke-width", 0.5)
+              .attr("stroke-width", 1)
               .attr('x1', xScale(first_item.date))
               .attr('y1', yScale(last_item[variable]) == y1 ? y2 : y1)
               .attr('x2', xScale(last_item.date))
@@ -443,7 +450,7 @@
 
 
             let summary_pos = 16; //height -28 
-            let summary = last_item[variable] > first_item[variable] ? `↗${Math.round(100*((last_item[variable]-first_item[variable])/first_item[variable]))}%` : `↘${Math.abs(Math.round(100*((last_item[variable]-first_item[variable])/first_item[variable])))}%`
+            let summary = last_item[variable] > first_item[variable] ? `↑${Math.round(100*((last_item[variable]-first_item[variable])/first_item[variable]))}%` : `↓${Math.abs(Math.round(100*((last_item[variable]-first_item[variable])/first_item[variable])))}%`
             // if (endvalue <= 40) {
               // summary += `<tspan style="fill:#000"> · ${round(yScale.invert(endvalue))}/1M</tspan>`
             // }
@@ -471,18 +478,18 @@
               .style('font-weight', 500)
               .style('opacity', 1)
               .style('fill', '#000')
-              .html(`${variableTitle} · ${summary}`);
+              .html(`${variableTitle} <tspan style="fill: ${color}">${summary}</tspan>`);
 
 
           // if (endvalue > 40) {
             state_svg.append("g").append('text')
-              .attr("transform", `translate(${width + 5 }, ${ endvalue-10})`)
+              .attr("transform", `translate(${width + 6 }, ${ endvalue-10})`)
               .attr("text-anchor", "end")
               .style('font-size', '12px')
               .style('font-weight', 500)
               .style('fill', '#000')
               .style('stroke', '#fff')
-              .style('stroke-width', '3')
+              .style('stroke-width', '4')
               .style('stroke-linecap', 'butt')
               .style('paint-order', 'stroke')
               .style('stroke-linejoin', 'miter')
