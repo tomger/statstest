@@ -282,7 +282,7 @@
           });
           variables.forEach(async function (variable, variableIndex) {
             let nonRollingVar = ['dailyDeathsPerCapita', 'dailyCasesPerCapita', 'dailyTestsPerCapita'][variableIndex];
-            let variableTitle = ['New deaths per million residents', 'New cases per million residents', 'New tests per million residents'][variableIndex];
+            let variableTitle = ['New deaths', 'New cases', 'New tests'][variableIndex];
             let maxY = d3.max(state_data, function(d) { return d[nonRollingVar]; })
             let minY = d3.min(state_data, function(d) { return d[nonRollingVar]; })
             let state_svg = columns.append("svg")
@@ -358,11 +358,6 @@
             //   .attr('width', xScale(last_item.date))
             //   .attr('height', y2 - y1);
 
-            state_svg.append("g").append('circle')
-              .attr('cx' , xScale(last_item['date']))
-              .attr('cy' , yScale(last_item[variable]))
-              .attr('r' , 3)
-              .style('fill', color);
 
 
             // if (Math.abs( (yScale(last_item[variable]) == y2 ? y2 : y1) - (height-20) ) > 15) {
@@ -385,15 +380,15 @@
             let endvalue = yScale(last_item[variable]) == y2 ? y2 : y1;
             // if (Math.abs(y1 - y2) > 10 || yScale(last_item[variable]) == y2 ) {
 
-            if (endvalue > 40) {
-            state_svg.append("g").append('text')
-              .attr("transform", `translate(${width - 6 }, ${ endvalue-7})`)
-              .attr("text-anchor", "end")
-              .style('font-size', '12px')
-              .style('font-weight', 500)
-              .style('fill', '#000')
-              .html(round(yScale.invert(endvalue)));
-            }
+            // if (endvalue > 40) {
+            // state_svg.append("g").append('text')
+            //   .attr("transform", `translate(${width - 6 }, ${ endvalue-7})`)
+            //   .attr("text-anchor", "end")
+            //   .style('font-size', '12px')
+            //   .style('font-weight', 500)
+            //   .style('fill', '#000')
+            //   .html(round(yScale.invert(endvalue)));
+            // }
 
 
             // // if (Math.abs(y1 - y2) > 10 || yScale(last_item[variable]) == y1 ) {
@@ -461,9 +456,9 @@
 
 
             let summary = last_item[variable] > first_item[variable] ? `↗${Math.round(100*((last_item[variable]-first_item[variable])/first_item[variable]))}%` : `↘${Math.abs(Math.round(100*((last_item[variable]-first_item[variable])/first_item[variable])))}%`
-            if (endvalue <= 40) {
-              summary += `<tspan style="fill:#000"> · ${round(yScale.invert(endvalue))}</tspan>`
-            }
+            // if (endvalue <= 40) {
+              summary += `<tspan style="fill:#000"> · ${round(yScale.invert(endvalue))}/1M</tspan>`
+            // }
 
             state_svg.append("g").append('text')
               .attr("transform", `translate(${width-6},${summary_pos})`)
@@ -473,6 +468,13 @@
               .style('opacity', 1)
               .style('fill', color)
               .html(summary)
+
+              state_svg.append("g").append('circle')
+              .attr('cx' , xScale(last_item['date']))
+              .attr('cy' , yScale(last_item[variable]))
+              .attr('r' , 3)
+              .style('fill', color)
+              .style('stroke', "#fff");
 
           })
        
