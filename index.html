@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Covid</title>
+    <title>COVID-19 Dashboard</title>
     <style>
         body {
           font-family: -apple-system, BlinkMacSystemFont, sans-serif;
@@ -93,12 +93,26 @@
           margin-right: 8px
         }
         .titlebar {
-          font-size: 20px; 
-          font-weight: 700;
+
           line-height: 30px;
           margin: 20px 16px 16px 16px;
           border-bottom: 1px solid #ddd;
-          padding-bottom: 20px;;
+          padding-bottom: 20px;
+          display: flex;
+          flex-direction: row;
+          justify-content: space-between;
+        }
+        .titlebar-header {
+          font-size: 20px; 
+          font-weight: 700;
+        }
+        .titlebar-feedback {
+          border: 1px solid rgb(187, 204, 241);
+          text-decoration: none;
+          font-size: 14px;
+          padding: 4px 8px;
+          border-radius: 5px;;
+          color: blue
         }
         .titlebar span {
           display: inline-block;
@@ -163,7 +177,12 @@
 </head>
 <body>
       <div class="wrapper">
-        <div class="titlebar">COVID-19 <span>Customizable dashboard</span></div>
+        <div class="titlebar">
+          <div class="titlebar-header">COVID-19 <span>Dashboard</span></div>
+          <div>
+            <a class="titlebar-feedback" target="_blank" href="https://forms.gle/f2eDAUserCwdWfjP7">Provide Feedback 🙏</a></a>
+          </div>
+        </div>
         <div class="graph">
 
         </div>
