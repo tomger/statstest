@@ -104,11 +104,14 @@
           flex-direction: row;
         }
         .menu > div > a {
-          flex: 1
+          /* flex: 1; */
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          width: calc(100% - 214px); 
         }
         .menu > div > div {
           text-align: right;
-          flex-shrink: 0;
           width: 90px;
         }
 
