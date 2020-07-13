@@ -199,7 +199,7 @@
         </div>
       </div>
 </body>
-<script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="d3.v5.min.js"></script>
 <script>
     const appState = {
         covidData: null,
@@ -297,15 +297,41 @@
 
           
           // let variables = ['rollingDeaths', 'rollingCases'];
-          let variables = ['rollingDeaths', 'rollingCases', 'rollingTests'].filter(variable => {
-            return !!state_data[0][variable];
+          let variables = [
+            {
+              variable: 'rollingDeaths',
+              nonRolling: 'dailyDeathsPerCapita',
+              title: 'New deaths',
+              denominator: 'per million',
+            },
+            {
+              variable: 'rollingCases',
+              nonRolling: 'dailyCasesPerCapita',
+              title: 'New cases',
+              denominator: 'per million',
+            },   
+            {
+              variable: 'rollingTests',
+              nonRolling: 'dailyTestsPerCapita',
+              title: 'New tests',
+              denominator: 'per million',
+            },    
+            {
+              variable: 'hospitalCapacity',
+              nonRolling: 'hospitalCapacity',
+              title: 'Est ICU usage',
+              yScale: 100,
+              denominator: 'percent of ICUs',
+            },        
+            ].filter(variableObj => {
+            return !isNaN(state_data[0][variableObj.variable]);
           });
 
-
-          variables.forEach(async function (variable, variableIndex) {
-            let nonRollingVar = ['dailyDeathsPerCapita', 'dailyCasesPerCapita', 'dailyTestsPerCapita'][variableIndex];
-            let variableTitle = ['New deaths', 'New cases', 'New tests'][variableIndex];
-            let maxY = d3.max(state_data, function(d) { return d[nonRollingVar]; })
+          variables.forEach(async function (variableObj, variableIndex) {
+            let variable = variableObj.variable;
+            let nonRollingVar = variableObj.nonRolling;
+            let variableTitle = variableObj.title;
+            let maxY = variableObj.yScale || d3.max(state_data, function(d) { return d[nonRollingVar]; })
             let minY = d3.min(state_data, function(d) { return d[nonRollingVar]; })
             let state_svg = columns.append("svg")
                 .html("")
@@ -344,7 +370,9 @@
             const yScale = d3.scaleLinear()
                   .range([height-20 , 0])
                   .domain([0, maxY*1.3]);
-            let last_item = state_data[state_data.length -1];
+            let last_item = state_data[state_data.findIndex(item => item[variable] === undefined) -1] || state_data[state_data.length -1];
+
+            // let last_item = ;
             let first_item = state_data[0];
             let y1 = Math.min(yScale(first_item[variable]), yScale(last_item[variable]));
             let y2 = Math.max(yScale(first_item[variable]), yScale(last_item[variable]));
@@ -425,7 +453,7 @@
 
             state_svg
               .selectAll('rect')
-              .data(state_data.slice(0, state_data.length-1))
+              .data(state_data.slice(0, state_data.length-1)) // one bar overlaps bug XXX
               .enter()
               .append("rect")
               .attr("fill", color)
@@ -437,7 +465,7 @@
 
 
             state_svg
-              .datum(state_data)
+              .datum(state_data.slice(0, state_data.indexOf(last_item)+1))
               .append("path")
               .attr("opacity", .1)
               .attr("fill", color)
@@ -512,7 +540,7 @@
               .style('stroke-linecap', 'butt')
               .style('paint-order', 'stroke')
               .style('stroke-linejoin', 'miter')
-              .html(`${round(yScale.invert(endvalue))}<tspan x="0" dy="11" style="font-weight: 300;fill: #999">per million</tspan>`);
+              .html(`${round(yScale.invert(endvalue))}<tspan x="0" dy="11" style="font-weight: 300;fill: #999">${variableObj.denominator}</tspan>`);
             // }
           })
 
@@ -522,6 +550,12 @@
         }
  
     }
+
+    const datesAreOnSameDay = (first, second) =>
+      first.getFullYear() === second.getFullYear() &&
+      first.getMonth() === second.getMonth() &&
+      first.getDate() === second.getDate();
+
 
     async function getCovidDataForState(state) {
       let population = 0;
@@ -564,6 +598,15 @@
         }
       })
 
+      let dataHospitalUS = [];
+      // let dataHospitalUS = await getHospitalDataForState(state) // enable for testing data
+      // dataHospitalUS.forEach(line => {
+      //   // 13JUN2020
+      //   let str = `${line.collectionDate.substr(0,2)}-${line.collectionDate.substr(2,3)}-${line.collectionDate.substr(5,4)}`;// T12:00:00Z
+      //     // console.log(str)
+      //   line.date = new Date(str)
+      // })
+
 
       data = dataus.filter(line => line.state === state);
       data.forEach(line => {
@@ -572,11 +615,23 @@
         }
 
 
-        line.testing = dataTestingUS.find(testing => testing.date.getTime() == line.date.getTime())
+        line.testing = dataTestingUS.find(testing => datesAreOnSameDay(testing.date, line.date))
         if (line.testing) {
           line.dailyTestsPerCapita = (line.testing.totalTestResultsIncrease / population) * 1000000;
 
         }
+
+        line.hospitalCapacity = dataHospitalUS.find(testing => datesAreOnSameDay(testing.date, line.date))
+        
+        // console.log(dataHospitalUS)
+        if (line.hospitalCapacity) {
+          line.hospitalCapacity = line.hospitalCapacity.ICUBedsOccAnyPat__N_ICUBeds_Est;
+        }
+        // if (line.hospital) {
+        //   line.dailyHospital = (line.testing.totalTestResultsIncrease / population) * 1000000;
+
+        // }
+
       })
       // console.log(data, dataTestingUS)
       dataeu
@@ -640,7 +695,7 @@
         line.rollingTests = average(data.slice(start, end), "dailyTestsPerCapita")
       })
 
-      let dayCutOff = 61;
+      let dayCutOff = 7 * 2; //8;
       let cutOff = Date.now() - dayCutOff *  24*60*60*1000;
       data = data.filter(day => new Date(day.date) > cutOff)
 
@@ -672,6 +727,31 @@
       let data = await getTestingDataUS()
       data = data.filter(line => line.state === map[state])
       return data;
+    }
+
+    async function getHospitalDataForState(state) {
+      let data = await getHospitalDataUS()
+      // console.log(data)
+      data = data.filter(line => line.statename === state)
+      return data;
+    }
+
+
+
+    async function getHospitalDataUS() {
+        if (!appState.usHospitalData) {
+          appState.usHospitalData = d3.csv(`us-hospital.csv?cache=${new Date().getDate()}-${new Date().getHours()}`);
+          appState.usHospitalData.then(data => {
+            appState.usHospitalData = data;
+            renderTotalOverTime(); // XXX terrible
+          })
+          return await [];
+        } else if (appState.usHospitalData instanceof Array) {
+          return await appState.usHospitalData
+        } else {
+          return await [];
+        }
+
     }
 
     async function getTestingDataUS() {
