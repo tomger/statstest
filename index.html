@@ -66,6 +66,11 @@
           font-weight: 600;
           margin: 0 0 16px 0;
         }
+
+        .graph > div > h3 a {
+          color: #000;
+          text-decoration: none
+        }
         .graph > div{
           background: #fff;
           padding: 16px 16px 16px 16px;
@@ -75,15 +80,30 @@
         .noTicks .tick {
           display: none;
         }
-    
+        a {
+          color: #000;
+        }
+        .menu-header {
+          font-size: 11px;
+          opacity: .4;
+          font-weight: 300;
+          text-transform: uppercase;
+        }
         .menu {
-          position: absolute;
-          top: 0;
-          z-index: 2;
-          display: none;
-          padding: 10px;
-          background: #fafafa;
-          width: 100%;
+          padding: 16px;
+          display: flex;
+          flex-wrap: wrap;
+          flex-direction: column;
+          font-size: 14px;
+        }
+        .menu > div {
+          padding: 4px 0;
+          display: flex;
+          justify-content: space-between;
+          flex-direction: row;
+        }
+        .menu a {
+          text-decoration: none;
         }
         .button {
           line-height: 40px;
@@ -183,6 +203,7 @@
             <a class="titlebar-feedback" target="_blank" href="https://forms.gle/f2eDAUserCwdWfjP7">Provide Feedback 🙏</a></a>
           </div>
         </div>
+        <div class="menu"></div>
         <div class="graph">
 
         </div>
@@ -190,6 +211,7 @@
           Collecting latest data... hold on...
         </div>
         <div class="state_selector_wrapper" style="display: none">
+          
             <select class="state_selector" onChange="toggleState(this.value)"></select>
             Add
         </div>
@@ -265,7 +287,12 @@
         renderTotalOverTime(appState.currentState);
     }
 
-
+     function round(n) {
+              if (n > 10) {
+                return Math.round(n);
+              }
+              return Math.round(n*100)/100;
+    }
     async function renderTotalOverTime () {
         const formatDate = d3.timeFormat("%B %e");
         let states = appState.selectedStates;
@@ -276,6 +303,8 @@
         var graphs = d3.select(".graph").html("")
         const width = (document.querySelector(".wrapper").offsetWidth - 32);
         const height = 130;
+        const menu = d3.select('.menu');
+        menu.html('<div class="menu-header"><span>State</span><span>New cases per million</span></div>');
         for (let i = 0; i < states.length; i++) {
           let state_data = await getCovidDataForState(states[i]);
           d3.select('.state_selector_wrapper').style('display', 'block')
@@ -283,9 +312,9 @@
           let graph = graphs.append("div")
             .attr('style', "position:relative")
               
-
+ 
           graph.append('h3')
-              .html(`${states[i].replace(/_/g, " ")}`)
+              .html(`<a name="${states[i]}" href="#${states[i]}">${states[i].replace(/_/g, " ")}</a>`)
               
           graph.append('div')
               .attr('style', "position:absolute;top: 22px; right: 14px")
@@ -426,12 +455,7 @@
             //   .html(0);
             // }
 
-            function round(n) {
-              if (n > 10) {
-                return Math.round(n);
-              }
-              return Math.round(n*100)/100;
-            }
+     
 
             let startvalue = yScale(last_item[variable]) == y2 ? y1 : y2;
             let endvalue = yScale(last_item[variable]) == y2 ? y2 : y1;
@@ -542,10 +566,17 @@
               .style('stroke-linejoin', 'miter')
               .html(`${round(yScale.invert(endvalue))}<tspan x="0" dy="11" style="font-weight: 300;fill: #999">${variableObj.denominator}</tspan>`);
             // }
+
+
+            if (variable === 'rollingCases'){
+                let menuitem = menu.append('div');
+            menuitem.append('a').html(`${states[i].replace(/_/g, " ")} <svg style="position:relative; top: 2px" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-terminal"><polyline points="6 19 12 13 6 7"></polyline></svg>`).attr('href', `#${states[i]}`);
+            menuitem.append('div').html(round(yScale.invert(endvalue)));
+
+            }
           })
 
-        
-       
+
            
         }
  
