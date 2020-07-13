@@ -643,14 +643,14 @@
         }
       })
 
-      let dataHospitalUS = [];
-      // let dataHospitalUS = await getHospitalDataForState(state) // enable for testing data
-      // dataHospitalUS.forEach(line => {
-      //   // 13JUN2020
-      //   let str = `${line.collectionDate.substr(0,2)}-${line.collectionDate.substr(2,3)}-${line.collectionDate.substr(5,4)}`;// T12:00:00Z
-      //     // console.log(str)
-      //   line.date = new Date(str)
-      // })
+      // let dataHospitalUS = [];
+      let dataHospitalUS = await getHospitalDataForState(state) // enable for testing data
+      dataHospitalUS.forEach(line => {
+        // 13JUN2020
+        let str = `${line.collectionDate.substr(0,2)}-${line.collectionDate.substr(2,3)}-${line.collectionDate.substr(5,4)}`;// T12:00:00Z
+          // console.log(str)
+        line.date = new Date(str)
+      })
 
 
       data = dataus.filter(line => line.state === state);
