@@ -332,7 +332,7 @@ const yesterday = new Date();
         const width = (document.querySelector(".wrapper").offsetWidth - 32);
         const height = 130;
         const menu = d3.select('.menu');
-        menu.html(`<div class="menu-header"><a>New Cases</a><div>${formatDate(yesterday)}<div style="opacity: .7;text-transform: initial; font-size: 10px">Per million</div></div><div>Last 30 days</div></div>`);
+        menu.html(`<div class="menu-header"><a>New Cases</a><div>${formatDate(yesterday)}<div style="opacity: .7;text-transform: initial; line-height: 10px; font-size: 10px; margin-bottom: 5px;">per million<br/>per day</div></div><div>Last 30 days</div></div>`);
         for (let i = 0; i < states.length; i++) {
           let state_data = await getCovidDataForState(states[i]);
           d3.select('.state_selector_wrapper').style('display', 'block')
