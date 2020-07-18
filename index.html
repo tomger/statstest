@@ -285,6 +285,7 @@ const yesterday = new Date();
 
     async function renderMenu() {
       let statesMenu = [
+        'New York City',
         ...new Set((await getCovidDataUS()).map(line => line.state)),
         ...new Set((await getCovidDataEU()).map(line => line.countriesAndTerritories))
       ].sort();
@@ -354,17 +355,17 @@ const yesterday = new Date();
           // let variables = ['rollingDeaths', 'rollingCases'];
           let variables = [
             {
-              variable: 'rollingDeaths',
-              nonRolling: 'dailyDeathsPerCapita',
-              title: 'New deaths',
-              denominator: 'per million',
-            },
-            {
               variable: 'rollingCases',
               nonRolling: 'dailyCasesPerCapita',
               title: 'New cases',
               denominator: 'per million',
             },   
+            {
+              variable: 'rollingDeaths',
+              nonRolling: 'dailyDeathsPerCapita',
+              title: 'New deaths',
+              denominator: 'per million',
+            },
             {
               variable: 'rollingTests',
               nonRolling: 'dailyTestsPerCapita',
@@ -645,10 +646,17 @@ const yesterday = new Date();
 
       let dataus = await getCovidDataUS()
       let dataeu = await getCovidDataEU()
+      let datanyc = await getCovidDataNYC()
       let dataTestingUS = await getTestingDataForState(state) // enable for testing data
 
 
       // data transformations
+      datanyc.forEach(line => {
+        if (!line.date) {
+          let split = line.DATE_OF_INTEREST.split('/');
+          line.date = createDate(split[1], split[0], split[2])
+        }
+      })
       dataeu.forEach(line => {
         if (!line.date) {
           line.date = createDate(line.day, line.month, line.year);
@@ -697,6 +705,20 @@ const yesterday = new Date();
 
       })
       // console.log(data, dataTestingUS)
+      if (state === 'New York City') {
+      
+        datanyc.forEach(line => {
+          population = 18804000;
+          data.push({
+            date: line.date,
+            state: 'New York City',
+            dailyCases: line.CASE_COUNT,
+            dailyCasesPerCapita: (line.CASE_COUNT / population) * 1000000,
+            dailyDeaths: line.DEATH_COUNT,
+            dailyDeathsPerCapita: (line.DEATH_COUNT / population) * 1000000
+          })
+        })
+      }
       dataeu
         .filter(line => line.countriesAndTerritories === state)
         .forEach(line => {
@@ -832,6 +854,14 @@ const yesterday = new Date();
 
     async function getLastUpdate() {
         return (await d3.csv("lastupdate"))[0]
+    }
+
+    async function getCovidDataNYC() {
+        appState.covidDataNYC = appState.covidDataNYC
+            ? appState.covidDataNYC
+            : d3.csv(`nyc.csv?cache=${new Date().getDate()}-${new Date().getHours()}`)
+
+        return await appState.covidDataNYC
     }
 
     async function getCovidDataUS() {
