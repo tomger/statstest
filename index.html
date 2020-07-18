@@ -105,6 +105,7 @@
         }
         .menu > div > a {
           /* flex: 1; */
+          line-height: 24px;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -326,7 +327,7 @@ const yesterday = new Date();
         const width = (document.querySelector(".wrapper").offsetWidth - 32);
         const height = 130;
         const menu = d3.select('.menu');
-        menu.html('<div class="menu-header"><a>State</a><div>New cases</div><div>Per million</div></div>');
+        menu.html(`<div class="menu-header"><a>New Cases</a><div>${formatDate(yesterday)}<div style="opacity: .7;text-transform: initial; font-size: 10px">Per million</div></div><div>Last 30 days</div></div>`);
         for (let i = 0; i < states.length; i++) {
           let state_data = await getCovidDataForState(states[i]);
           d3.select('.state_selector_wrapper').style('display', 'block')
@@ -599,8 +600,9 @@ const yesterday = new Date();
                 }
                 let menuitem = menu.append('div');
             menuitem.append('a').html(`${states[i].replace(/_/g, " ")} <svg style="position:relative; top: 2px" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-terminal"><polyline points="6 19 12 13 6 7"></polyline></svg>`).attr('href', `#${states[i]}`);
-            menuitem.append('div').html(`${round(Number(last_item.dailyCases)).toLocaleString()} `);
-            menuitem.append('div').html(`${round(yScale.invert(endvalue))} <span style="display:inline-block; width: 38px;font-size:12px;color: ${color}">${summary}</span>`);
+            // menuitem.append('div').html(`${round(Number(last_item.dailyCases)).toLocaleString()} `);
+            menuitem.append('div').html(`${Number(round(yScale.invert(endvalue))).toLocaleString()} `);
+            menuitem.append('div').html(`<span style="display:inline-block; xfont-size:12px;color: ${color}">${summary}</span>`);
 
             }
           })
