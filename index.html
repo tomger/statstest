@@ -436,13 +436,13 @@ const yesterday = new Date();
 
 
             let direction = (last_item[variable] - first_item[variable]) / first_item[variable];
-            let color =  '#89846E'
+            let color =  '#6d6b64'
             if (Math.abs(direction) > 0.2) {
               let smaller = first_item[variable] > last_item[variable];
               if (variable == 'rollingTests') {
                 smaller = !smaller;
               }
-              color = smaller ? '#5CA330' : '#D8691A';
+              color = smaller ? '#1d9422' : '#cc3a00';
             }
 
             state_svg.append("g")
