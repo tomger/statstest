@@ -236,6 +236,15 @@
 </body>
 <script src="d3.v5.min.js"></script>
 <script>
+
+const yesterday = new Date();
+      // yesterday.setDate(15) // DEBUG
+      // yesterday.setMonth(5) // DEBUG
+      yesterday.setDate(yesterday.getDate() -1);
+      const lastMonth = new Date(yesterday);
+      lastMonth.setMonth(lastMonth.getMonth() - 1);
+      lastMonth.setDate(lastMonth.getDate() - 1);
+
     const appState = {
         covidData: null,
         populationData: null,
@@ -603,7 +612,8 @@
     }
 
     function createDate(day, month, year) {
-      const date = new Date();
+      const date = new Date(yesterday);
+   
       date.setDate(day);
       date.setMonth(parseInt(month, 10) - 1); // jsus
       date.setFullYear(year); // chrst
@@ -743,18 +753,7 @@
         line.rollingTests = average(data.slice(start, end), "dailyTestsPerCapita")
       })
 
-      // const yesterday = new Date('June');
-      const yesterday = new Date();
-      // yesterday.setDate(15) // DEBUG
-      // yesterday.setMonth(5) // DEBUG
-
-      yesterday.setDate(yesterday.getDate() -1);
-      const lastMonth = new Date(yesterday);
-      lastMonth.setMonth(lastMonth.getMonth() - 1);
-      lastMonth.setDate(lastMonth.getDate() - 1);
-
-      data = data.filter(day => day.date > lastMonth && day.date < yesterday);
-
+      data = data.filter(day => day.date > lastMonth && day.date <= yesterday);
 
       return data;
     }
