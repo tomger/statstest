@@ -102,7 +102,7 @@
         }
         .menu > div.menu-header {
           font-size: 12px;
-          opacity: .4;
+          color: #999;
           font-weight: 300;
           text-transform: uppercase;
           line-height: 14px;
@@ -133,7 +133,7 @@
         .titlebar {
 
           line-height: 30px;
-          margin: 20px 16px 16px 16px;
+          margin: 20px 16px 0px 16px;
           border-bottom: 1px solid #ddd;
           padding-bottom: 20px;
           display: flex;
@@ -332,7 +332,7 @@ const yesterday = new Date();
         const width = (document.querySelector(".wrapper").offsetWidth - 32);
         const height = 130;
         const menu = d3.select('.menu');
-        menu.html(`<div class="menu-header"><a>New Cases</a><div>${formatDate(yesterday)}<div style="opacity: .7;text-transform: initial; line-height: 10px; font-size: 10px; margin-bottom: 5px;">per million<br/>per day</div></div><div>Last 30 days</div></div>`);
+        menu.html(`<div class="menu-header"><div style="width:calc(100% - 106px);">New Cases<div style="opacity: .7;text-transform: initial; line-height: 10px; font-size: 10px; white-space: nowrap; margin-bottom: 5px;">per million on ${d3.timeFormat("%b %e")(yesterday)}</div></div><div>Last 30 days</div></div>`);
         for (let i = 0; i < states.length; i++) {
           let state_data = await getCovidDataForState(states[i]);
           d3.select('.state_selector_wrapper').style('display', 'block')
@@ -508,11 +508,11 @@ const yesterday = new Date();
               .data(state_data.slice(0, state_data.length-1)) // one bar overlaps bug XXX
               .enter()
               .append("g")
-              .attr("opacity", .1)
+              .attr("opacity", .03)
               .append("rect")
               .attr("x", function(d) { return xScale(d.date); })
               .attr("y", function(d) { return yScale(d[nonRollingVar]); })
-              .attr("fill", color)
+              .attr("fill", "#700")
               .attr("rx", 3)
               .attr("ry", 3)
               .attr("width", xScaleBand.bandwidth()*1.3)
