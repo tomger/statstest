@@ -7,11 +7,19 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>COVID-19 Dashboard</title>
     <style>
+        :root {
+          --colorBackground: #ffffff;
+          --colorLabel: #1d1d1f;
+          --colorSecondaryLabel: #6e6e73;
+          --colorSeparator: #e5e5ea;
+        }
+      
         body {
           font-family: -apple-system, BlinkMacSystemFont, sans-serif;
           display: flex;
           justify-content: center;
-          background: #fff;
+          background: var(--colorBackground);
+          color: var(--colorLabel);
         }
         .wrapper {
           width: 100%;
@@ -19,22 +27,9 @@
           overflow: hidden;
           
         }
-   
-        .tooltip {
-            position: absolute;
-            text-align: left;
-            padding: 6px;
-            padding-right: 20px;
-            font-size: 12px;
-            color: #fff;
-            background: #000;
-            border: 0px;
-            pointer-events: none;
-            font-weight: 300;
-        }
+
         svg {overflow: visible}
      
-
         .axis line {
           stroke: #fff;
         }
@@ -81,7 +76,7 @@
           display: none;
         }
         a {
-          color: #000;
+          color: var(--colorLabel);
           outline: none
         }
         .menu {
@@ -100,11 +95,11 @@
           display: flex;
           justify-content: space-between;
           flex-direction: row;
-          border-bottom: 1px solid #eee;
+          border-bottom: 1px solid var(--colorSeparator);
         }
         .menu > div.menu-header {
           font-size: 12px;
-          color: #999;
+          color:var(--colorSecondaryLabel);
           font-weight: 300;
           text-transform: uppercase;
           line-height: 14px;
@@ -136,7 +131,7 @@
 
           line-height: 26px;
           margin: 20px 16px 16px 16px;
-          border-bottom: 1px solid #ddd;
+          border-bottom: 1px solid var(--colorSeparator);
           padding-bottom: 20px;
           display: flex;
           flex-direction: row;
@@ -150,8 +145,12 @@
         .titlebar-subheader {
           font-size: 13px;
           font-weight: 300;;
-          color: #888;
+          color: var(--colorSecondaryLabel);
           line-height: 14px;
+        }
+        .header-add {
+          display: flex;align-items: center;padding: 0 10px;
+
         }
         .titlebar-feedback {
           border: 1px solid rgb(187, 204, 241);
@@ -230,8 +229,9 @@
             <div class="titlebar-subheader">Daily updates from CDC, NYT and ECDC</div>
           </div>
           
-          <div>
-            
+          <div class="header-add">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <select class="state_selector" onChange="toggleState(this.value)"></select>
           </div>
         </div>
         <div class="menu"></div>
