@@ -510,11 +510,11 @@ const yesterday = new Date();
               .data(state_data.slice(0, state_data.length-1)) // one bar overlaps bug XXX
               .enter()
               .append("g")
-              .attr("opacity", .03)
+              .attr("opacity", .05)
               .append("rect")
               .attr("x", function(d) { return xScale(d.date); })
               .attr("y", function(d) { return yScale(d[nonRollingVar]); })
-              .attr("fill", "#700")
+              .attr("fill", color)
               .attr("rx", 3)
               .attr("ry", 3)
               .attr("width", xScaleBand.bandwidth()*1.3)
