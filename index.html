@@ -150,6 +150,7 @@
         }
         .header-add {
           display: flex;align-items: center;padding: 0 10px;
+          position:relative;
 
         }
         .titlebar-feedback {
@@ -309,7 +310,7 @@ const yesterday = new Date();
         .map(function(name){
           return `<option value="${name}">${name}</option>`;
         }).join('')
-        d3.select(".state_selector").html(`<option value="">Add to watchlist</option>` + list)
+        d3.selectAll(".state_selector").html(`<option value="">Add to watchlist</option>` + list)
     }
 
     // function resetMenu() {
