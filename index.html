@@ -95,6 +95,7 @@
           display: flex;
           justify-content: space-between;
           flex-direction: row;
+          width: 100%;
           border-bottom: 1px solid var(--colorSeparator);
         }
         .menu > div.menu-header {
@@ -105,16 +106,21 @@
           line-height: 14px;
         }
         .menu > * > div:first-child {
-          /* flex: 1; */
-          
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
-          width: calc(100% - 214px); 
         }
-        .menu > * > div:not(:first-child) {
+        .menu > * > div:nth-child(2) {
           text-align: right;
           width: 90px;
+          flex: 1;
+        }
+
+        .menu > * > div:nth-child(3) {
+          text-align: right;
+
+          width: 110px;
+          flex-shrink: 0;
         }
 
         .menu a {
