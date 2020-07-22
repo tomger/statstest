@@ -353,8 +353,24 @@ const yesterday = new Date();
         const height = 130;
         const menu = d3.select('.menu');
         menu.html(`<div class="menu-header"><div style="text-align:right;width:calc(100% - 106px);">New Cases<div style="opacity: .7;text-transform: initial; line-height: 10px; font-size: 10px; white-space: nowrap; margin-bottom: 5px;">per million on ${d3.timeFormat("%b %e")(yesterday)}</div></div><div>Last 30 days</div></div>`);
+
+        let state_datas = [];
         for (let i = 0; i < states.length; i++) {
-          let state_data = await getCovidDataForState(states[i]);
+          state_datas.push({
+            name: states[i],
+            data: await getCovidDataForState(states[i])
+          })
+        }
+        state_datas.sort((a, b) => {
+          let aC = a.data[a.data.length-1];
+          let bC = b.data[b.data.length-1];
+          return aC.rollingCases - bC.rollingCases;
+        });
+
+
+        for (let i = 0; i < state_datas.length; i++) {
+          let state_data = state_datas[i].data;
+          let state_name = state_datas[i].name;
           d3.select('.state_selector_wrapper').style('display', 'block')
           d3.select('.loading').style('display', 'none')
           let graph = graphs.append("div")
@@ -362,12 +378,12 @@ const yesterday = new Date();
               
  
           graph.append('h3')
-              .html(`<a name="${states[i]}" href="#${states[i]}">${states[i].replace(/_/g, " ")}</a>`)
+              .html(`<a name="${state_name}" href="#${state_name}">${state_name.replace(/_/g, " ")}</a>`)
               
           graph.append('div')
               .attr('style', "position:absolute;top: 22px; right: 14px")
               .html(`<svg  xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x-square"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="9" x2="15" y2="15"></line><line x1="15" y1="9" x2="9" y2="15"></line></svg>`)
-              .on('click', toggleState.bind(this, states[i]));
+              .on('click', toggleState.bind(this, state_name));
 
           let columns = graph.append('div').attr('class', 'columns');
 
@@ -620,11 +636,11 @@ const yesterday = new Date();
 
 
             if (variable === 'rollingCases'){
-                if (states[i] === 'Belgium') {
+                if (state_name === 'Belgium') {
                   console.log(state_data)
                 }
-            let menuitem = menu.append('a').attr('href', `#${states[i]}`);
-            menuitem.append('div').html(`${states[i].replace(/_/g, " ")} <svg style="position:relative; top: 2px" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-terminal"><polyline points="6 19 12 13 6 7"></polyline></svg>`);
+            let menuitem = menu.append('a').attr('href', `#${state_name}`);
+            menuitem.append('div').html(`${state_name.replace(/_/g, " ")} <svg style="position:relative; top: 2px" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-terminal"><polyline points="6 19 12 13 6 7"></polyline></svg>`);
             // menuitem.append('div').html(`${round(Number(last_item.dailyCases)).toLocaleString()} `);
             menuitem.append('div').html(`${Number(Math.round(yScale.invert(endvalue))).toLocaleString()} `);
             let last_column = menuitem.append('div').attr('style', 'white-space: nowrap').html(`<span style="display:inline-block; xfont-size:12px;color: ${color}">${summary}</span>`);
