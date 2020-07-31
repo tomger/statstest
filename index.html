@@ -352,7 +352,7 @@ const yesterday = new Date();
         const width = (document.querySelector(".wrapper").offsetWidth - 32);
         const height = 130;
         const menu = d3.select('.menu');
-        menu.html(`<div class="menu-header"><div style="text-align:right;width:calc(100% - 106px);">New Cases<div style="opacity: .7;text-transform: initial; line-height: 10px; font-size: 10px; white-space: nowrap; margin-bottom: 5px;">per million on ${d3.timeFormat("%b %e")(yesterday)}</div></div><div>Last 30 days</div></div>`);
+        menu.html(`<div class="menu-header"><div style="text-align:right;width:calc(100% - 106px);">New Cases<div style="opacity: .6;text-transform: initial; line-height: 10px; font-size: 10px; white-space: nowrap; margin-bottom: 5px;">per million on ${d3.timeFormat("%b %e")(yesterday)}</div></div><div>Last 30 days <div style="opacity: .6;text-transform: initial; line-height: 10px; font-size: 10px; white-space: nowrap; margin-bottom: 5px;">${d3.timeFormat("%b %e")(new Date(lastMonth).setDate(lastMonth.getDate()+1))} – ${d3.timeFormat("%b %e")(yesterday)}</div></div></div>`);
 
         let state_datas = [];
         for (let i = 0; i < states.length; i++) {
