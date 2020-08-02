@@ -423,7 +423,7 @@ const yesterday = new Date();
             let variable = variableObj.variable;
             let nonRollingVar = variableObj.nonRolling;
             let variableTitle = variableObj.title;
-            let maxY = variableObj.yScale || d3.max(state_data, function(d) { return d[nonRollingVar]; })
+            let maxY = variableObj.yScale || d3.max(state_data, function(d) { return Math.max(d[nonRollingVar], d[variable]); })
             let minY = d3.min(state_data, function(d) { return d[nonRollingVar]; })
             let state_svg = columns.append("svg")
                 .html("")
