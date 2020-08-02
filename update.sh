@@ -10,3 +10,7 @@ date >> lastupdate
 # more data
 # https://www.cdc.gov/nhsn/covid19/report-overview.html
 # https://github.com/CSSEGISandData/COVID-19
+
+# Counties data
+# https://www2.census.gov/programs-surveys/popest/datasets/2010-2019/counties/totals/co-est2019-alldata.csv
+# https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv
