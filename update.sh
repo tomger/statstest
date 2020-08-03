@@ -4,6 +4,7 @@ curl 'https://opendata.ecdc.europa.eu/covid19/casedistribution/csv/' | awk -F "/
 curl 'https://covidtracking.com/api/v1/states/daily.csv' > us-testing.csv
 curl 'https://www.cdc.gov/nhsn/pdfs/covid19/covid19-NatEst.csv' > us-hospital.csv
 curl 'https://raw.githubusercontent.com/nychealth/coronavirus-data/master/case-hosp-death.csv' > nyc.csv
+#curl 'https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv' | grep "Colorado" > us-counties.csv
 echo "date" > lastupdate
 date >> lastupdate
 
