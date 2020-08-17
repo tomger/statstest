@@ -130,12 +130,13 @@
           margin-right: 8px
         }
         .titlebar-wrapper {
-          border-bottom: .5px solid var(--colorSeparator);
+          border-bottom: 1px solid var(--colorSeparator);
           width: 100%;
           display: flex;
           justify-content: center;
           margin-bottom: 16px;
           position: -webkit-sticky;
+          z-index: 2;
           top: 0;
           background: var(--colorBackground);
           overflow: hidden;
@@ -159,6 +160,9 @@
           display: flex;
           flex-direction: row;
           justify-content: space-between;
+        }
+        .titlebar-header {
+          text-decoration: none;
         }
         .titlebar-header > div:first-child{
           font-size: 20px; 
@@ -249,12 +253,13 @@
 
 </head>
 <body>
+      <a name="top"></a>
       <div class="titlebar-wrapper">
         <div class="titlebar">
-          <div class="titlebar-header">
+          <a class="titlebar-header" href="#top">
             <div>COVID-19 <span>Watchlist</span></div>
             <div class="titlebar-subheader">Daily updates from CDC, NYT and ECDC</div>
-          </div>
+          </a>
           
           <div class="header-add">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
