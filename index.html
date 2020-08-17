@@ -17,15 +17,11 @@
         body {
           font-family: -apple-system, BlinkMacSystemFont, sans-serif;
           display: flex;
-          justify-content: center;
+          width: 100%;
+          align-items: center;
+          flex-direction: column;
           background: var(--colorBackground);
           color: var(--colorLabel);
-        }
-        .wrapper {
-          width: 100%;
-          max-width: 500px;
-          overflow: hidden;
-          
         }
 
         svg {overflow: visible}
@@ -133,11 +129,29 @@
           border-radius: 8px;
           margin-right: 8px
         }
-        .titlebar {
+        .titlebar-wrapper {
+          border-bottom: .5px solid var(--colorSeparator);
+          width: 100%;
+          display: flex;
+          justify-content: center;
+          margin-bottom: 16px;
+        }
+        .wrapper {
+          /* width: 100%; */
+          flex:1;
+          max-width: 500px;
+          overflow: hidden;
+        }
 
+        .titlebar {
+          padding: 0 16px 0 16px;
+          box-sizing: border-box;
+          flex: 1;
+          max-width: 500px;
           line-height: 26px;
-          margin: 20px 16px 16px 16px;
-          padding-bottom: 20px;
+          margin: 12px 0 16px 0;
+          position: -webkit-sticky;
+
           display: flex;
           flex-direction: row;
           justify-content: space-between;
@@ -231,7 +245,7 @@
 
 </head>
 <body>
-      <div class="wrapper">
+      <div class="titlebar-wrapper">
         <div class="titlebar">
           <div class="titlebar-header">
             <div>COVID-19 <span>Watchlist</span></div>
@@ -243,6 +257,9 @@
             <select class="state_selector" onChange="toggleState(this.value)"></select>
           </div>
         </div>
+      </div>
+      <div class="wrapper">
+
         <div class="menu"></div>
         <div class="graph">
 
