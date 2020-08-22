@@ -8,6 +8,8 @@ curl 'https://raw.githubusercontent.com/nychealth/coronavirus-data/master/case-h
 echo "date" > lastupdate
 date >> lastupdate
 
+python get.py
+
 # more data
 # https://www.cdc.gov/nhsn/covid19/report-overview.html
 # https://github.com/CSSEGISandData/COVID-19
