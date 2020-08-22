@@ -1,4 +1,4 @@
-import urllib.request
+import urllib2
 import io
 import pandas as pd
 
@@ -6,7 +6,7 @@ region_index = []
 
 population_states = pd.read_csv('nst-est2019-alldata.csv')
 
-request = urllib.request.urlopen('https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv')
+request = urllib2.urlopen('https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv')
 csv_data = request.read()
 data = pd.read_csv(io.StringIO(csv_data.decode('utf-8')))
 df = pd.DataFrame(data)
@@ -25,11 +25,11 @@ for state in df['state'].unique():
     # state_df = state_df.rename(columns={"date": "Date"})
 
     # output
-    path = f"data/{state}.csv".replace(" ", "_")
+    path = "data/{}.csv".format(state).replace(" ", "_")
     state_df.to_csv(path, index = False, header=True)
 
     # find population
-    population_row = population_states.query(f"NAME == '{state}'")
+    population_row = population_states.query("NAME == '{}'".format(state))
     population = population_row['POPESTIMATE2019'].to_string(index=False)
 
     # add to index
