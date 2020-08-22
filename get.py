@@ -14,6 +14,8 @@ df = pd.DataFrame(data)
 for state in df['state'].unique():
     # select fields
     state_df = df.loc[df['state'] == state].filter(['date', 'cases', 'deaths'])
+
+    # cummulative to delta
     state_df['cases'] = state_df['cases'].diff().fillna(0).astype(int)
     state_df['deaths'] = state_df['deaths'].diff().fillna(0).astype(int)
     
