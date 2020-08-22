@@ -6,22 +6,17 @@ region_index = []
 
 population_states = pd.read_csv('nst-est2019-alldata.csv')
 
-
 request = urllib.request.urlopen('https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv')
 csv_data = request.read()
 data = pd.read_csv(io.StringIO(csv_data.decode('utf-8')))
-# print (data[0:5]['cases'])
-# df = pd.DataFrame(data, columns= ['cases'])
-# df.to_csv ('testing.csv', index = False, header=True)
-
 df = pd.DataFrame(data)
-# print df
-# print df.head()  
 
 for state in df['state'].unique():
     # select fields
     state_df = df.loc[df['state'] == state].filter(['date', 'cases', 'deaths'])
-    # print(state, state_df)
+    state_df['cases'] = state_df['cases'].diff().fillna(0).astype(int)
+    state_df['deaths'] = state_df['deaths'].diff().fillna(0).astype(int)
+    
     # format date
 
     # rename fields
