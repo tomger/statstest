@@ -12,7 +12,7 @@ def get_counties():
     csv_data = request.read()
     covid_counties = pd.read_csv(io.StringIO(csv_data.decode('utf-8')))
 
-    for index, row in population_counties[0:5].iterrows():
+    for index, row in population_counties.iterrows():
         state = row['STNAME']
         county = row['CTYNAME'].replace(" County", "")
         population = row['POPESTIMATE2019']
