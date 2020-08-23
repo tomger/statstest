@@ -16,7 +16,6 @@ def get_counties():
         state = row['STNAME']
         county = row['CTYNAME'].replace(" County", "")
         population = row['POPESTIMATE2019']
-        print("{}, {}".format(county, state))
 
         df = covid_counties.loc[
             (covid_counties['state'] == state) &
@@ -40,7 +39,9 @@ def get_counties():
         region_index.append({
             'path': path,
             'name': "{}, {}".format(county, state),
-            'population': population
+            'population': population,
+            'last-updated': df.tail(1)['date'],
+            'last-cases': df.tail(7)['cases'].mean(),
         })
 
 
@@ -78,7 +79,9 @@ def get_states():
         region_index.append({
             'path': path,
             'name': state,
-            'population': population
+            'population': population,
+            'last-updated': state_df.tail(1)['date'],
+            'last-cases': state_df.tail(7)['cases'].mean(),
         })
 
 
