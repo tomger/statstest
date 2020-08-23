@@ -12,6 +12,7 @@ def get_counties():
     csv_data = request.read()
     covid_counties = pd.read_csv(io.StringIO(csv_data.decode('utf-8')))
 
+    # Test: .query("CTYNAME == 'New York City'")
     for index, row in population_counties.iterrows():
         state = row['STNAME']
         county = row['CTYNAME'].replace(" County", "")
@@ -29,6 +30,10 @@ def get_counties():
 
         # rename fields
         # state_df = state_df.rename(columns={"date": "Date"})
+
+        # no data found
+        if len(df.index) < 10:
+            continue
 
         # output
         path = "data/us-co-{}-{}.csv".format(county, state).replace(" ", "-").lower()
