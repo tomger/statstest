@@ -40,7 +40,7 @@ def get_counties():
             'path': path,
             'name': "{}, {}".format(county, state),
             'population': population,
-            'last-updated': df.tail(1)['date'],
+            'last-updated': df.tail(1)['date'].to_string(index=False),
             'last-cases': df.tail(7)['cases'].mean(),
         })
 
@@ -80,7 +80,7 @@ def get_states():
             'path': path,
             'name': state,
             'population': population,
-            'last-updated': state_df.tail(1)['date'],
+            'last-updated': state_df.tail(1)['date'].to_string(index=False),
             'last-cases': state_df.tail(7)['cases'].mean(),
         })
 
