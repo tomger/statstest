@@ -154,18 +154,7 @@
           border-radius: 8px;
           margin-right: 8px
         }
-        .titlebar-wrapper {
-          border-bottom: 1px solid var(--colorSeparatorTranslucent);
-          width: 100%;
-          display: flex;
-          justify-content: center;
-          margin-bottom: 16px;
-          position: -webkit-sticky;
-          z-index: 2;
-          top: 0;
-          background: var(--colorBackground);
-          overflow: hidden;
-        }
+
         .wrapper {
           width: 100%;
           flex:1;
@@ -282,19 +271,52 @@
           font-size: 16px;
           outline: none;
           border: none;
-          background: var(--colorSecondaryBackground);
+          background-color: var(--colorSecondaryBackground);
           line-height: 32px;
           padding: 2px 12px 2px 32px;
           border-radius: 8px;
           color: var(--colorLabel);
           width: 100%;
-          margin: 20px 0;
+          margin: 5px 0 20px 0;
+          background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>');
+          background-repeat: no-repeat;
+
+          background-position: 7px 9px;
+          background-size: 18px;
+        }
+        @media (prefers-color-scheme: dark) {
+          .searchinput {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#aaaaaa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>');
+          }
         }
         .menuitem-wrapper {
           padding: 8px 0;
           height: 60px;
           display: block;
           border-bottom: 0.5px solid var(--colorSeparator);
+        }
+
+        .titlebar-wrapper {
+          border-bottom: 1px solid var(--colorSeparatorTranslucent);
+          width: 100%;
+          display: flex;
+          justify-content: center;
+          margin-bottom: 16px;
+          position: -webkit-sticky;
+          z-index: 2;
+          top: 0;
+          background: var(--colorBackground);
+          overflow: hidden;
+          transition: all 250ms ease-in-out;
+          /* transform: translateY (0px); */
+
+        }
+
+        .titlebar-wrapper.isHidden {
+          margin-top: -70px;
+          /* position: absolute; */
+          transform: translateY(-70px);
+          opacity: 0;
         }
     </style>
 
@@ -309,7 +331,7 @@
           </a>
           
           <div class="header-add">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            
             <select class="state_selector" onChange="toggleState(this.value)"></select>
           </div>
         </div>
@@ -347,13 +369,13 @@ const searchView = document.querySelector('search-view');
 const selectedRegions = readRegions();
 
 function onSearchFocus() {
-  document.querySelector('.titlebar-wrapper').style.display = 'none'
+  document.querySelector('.titlebar-wrapper').classList.add('isHidden')
   searchView.isSearching = true
 }
 
 function onSearchCancel() {
   document.querySelector('.searchinput').value='';
-  document.querySelector('.titlebar-wrapper').style.display = 'flex'
+  document.querySelector('.titlebar-wrapper').classList.remove('isHidden')
   searchView.query = null
   searchView.isSearching = false
 }
