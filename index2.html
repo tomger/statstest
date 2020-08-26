@@ -1,0 +1,497 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>COVID-19 Watchlist</title>
+    <style>
+        :root {
+          --colorBackground: #ffffff;
+          --colorSecondaryBackground: #ebebf0;
+          --colorLabel: #000;
+          --colorSecondaryLabel: #6e6e73;
+          --colorSeparator: #e5e5ea;
+          --colorSeparatorTranslucent: #6d6d8530;
+        }
+
+        * {
+          box-sizing: border-box;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+            --colorBackground: rgb(0, 0, 3);
+            --colorSecondaryBackground: rgb(33, 33, 36);
+            --colorLabel: #fff;
+            --colorSecondaryLabel: rgb(101, 102, 105);
+            --colorSeparator: #222;
+            --colorSeparatorTranslucent: #6d6d8530;
+          }
+        }
+      
+        body {
+          font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+          display: flex;
+          width: 100%;
+          align-items: center;
+          flex-direction: column;
+          background: var(--colorBackground);
+          color: var(--colorLabel);
+        }
+
+        svg {overflow: visible}
+     
+        .axis line {
+          stroke: transparent;
+        }
+        .axis .domain{
+          stroke: #aaa;
+          stroke-width: .5px;
+        }
+        .axis {
+          font-size: 12px;
+          font-weight: 500;
+          color: #aaa;
+        }
+        .x-axis .tick text{
+          transform: translateY(8px);
+        }
+        .y-axis .domain{
+          /* stroke: #fff; */
+          /* text-anchor: start; */
+        }
+        body, html {
+          padding: 0; margin: 0
+        }
+        .columns {
+          display: flex;
+          flex-direction: column;
+        }
+        .graph-wrapper {
+          position:relative;
+          scroll-margin-top: 70px;
+        }
+        .graph > div > h3 {
+          font-size: 16px;
+          font-weight: 600;
+          margin: 0 0 16px 0;
+        }
+
+        .graph > div > h3 a {
+          color: var(--colorLabel);
+          text-decoration: none
+        }
+        .graph > div{
+          background: var(--colorBackground);
+          padding: 16px 16px 16px 16px;
+          /* border-bottom:1px solid #eee; */
+          margin: 12px 0;
+        }
+        .noTicks .tick {
+          display: none;
+        }
+        a {
+          color: var(--colorLabel);
+          outline: none
+        }
+        .menu {
+          padding: 16px;
+          display: flex;
+          flex-wrap: wrap;
+          flex-direction: column;
+          font-size: 15px;
+          
+          font-variant-numeric: tabular-nums;
+        }
+        .menu > a,
+        .menu > div.menu-header
+        {
+          line-height: 32px;
+          padding: 4px 0;
+          display: flex;
+          justify-content: space-between;
+          flex-direction: row;
+          width: 100%;
+          border-bottom: .5px solid var(--colorSeparator);
+        }
+        .menu > div.menu-header {
+          font-size: 12px;
+          color:var(--colorSecondaryLabel);
+          font-weight: 300;
+          text-transform: uppercase;
+          line-height: 14px;
+        }
+        .menu .state-name {
+          font-weight: 600;
+        }
+        .menu > * > div:first-child {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .menu > * > div:nth-child(2) {
+          text-align: right;
+          width: 90px;
+          flex: 1;
+        }
+
+        .menu > * > div:nth-child(3) {
+          text-align: right;
+
+          width: 110px;
+          flex-shrink: 0;
+        }
+
+        .menu a {
+          text-decoration: none;
+        }
+        .button {
+          line-height: 40px;
+          padding: 0 14px;
+          border: 1px solid #eee;
+          border-radius: 8px;
+          margin-right: 8px
+        }
+        .titlebar-wrapper {
+          border-bottom: 1px solid var(--colorSeparatorTranslucent);
+          width: 100%;
+          display: flex;
+          justify-content: center;
+          margin-bottom: 16px;
+          position: -webkit-sticky;
+          z-index: 2;
+          top: 0;
+          background: var(--colorBackground);
+          overflow: hidden;
+        }
+        .wrapper {
+          width: 100%;
+          flex:1;
+          max-width: 500px;
+          overflow: hidden;
+          padding: 0 16px;
+        }
+
+        .titlebar {
+          padding: 0 16px 0 16px;
+          box-sizing: border-box;
+          flex: 1;
+          max-width: 500px;
+          line-height: 26px;
+          margin: 12px 0 16px 0;
+          
+
+          display: flex;
+          flex-direction: row;
+          justify-content: space-between;
+        }
+        .titlebar-header {
+          text-decoration: none;
+        }
+        .titlebar-header > div:first-child{
+          font-size: 20px; 
+          font-weight: 800;
+          display: block;
+        }
+        .titlebar-subheader {
+          font-size: 13px;
+          font-weight: 300;;
+          color: var(--colorSecondaryLabel);
+          line-height: 14px;
+        }
+        .header-add {
+          display: flex;align-items: center;padding: 0 10px;
+          position:relative;
+
+        }
+        .titlebar-feedback {
+          border: 1px solid rgb(187, 204, 241);
+          text-decoration: none;
+          font-size: 14px;
+          padding: 4px 8px;
+          border-radius: 5px;;
+          color: blue
+        }
+        .titlebar span {
+          display: inline-block;
+          font-weight: 400;
+          /* color: #888; */
+        }
+
+        .legend {
+          font-size: 14px;
+          font-weight: 300;
+          line-height: 32px;
+        }
+        .legend > div {
+          padding: 8px 0 8px 0;
+          border-bottom: 1px solid #ccc;
+          display:flex;justify-content: space-between;
+          font-size:16px;
+        }
+        .state_selector_wrapper {
+
+          border: #ccc; 
+          border-radius: 8px;
+          background: #f0f0f3;
+          box-sizing: border-box;
+          margin: 40px 16px 20px 16px;
+          line-height: 44px;;
+          text-align: center;
+          font-size: 14px;
+          font-weight: 500;;
+          /* width: 100%; */
+          position: relative;
+        }
+        .travel-high {
+          color: #de7c00
+        }
+        .state_selector {
+
+          width: 100%;
+          -moz-appearance: none;
+	        -webkit-appearance: none;
+          opacity: 0;
+          left:0;
+          height: 44px;
+          position: absolute;
+        }
+
+        .lastupdated {
+        }
+        .info {
+          padding: 16px;
+          font-size: 12px;
+          font-weight: 300;
+          color: #999;
+          margin-bottom: 50px;
+        }
+        .info a {
+          color: #777
+        }
+        .loading {
+          padding: 16px;
+          font-size: 16px;
+        }
+
+
+        /*NEW*/
+        .searchinput {
+          font-size: 16px;
+          outline: none;
+          border: none;
+          background: var(--colorSecondaryBackground);
+          line-height: 32px;
+          padding: 2px 12px 2px 32px;
+          border-radius: 8px;
+          color: var(--colorLabel);
+          width: 100%;
+          margin: 20px 0;
+        }
+        .menuitem-wrapper {
+          padding: 8px 0;
+          height: 60px;
+          display: block;
+          border-bottom: 0.5px solid var(--colorSeparator);
+        }
+    </style>
+
+</head>
+<body>
+      <a name="top"></a>
+      <div class="titlebar-wrapper">
+        <div class="titlebar">
+          <a class="titlebar-header" href="#top">
+            <div>COVID-19 <span>Watchlist</span></div>
+            <div class="titlebar-subheader">Daily updates from CDC, NYT and ECDC</div>
+          </a>
+          
+          <div class="header-add">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <select class="state_selector" onChange="toggleState(this.value)"></select>
+          </div>
+        </div>
+      </div>
+      <div class="wrapper">
+        <input class="searchinput" 
+          placeholder="Search"
+          type="text"
+          onfocus="onSearchFocus()"
+          onblur="onSearchCancel()"
+          oninput="onSearchInput(event)"/>
+        <search-view/>
+        <div class="menu"></div>
+        <div class="graph">
+
+        </div>
+        <div class="loading">
+          Collecting latest data... hold on...
+        </div>
+        <div class="state_selector_wrapper" style="display: none">
+          
+            <select class="state_selector" onChange="toggleState(this.value)"></select>
+            Add
+        </div>
+
+        <div class="info">
+          United States data provided by <a href="https://github.com/nytimes/covid-19-data">The New York Times</a>. World data provided by <a href="https://www.ecdc.europa.eu/en/publications-data/download-todays-data-geographic-distribution-covid-19-cases-worldwide">European Centre for Disease Prevention and Control</a>. <span class="lastupdated"></span>.
+        </div>
+      </div>
+</body>
+<script src="d3.v5.min.js"></script>
+<script>
+
+const searchView = document.querySelector('search-view');
+const selectedRegions = readRegions();
+
+function onSearchFocus() {
+  document.querySelector('.titlebar-wrapper').style.display = 'none'
+  searchView.isSearching = true
+}
+
+function onSearchCancel() {
+  document.querySelector('.searchinput').value='';
+  document.querySelector('.titlebar-wrapper').style.display = 'flex'
+  searchView.query = null
+  searchView.isSearching = false
+}
+
+function onSearchInput(event) {
+  searchView.query = event.target.value;
+}
+
+function init() {
+  loadRegions();
+}
+
+function loadRegions() {
+  d3.csv("data/regions.csv").then(data => {
+    searchView.regions = data;
+  })
+}
+
+function readRegions() {
+  try {
+      let storage =  localStorage.getItem('states0');
+      if (storage) {
+        return localStorage.getItem('states0').split(',')
+      }
+  } catch(e) {
+    return [];
+  }
+}
+
+function toggleRegion(state) {
+  if (!state) {
+    return
+  }
+  let index = selectedRegions.indexOf(state);
+  if (index === -1) {
+    selectedRegions.push(state)
+  } else {
+    selectedRegions.splice(index, 1)
+  }
+  localStorage.setItem('states0', selectedRegions.join(','))
+}
+
+
+class SearchView extends HTMLElement {
+  constructor() {
+    super();
+    // console.log(this.getAttribute("filter"));
+  }
+  // static get observedAttributes() {
+  //   return ["filter"];
+  // }
+  // attributeChangedCallback(name, oldValue, newValue) {
+  //   // do something when an attribute has changed
+  // }
+
+  // this.dispatchEvent(new CustomEvent("clicked", {
+  //       detail: this._timesClicked
+  // }));
+
+  // var button = document.createElement("button");
+  // button.textContent = "Click me";
+  // this.append(button);
+
+
+
+  update() {
+    this.innerHTML = ``;
+    let root = d3.select(this);
+    // let menuitem = menu.append('a').attr('href', `#${state_name}`);
+    // menuitem.append('div').html(`<span class="state-name">${state_name.replace(/_/g, " ")}</span> <svg style="position:relative; top: 2px" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-terminal"><polyline points="6 19 12 13 6 7"></polyline></svg>`);
+    // menuitem.append('div').attr('class', yScale.invert(endvalue) > 100 ? 'travel-high': '').html(`${(round100(yScale.invert(endvalue)/10)).toLocaleString()} `);
+    // let last_column = menuitem.append('div').attr('style', 'white-space: nowrap').html(`<span style="display:inline-block; xfont-size:12px;color: ${color}">${summary}</span>`);
+    this._regions.sort((a, b) => {
+      return (a['last-cases'] / a.population) - (b['last-cases'] / b.population)
+    });
+    if (this.isSearching) {
+      this._regions
+        .filter(region => {
+          if (!this.query) {
+            return false;
+          }
+          return region.name.toLowerCase().indexOf(this.query.toLowerCase()) !== -1;
+        })
+        .forEach(region => {
+          let menuitem = root.append('a')
+              .attr('class', `menuitem-wrapper`)
+              .attr('onClick', `toggleRegion("${region.name}")`);
+          let casesColumn = Math.round((region['last-cases'] / region.population) * 100000);
+          menuitem.append('div').html(`<span>${region.name} · ${casesColumn}</span>`);
+        })
+    } else {
+      this._regions
+        .filter(region => {
+          return selectedRegions.indexOf(region.name) !== -1;
+        })
+        .forEach(region => {
+          let menuitem = root.append('a')
+              .attr('class', `menuitem-wrapper`)
+              .attr('href', `#${region.path}`)
+          let casesColumn = Math.round((region['last-cases'] / region.population) * 100000);
+          menuitem.append('div').html(`<span>${region.name} · ${casesColumn}</span>`);
+        })
+    }
+    
+
+  }
+
+
+  set isSearching(value) {
+    this._isSearching = value;
+    this.update();
+  }
+
+  get isSearching() {
+    return this._isSearching;
+  }
+
+  set query(value) {
+    this._query = value;
+    this.update();
+  }
+
+  get query() {
+    return this._query;
+  }
+
+  set regions(value) {
+    this._regions = value;
+    this.update();
+  }
+
+  get regions() {
+    return this._regions;
+  }
+}
+
+customElements.define("search-view", SearchView);
+init();
+
+</script>
+</html>
