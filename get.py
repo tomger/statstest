@@ -1,11 +1,55 @@
 import urllib2
 import io
 import pandas as pd
+import datetime
 
 region_index = []
 
+def get_ecdc():
+    # https://opendata.ecdc.europa.eu/covid19/casedistribution/csv
+    # data = pd.read_csv('tmpcache')
+    request = urllib2.urlopen('https://opendata.ecdc.europa.eu/covid19/casedistribution/csv/')
+    csv_data = request.read()
+    data = pd.read_csv(io.StringIO(csv_data.decode('utf-8')))
+    df = pd.DataFrame(data)
+
+    for state in df['countriesAndTerritories'].unique():
+        # select fields
+        # dateRep,day,month,year,cases,deaths,countriesAndTerritories,countryterritoryCode,popData2019
+        state_df = df.loc[df['countriesAndTerritories'] == state].filter(['dateRep', 'cases', 'deaths'])
+
+        # cummulative to delta
+        # state_df['cases'] = state_df['cases'].diff().fillna(0).astype(int)
+        # state_df['deaths'] = state_df['deaths'].diff().fillna(0).astype(int)
+
+        # rename fields
+        state_df = state_df.rename(columns={"dateRep": "date"})
+        
+        # format date
+        state_df["date"] = state_df["date"].apply(lambda x: datetime.datetime.strptime(x, '%d/%m/%Y').date())
+        state_df.sort_values(by='date', inplace=True, ascending=True) 
+
+        # output
+        path = "data/world-{}.csv".format(state).replace(" ", "-").lower()
+        state_df.to_csv(path, index = False, header=True)
+
+        # find population
+        population = df.loc[df['countriesAndTerritories'] == state].tail(1)['popData2019'].to_string(index=False)
+
+        # add to index
+        region_index.append({
+            'path': path,
+            'name': state,
+            'byline': 'Country',
+            'population': population,
+            'last-updated': state_df.tail(1)['date'].to_string(index=False),
+            'last-cases': state_df.tail(7)['cases'].mean(),
+        })
+
 def get_counties():
     population_counties = pd.read_csv('co-est2019.csv')
+    population_counties = population_counties
+
     # covid_counties = pd.read_csv('us-counties.csv')
 
     request = urllib2.urlopen('https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv')
@@ -43,7 +87,8 @@ def get_counties():
         # add to index
         region_index.append({
             'path': path,
-            'name': "{}, {}".format(county, state),
+            'name': "{} County".format(county),
+            'byline': "County in {}".format(state),
             'population': population,
             'last-updated': df.tail(1)['date'].to_string(index=False),
             'last-cases': df.tail(7)['cases'].mean(),
@@ -84,6 +129,7 @@ def get_states():
         region_index.append({
             'path': path,
             'name': state,
+            'byline': 'U.S. State',
             'population': population,
             'last-updated': state_df.tail(1)['date'].to_string(index=False),
             'last-cases': state_df.tail(7)['cases'].mean(),
@@ -92,6 +138,7 @@ def get_states():
 
 get_states()
 get_counties()
+get_ecdc()
 
 region_index_df = pd.DataFrame(region_index)
 region_index_df.to_csv("data/regions.csv", index = False, header=True)
