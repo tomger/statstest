@@ -495,6 +495,7 @@ class SearchView extends HTMLElement {
         .sort((a, b) => {
           return b.population - a.population;
         })
+        .slice(0, 20)
         .forEach(region => {
           let menuitem = root.append('a')
               .attr('class', `menuitem-wrapper`)
@@ -517,7 +518,6 @@ class SearchView extends HTMLElement {
         .filter(region => {
           return selectedRegions.indexOf(region.name) !== -1;
         })
-        .slice(0, 20)
         .forEach(region => {
           let menuitem = root.append('a')
               .attr('class', `menuitem-wrapper`)
