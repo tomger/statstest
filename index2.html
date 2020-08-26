@@ -422,6 +422,7 @@ function toggleRegion(state) {
 class SearchView extends HTMLElement {
   constructor() {
     super();
+    this.style.display = "block";
     // console.log(this.getAttribute("filter"));
   }
   // static get observedAttributes() {
@@ -442,7 +443,6 @@ class SearchView extends HTMLElement {
 
 
   update() {
-    this.innerHTML = ``;
     let root = d3.select(this);
     // let menuitem = menu.append('a').attr('href', `#${state_name}`);
     // menuitem.append('div').html(`<span class="state-name">${state_name.replace(/_/g, " ")}</span> <svg style="position:relative; top: 2px" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-terminal"><polyline points="6 19 12 13 6 7"></polyline></svg>`);
@@ -451,12 +451,11 @@ class SearchView extends HTMLElement {
     this._regions.sort((a, b) => {
       return (a['last-cases'] / a.population) - (b['last-cases'] / b.population)
     });
-    if (this.isSearching) {
+    if (this.isSearching && this.query) {
+      this.innerHTML = ``;
+      this.style.opacity = "1";
       this._regions
         .filter(region => {
-          if (!this.query) {
-            return false;
-          }
           return region.name.toLowerCase().indexOf(this.query.toLowerCase()) !== -1;
         })
         .forEach(region => {
@@ -466,7 +465,11 @@ class SearchView extends HTMLElement {
           let casesColumn = Math.round((region['last-cases'] / region.population) * 100000);
           menuitem.append('div').html(`<span>${region.name} · ${casesColumn}</span>`);
         })
+    } else if (this.isSearching) {
+      this.style.opacity = "0.2";
     } else {
+      this.innerHTML = ``;
+      this.style.opacity = "1";
       this._regions
         .filter(region => {
           return selectedRegions.indexOf(region.name) !== -1;
