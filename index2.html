@@ -465,11 +465,14 @@ class SearchView extends HTMLElement {
           let casesColumn = Math.round((region['last-cases'] / region.population) * 100000);
           menuitem.append('div').html(`<span>${region.name} · ${casesColumn}</span>`);
         })
-    } else if (this.isSearching) {
-      this.style.opacity = "0.2";
     } else {
+      if (this.isSearching) {
+        this.style.opacity = ".2";
+      } else {
+        this.style.opacity = "1";
+      }
       this.innerHTML = ``;
-      this.style.opacity = "1";
+     
       this._regions
         .filter(region => {
           return selectedRegions.indexOf(region.name) !== -1;
