@@ -316,8 +316,11 @@
         .menuitem-wrapper {
           padding: 8px 0;
           height: 60px;
-          display: block;
+          display: flex;
           border-bottom: 0.5px solid var(--colorSeparator);
+        }
+        .menuitem-wrapper > div:first-child{ 
+          flex: 1
         }
 
         .titlebar-wrapper {
@@ -341,6 +344,11 @@
           /* position: absolute; */
           transform: translateY(-70px);
           opacity: 0;
+        }
+
+        .secondaryLabel {
+          color: var(--colorSecondaryLabel);
+          font-size: 14px;
         }
 
     </style>
@@ -397,9 +405,6 @@
 <script src="d3.v5.min.js"></script>
 <script>
 
-const searchView = document.querySelector('search-view');
-const selectedRegions = readRegions();
-
 function onSearchFocus() {
   document.querySelector('.titlebar-wrapper').classList.add('isHidden')
   document.querySelector('.search-bar').classList.add('isFocussed')
@@ -428,15 +433,19 @@ function loadRegions() {
   })
 }
 
-function readRegions() {
+function readSettings() {
   try {
       let storage =  localStorage.getItem('states0');
       if (storage) {
         return localStorage.getItem('states0').split(',')
       }
   } catch(e) {
-    return [];
   }
+  return [];
+}
+
+function isRegionSelected(state) {
+  return selectedRegions.indexOf(state) !== -1;
 }
 
 function toggleRegion(state) {
@@ -450,6 +459,10 @@ function toggleRegion(state) {
     selectedRegions.splice(index, 1)
   }
   localStorage.setItem('states0', selectedRegions.join(','))
+
+  // DEBUG
+  searchView.update();
+  onSearchCancel();
 }
 
 
@@ -497,11 +510,12 @@ class SearchView extends HTMLElement {
         })
         .slice(0, 20)
         .forEach(region => {
-          let menuitem = root.append('a')
+          let menuitem = root.append('div')
               .attr('class', `menuitem-wrapper`)
-              .attr('onClick', `toggleRegion("${region.name}")`);
+              .attr('onClick', `toggleRegion("${region.path}")`);
           let casesColumn = Math.round((region['last-cases'] / region.population) * 100000);
-          menuitem.append('div').html(`<span>${region.name} · ${Number(region.population).toLocaleString()} · ${casesColumn}</span>`);
+          menuitem.append('div').html(`<div>${region.name}</div><div class="secondaryLabel">${region.byline} · ${Number(region.population).toLocaleString()}</div></div>`);
+          menuitem.append('div').html(`<div>${casesColumn}</div>`);
         })
     } else {
       if (this.isSearching) {
@@ -512,18 +526,19 @@ class SearchView extends HTMLElement {
       this.innerHTML = ``;
      
       this._regions
+        .filter(region => {
+          return isRegionSelected(region.path)
+        })
         .sort((a, b) => {
           return (a['last-cases'] / a.population) - (b['last-cases'] / b.population)
         })
-        .filter(region => {
-          return selectedRegions.indexOf(region.name) !== -1;
-        })
         .forEach(region => {
-          let menuitem = root.append('a')
+          let menuitem = root.append('div')
               .attr('class', `menuitem-wrapper`)
-              .attr('href', `#${region.path}`)
+              .attr('onClick', `toggleRegion("${region.path}")`);
           let casesColumn = Math.round((region['last-cases'] / region.population) * 100000);
-          menuitem.append('div').html(`<span>${region.name} · ${casesColumn}</span>`);
+          menuitem.append('div').html(`<span>${region.name}</span>`);
+          menuitem.append('div').html(`${casesColumn}`);
         })
     }
     
@@ -560,6 +575,9 @@ class SearchView extends HTMLElement {
 }
 
 customElements.define("search-view", SearchView);
+
+const searchView = document.querySelector('search-view');
+const selectedRegions = readSettings();
 init();
 
 </script>
