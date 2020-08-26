@@ -423,6 +423,7 @@ class SearchView extends HTMLElement {
   constructor() {
     super();
     this.style.display = "block";
+    this.style.transition = "opacity 50ms ease";
     // console.log(this.getAttribute("filter"));
   }
   // static get observedAttributes() {
@@ -448,22 +449,24 @@ class SearchView extends HTMLElement {
     // menuitem.append('div').html(`<span class="state-name">${state_name.replace(/_/g, " ")}</span> <svg style="position:relative; top: 2px" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-terminal"><polyline points="6 19 12 13 6 7"></polyline></svg>`);
     // menuitem.append('div').attr('class', yScale.invert(endvalue) > 100 ? 'travel-high': '').html(`${(round100(yScale.invert(endvalue)/10)).toLocaleString()} `);
     // let last_column = menuitem.append('div').attr('style', 'white-space: nowrap').html(`<span style="display:inline-block; xfont-size:12px;color: ${color}">${summary}</span>`);
-    this._regions.sort((a, b) => {
-      return (a['last-cases'] / a.population) - (b['last-cases'] / b.population)
-    });
+
     if (this.isSearching && this.query) {
       this.innerHTML = ``;
       this.style.opacity = "1";
+
       this._regions
         .filter(region => {
           return region.name.toLowerCase().indexOf(this.query.toLowerCase()) !== -1;
+        })
+        .sort((a, b) => {
+          return b.population - a.population;
         })
         .forEach(region => {
           let menuitem = root.append('a')
               .attr('class', `menuitem-wrapper`)
               .attr('onClick', `toggleRegion("${region.name}")`);
           let casesColumn = Math.round((region['last-cases'] / region.population) * 100000);
-          menuitem.append('div').html(`<span>${region.name} · ${casesColumn}</span>`);
+          menuitem.append('div').html(`<span>${region.name} · ${Number(region.population).toLocaleString()} · ${casesColumn}</span>`);
         })
     } else {
       if (this.isSearching) {
@@ -474,9 +477,13 @@ class SearchView extends HTMLElement {
       this.innerHTML = ``;
      
       this._regions
+        .sort((a, b) => {
+          return (a['last-cases'] / a.population) - (b['last-cases'] / b.population)
+        })
         .filter(region => {
           return selectedRegions.indexOf(region.name) !== -1;
         })
+        .slice(0, 20)
         .forEach(region => {
           let menuitem = root.append('a')
               .attr('class', `menuitem-wrapper`)
