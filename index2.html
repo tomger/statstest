@@ -276,14 +276,38 @@
           padding: 2px 12px 2px 32px;
           border-radius: 8px;
           color: var(--colorLabel);
-          width: 100%;
           margin: 5px 0 20px 0;
           background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>');
           background-repeat: no-repeat;
 
           background-position: 7px 9px;
           background-size: 18px;
+          width: 100%;
+          transition: width 250ms ease;
+          -webkit-tap-highlight-color: rgba(0,0,0,0);
         }
+
+        .search-bar {
+          white-space: nowrap;
+        }
+
+        .search-cancel {
+          width: 60px;
+          text-align: center;
+          display: inline-block;
+          opacity: 0;
+          -webkit-tap-highlight-color: rgba(0,0,0,0);
+        }
+
+
+        .search-bar.isFocussed .searchinput {
+          width: calc(100% - 60px);
+        }
+
+        .search-bar.isFocussed .search-cancel {
+          opacity: 1;
+        }
+
         @media (prefers-color-scheme: dark) {
           .searchinput {
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#aaaaaa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>');
@@ -318,6 +342,7 @@
           transform: translateY(-70px);
           opacity: 0;
         }
+
     </style>
 
 </head>
@@ -337,12 +362,19 @@
         </div>
       </div>
       <div class="wrapper">
-        <input class="searchinput" 
-          placeholder="Search"
-          type="text"
-          onfocus="onSearchFocus()"
-          onblur="onSearchCancel()"
-          oninput="onSearchInput(event)"/>
+        <div class="search-bar">
+          <input 
+            class="searchinput" 
+            autocomplete="off"
+            autocorrect="off"
+            placeholder="Search"
+            onfocus="onSearchFocus()"
+            oninput="onSearchInput(event)"/>
+          <a
+            class="search-cancel"
+            onclick="onSearchCancel()"
+            >Cancel</a>
+        </div>
         <search-view/>
         <div class="menu"></div>
         <div class="graph">
@@ -370,12 +402,14 @@ const selectedRegions = readRegions();
 
 function onSearchFocus() {
   document.querySelector('.titlebar-wrapper').classList.add('isHidden')
+  document.querySelector('.search-bar').classList.add('isFocussed')
   searchView.isSearching = true
 }
 
 function onSearchCancel() {
   document.querySelector('.searchinput').value='';
   document.querySelector('.titlebar-wrapper').classList.remove('isHidden')
+  document.querySelector('.search-bar').classList.remove('isFocussed')
   searchView.query = null
   searchView.isSearching = false
 }
