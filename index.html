@@ -329,7 +329,7 @@ const yesterday = new Date();
       if (storage) {
         appState.selectedStates = localStorage.getItem('states0')
           .split(',')
-          .filter(i => i.indexOf('data') !== 0)
+          .filter(i => { return i.indexOf('data') !== 0})
       }
     } catch(e) {}
 
