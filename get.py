@@ -10,7 +10,7 @@ start_date = (datetime.datetime.now() - pd.to_timedelta("30day")).date()
 def get_change(df):
     start = df.head(7)['cases'].mean()
     end = max(1, df.tail(7)['cases'].mean())
-    change = (end - start) / end
+    change = (end - start) / start
     if math.isnan(change):
         return 0
     return int(change * 100)
