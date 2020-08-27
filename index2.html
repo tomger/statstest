@@ -515,7 +515,7 @@ class SearchView extends HTMLElement {
               .attr('onClick', `toggleRegion("${region.path}")`);
           let casesColumn = ((region['last-cases'] / region.population) * 100000).toFixed(1);
           menuitem.append('div').html(`<div>${region.name}</div><div class="secondaryLabel">${region.byline} · ${Number(region.population).toLocaleString()}</div></div>`);
-          menuitem.append('div').html(`<div>${casesColumn}</div>`);
+          menuitem.append('div').html(`<div>${casesColumn}</div><div>${region['change-cases']}%</div>`);
         })
     } else {
       if (this.isSearching) {
@@ -538,7 +538,7 @@ class SearchView extends HTMLElement {
               .attr('onClick', `toggleRegion("${region.path}")`);
           let casesColumn = ((region['last-cases'] / region.population) * 100000).toFixed(1);
           menuitem.append('div').html(`<span>${region.name}</span>`);
-          menuitem.append('div').html(`${casesColumn}`);
+          menuitem.append('div').html(`${casesColumn}<div>${region['change-cases']}%</div>`);
         })
     }
     
