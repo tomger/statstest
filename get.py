@@ -1,16 +1,19 @@
 import urllib2
 import io
+import math
 import pandas as pd
 import datetime
 
 region_index = []
-start_date = datetime.datetime.now() - pd.to_timedelta("30day")
+start_date = (datetime.datetime.now() - pd.to_timedelta("30day")).date()
 
 def get_change(df):
     start = df.head(7)['cases'].mean()
     end = max(1, df.tail(7)['cases'].mean())
-
-    return int(((end - start) / end) * 100)
+    change = (end - start) / end
+    if math.isnan(change):
+        return 0
+    return int(change * 100)
 
 def get_ecdc():
     # https://opendata.ecdc.europa.eu/covid19/casedistribution/csv
@@ -52,7 +55,7 @@ def get_ecdc():
             'population': population,
             'change-cases': get_change(state_df),
             'last-updated': state_df.tail(1)['date'].to_string(index=False),
-            'last-cases': state_df.tail(7)['cases'].mean(),
+            'last-cases': int(state_df.tail(7)['cases'].mean()),
         })
 
 def get_counties():
@@ -66,7 +69,7 @@ def get_counties():
     covid_counties = pd.read_csv(io.StringIO(csv_data.decode('utf-8')))
 
     # Test: .query("CTYNAME == 'New York City'")
-    for index, row in population_counties.iterrows():
+    for index, row in population_counties[0:3].iterrows():
         state = row['STNAME']
         county = row['CTYNAME'].replace(" County", "")
         population = row['POPESTIMATE2019']
@@ -75,7 +78,7 @@ def get_counties():
             (covid_counties['state'] == state) &
             (covid_counties['county'] == county)].filter(['date', 'cases', 'deaths'])
 
-        df['date'] = pd.to_datetime(df['date'])
+        df['date'] = pd.to_datetime(df['date']).dt.date
         df = df.loc[df['date'] > start_date]
         
         # cummulative to delta
@@ -104,7 +107,7 @@ def get_counties():
             'population': population,
             'change-cases': get_change(df),
             'last-updated': df.tail(1)['date'].to_string(index=False),
-            'last-cases': df.tail(7)['cases'].mean(),
+            'last-cases': int(df.tail(7)['cases'].mean()),
         })
 
 
@@ -116,7 +119,7 @@ def get_states():
     csv_data = request.read()
     data = pd.read_csv(io.StringIO(csv_data.decode('utf-8')))
     df = pd.DataFrame(data)
-    df['date'] = pd.to_datetime(df['date'])
+    df['date'] = pd.to_datetime(df['date']).dt.date
     df = df.loc[df['date'] > start_date]
 
     for state in df['state'].unique():
