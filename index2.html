@@ -14,6 +14,9 @@
           --colorSecondaryLabel: #6e6e73;
           --colorSeparator: #e5e5ea;
           --colorSeparatorTranslucent: #6d6d8530;
+
+          --colorRed: #cc3a00;
+          --colorGreen: #1d9422;
         }
 
         * {
@@ -323,6 +326,19 @@
           flex: 1
         }
 
+        .menuitem-numbers {
+          text-align: right;
+          font-size: 14px;
+        }
+
+        .menuitem-numbers .isUp {
+          color: var(--colorRed)
+        }
+
+        .menuitem-numbers .isDown {
+          color: var(--colorGreen)
+        }
+
         .titlebar-wrapper {
           border-bottom: 1px solid var(--colorSeparatorTranslucent);
           width: 100%;
@@ -515,7 +531,9 @@ class SearchView extends HTMLElement {
               .attr('onClick', `toggleRegion("${region.path}")`);
           let casesColumn = ((region['last-cases'] / region.population) * 100000).toFixed(1);
           menuitem.append('div').html(`<div>${region.name}</div><div class="secondaryLabel">${region.byline} · ${Number(region.population).toLocaleString()}</div></div>`);
-          menuitem.append('div').html(`<div>${casesColumn}</div><div>${region['change-cases']}%</div>`);
+          menuitem.append('div')
+            .attr('class', `menuitem-numbers`)
+            .html(`<div>${casesColumn}</div><div class="${region['change-cases'] < 0 ? 'isDown' : 'isUp'}">${region['change-cases']}%</div>`);
         })
     } else {
       if (this.isSearching) {
@@ -537,8 +555,10 @@ class SearchView extends HTMLElement {
               .attr('class', `menuitem-wrapper`)
               .attr('onClick', `toggleRegion("${region.path}")`);
           let casesColumn = ((region['last-cases'] / region.population) * 100000).toFixed(1);
-          menuitem.append('div').html(`<span>${region.name}</span>`);
-          menuitem.append('div').html(`${casesColumn}<div>${region['change-cases']}%</div>`);
+          menuitem.append('div').html(`<div>${region.name}</div><div class="secondaryLabel">${region.byline} · ${Number(region.population).toLocaleString()}</div></div>`);
+          menuitem.append('div')
+            .attr('class', `menuitem-numbers`)
+            .html(`<div>${casesColumn}</div><div class="${region['change-cases'] < 0 ? 'isDown' : 'isUp'}">${region['change-cases']}%</div>`);
         })
     }
     
