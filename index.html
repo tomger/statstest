@@ -415,7 +415,7 @@ const yesterday = new Date();
         state_datas.sort((a, b) => {
           let aC = a.data[a.data.length-1];
           let bC = b.data[b.data.length-1];
-          return aC.rollingCases - bC.rollingCases;
+          return (aC ? aC.rollingCases : 0) - (bC ? bC.rollingCases : 0);
         });
 
 
