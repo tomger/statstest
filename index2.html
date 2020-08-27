@@ -536,7 +536,7 @@ class SearchView extends HTMLElement {
           let menuitem = root.append('div')
               .attr('class', `menuitem-wrapper`)
               .attr('onClick', `toggleRegion("${region.path}")`);
-          let casesColumn = Math.round((region['last-cases'] / region.population) * 100000);
+          let casesColumn = ((region['last-cases'] / region.population) * 100000).toFixed(1);
           menuitem.append('div').html(`<span>${region.name}</span>`);
           menuitem.append('div').html(`${casesColumn}`);
         })
