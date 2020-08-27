@@ -13,7 +13,7 @@ def get_change(df):
     change = (end - start) / start
     if math.isnan(change):
         return 0
-    return int(change * 100)
+    return round(change * 100)
 
 def get_ecdc():
     # https://opendata.ecdc.europa.eu/covid19/casedistribution/csv
