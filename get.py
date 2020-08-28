@@ -5,7 +5,8 @@ import pandas as pd
 import datetime
 #https://epistat.sciensano.be/Data/COVID19BE_CASES_AGESEX.csv
 region_index = []
-start_date = (datetime.datetime.now() - pd.to_timedelta("30day")).date()
+end_date = (datetime.datetime.now() - pd.to_timedelta("1day")).date()
+start_date = end_date - pd.to_timedelta("30day")
 
 def get_change(df):
     start = df.head(7)['cases'].mean()
@@ -29,15 +30,14 @@ def get_ecdc():
         state_df = df.loc[df['countriesAndTerritories'] == state].filter(['dateRep', 'cases', 'deaths'])
 
         # cummulative to delta
-        # state_df['cases'] = state_df['cases'].diff().fillna(0).astype(int)
-        # state_df['deaths'] = state_df['deaths'].diff().fillna(0).astype(int)
+        # already cummulative
 
         # rename fields
         state_df = state_df.rename(columns={"dateRep": "date"})
         
         # format date
         state_df["date"] = state_df["date"].apply(lambda x: datetime.datetime.strptime(x, '%d/%m/%Y').date())
-        state_df = state_df.loc[state_df['date'] > start_date]
+        state_df = state_df.loc[(state_df['date'] > start_date) & (state_df['date'] <= end_date)]
         state_df.sort_values(by='date', inplace=True, ascending=True) 
 
         # output
@@ -78,14 +78,14 @@ def get_counties():
             (covid_counties['state'] == state) &
             (covid_counties['county'] == county)].filter(['date', 'cases', 'deaths'])
 
-        df['date'] = pd.to_datetime(df['date']).dt.date
-        df = df.loc[df['date'] > start_date]
-        
         # cummulative to delta
         df['cases'] = df['cases'].diff().fillna(0).astype(int)
         df['deaths'] = df['deaths'].diff().fillna(0).astype(int)
     
         # format date
+        df['date'] = pd.to_datetime(df['date']).dt.date
+        df = df.loc[df['date'] > start_date]
+        
 
         # rename fields
         # state_df = state_df.rename(columns={"date": "Date"})
@@ -120,7 +120,6 @@ def get_states():
     data = pd.read_csv(io.StringIO(csv_data.decode('utf-8')))
     df = pd.DataFrame(data)
     df['date'] = pd.to_datetime(df['date']).dt.date
-    df = df.loc[df['date'] > start_date]
 
     for state in df['state'].unique():
         # select fields
@@ -130,6 +129,8 @@ def get_states():
         state_df['cases'] = state_df['cases'].diff().fillna(0).astype(int)
         state_df['deaths'] = state_df['deaths'].diff().fillna(0).astype(int)
         
+        state_df = state_df.loc[df['date'] > start_date]
+
         # output
         path = "data/us-st-{}.csv".format(state).replace(" ", "-").lower()
         state_df.to_csv(path, index = False, header=True)
@@ -150,8 +151,8 @@ def get_states():
         })
 
 
-get_states()
-get_counties()
+# get_states()
+# get_counties()
 get_ecdc()
 
 region_index_df = pd.DataFrame(region_index)
