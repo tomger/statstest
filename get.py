@@ -151,8 +151,8 @@ def get_states():
         })
 
 
-# get_states()
-# get_counties()
+get_states()
+get_counties()
 get_ecdc()
 
 region_index_df = pd.DataFrame(region_index)
