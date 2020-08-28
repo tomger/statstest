@@ -516,7 +516,7 @@ class SearchView extends HTMLElement {
               .attr('class', `menuitem-wrapper`)
               .attr('onClick', `toggleRegion("${region.path}")`);
           let casesColumn = ((region['last-cases'] / region.population) * 100000).toFixed(1);
-          menuitem.append('div').html(`<div>${region.name}</div><div class="secondaryLabel">${region.byline} · ${Number(region.population).toLocaleString()}</div></div>`);
+          menuitem.append('div').html(`<div>${region.name}</div><div class="secondaryLabel">${region.byline}${region.byline ? ' · ' : ''}${Number(region.population).toLocaleString()}</div></div>`);
           menuitem.append('div')
             .attr('class', `menuitem-numbers`)
             .html(`<div>${casesColumn}</div><div class="${region['change-cases'] < 0 ? 'isDown' : 'isUp'}">${region['change-cases']}%</div>`);
@@ -541,7 +541,7 @@ class SearchView extends HTMLElement {
               .attr('class', `menuitem-wrapper`)
               .on('click', function() { detailView.region = region });
           let casesColumn = ((region['last-cases'] / region.population) * 100000).toFixed(1);
-          menuitem.append('div').html(`<div>${region.name}</div><div class="secondaryLabel">${region.byline} · ${Number(region.population).toLocaleString()}</div></div>`);
+          menuitem.append('div').html(`<div>${region.name}</div><div class="secondaryLabel">${region.byline}${region.byline ? ' · ' : ''}${Number(region.population).toLocaleString()}</div></div>`);
           menuitem.append('div')
             .attr('class', `menuitem-numbers`)
             .html(`<div>${casesColumn}</div><div class="${region['change-cases'] < 0 ? 'isDown' : 'isUp'}">${region['change-cases']}%</div>`);
