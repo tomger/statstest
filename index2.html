@@ -254,7 +254,6 @@
         .lastupdated {
         }
         .info {
-          padding: 16px;
           font-size: 12px;
           font-weight: 300;
           color: #999;
@@ -263,11 +262,6 @@
         .info a {
           color: #777
         }
-        .loading {
-          padding: 16px;
-          font-size: 16px;
-        }
-
 
         /*NEW*/
         .searchinput {
@@ -381,7 +375,6 @@
           
           <div class="header-add">
             
-            <select class="state_selector" onChange="toggleState(this.value)"></select>
           </div>
         </div>
       </div>
@@ -399,20 +392,13 @@
             onclick="onSearchCancel()"
             >Cancel</a>
         </div>
-        <search-view/>
+        <detail-view></detail-view>
+        <search-view></search-view>
+
         <div class="menu"></div>
         <div class="graph">
 
         </div>
-        <div class="loading">
-          Collecting latest data... hold on...
-        </div>
-        <div class="state_selector_wrapper" style="display: none">
-          
-            <select class="state_selector" onChange="toggleState(this.value)"></select>
-            Add
-        </div>
-
         <div class="info">
           United States data provided by <a href="https://github.com/nytimes/covid-19-data">The New York Times</a>. World data provided by <a href="https://www.ecdc.europa.eu/en/publications-data/download-todays-data-geographic-distribution-covid-19-cases-worldwide">European Centre for Disease Prevention and Control</a>. <span class="lastupdated"></span>.
         </div>
@@ -553,7 +539,7 @@ class SearchView extends HTMLElement {
         .forEach(region => {
           let menuitem = root.append('div')
               .attr('class', `menuitem-wrapper`)
-              .attr('onClick', `toggleRegion("${region.path}")`);
+              .on('click', function() { detailView.region = region });
           let casesColumn = ((region['last-cases'] / region.population) * 100000).toFixed(1);
           menuitem.append('div').html(`<div>${region.name}</div><div class="secondaryLabel">${region.byline} · ${Number(region.population).toLocaleString()}</div></div>`);
           menuitem.append('div')
@@ -596,7 +582,68 @@ class SearchView extends HTMLElement {
 
 customElements.define("search-view", SearchView);
 
+
+
+class DetailView extends HTMLElement {
+  constructor() {
+    super();
+  }
+  update() {
+    if (!this.region) {
+      this.style.display = "none";
+      return;
+    }
+    this.style.cssText = `
+      position: absolute;
+      top: 0px; left: 0; right: 0; min-height: 400px;
+      z-index: 2;
+      padding: 20px;
+      background: var(--colorBackground);
+    `;
+
+    this.innerHTML = `
+      <div>${this._region.name}</div>
+      <div>${this._region['last-cases']}</div>
+      <div>${this._region['last-updated']}</div>
+    `;
+    d3.select(this)
+      .append('a')
+      .attr('style', `display: block; padding: 16px`)
+      .html('Remove from watchlist')
+      .on('click', () => {
+        toggleRegion(this._region.path);
+        this.region = null;
+      })
+
+    d3.select(this)
+      .append('a')
+      .html('Close')
+      .attr('style', `display: block; padding: 16px`)
+      .on('click', () => {
+        this.region = null;
+      })
+
+    d3.csv(this.region.path).then(data => {
+      d3.select(this).append('table').html(data.map(l => {
+        return `<tr><td>${l.date}</td><td>${l.cases}</td></tr>`
+      }))
+    })
+
+  }
+
+  set region(value) {
+    this._region = value;
+    this.update();
+  }
+
+  get region() {
+    return this._region;
+  }
+}
+customElements.define("detail-view", DetailView);
+
 const searchView = document.querySelector('search-view');
+const detailView = document.querySelector('detail-view');
 const selectedRegions = readSettings();
 init();
 
