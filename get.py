@@ -3,7 +3,7 @@ import io
 import math
 import pandas as pd
 import datetime
-
+#https://epistat.sciensano.be/Data/COVID19BE_CASES_AGESEX.csv
 region_index = []
 start_date = (datetime.datetime.now() - pd.to_timedelta("30day")).date()
 
@@ -51,7 +51,7 @@ def get_ecdc():
         region_index.append({
             'path': path,
             'name': state,
-            'byline': 'Country',
+            'byline': '',
             'population': population,
             'change-cases': get_change(state_df),
             'last-updated': state_df.tail(1)['date'].to_string(index=False),
@@ -103,7 +103,7 @@ def get_counties():
         region_index.append({
             'path': path,
             'name': "{} County".format(county),
-            'byline': "County in {}".format(state),
+            'byline': "{}".format(state),
             'population': population,
             'change-cases': get_change(df),
             'last-updated': df.tail(1)['date'].to_string(index=False),
@@ -142,7 +142,7 @@ def get_states():
         region_index.append({
             'path': path,
             'name': state,
-            'byline': 'U.S. State',
+            'byline': 'United States',
             'population': population,
             'change-cases': get_change(state_df),
             'last-updated': state_df.tail(1)['date'].to_string(index=False),
