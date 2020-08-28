@@ -311,8 +311,7 @@
           }
         }
         .menuitem-wrapper {
-          padding: 8px 0;
-          height: 60px;
+          padding: 12px 0;
           display: flex;
           border-bottom: 0.5px solid var(--colorSeparator);
         }
@@ -355,11 +354,16 @@
           transform: translateY(-70px);
           opacity: 0;
         }
-
+        .primaryLabel {
+          color: var(--colorLabel);
+          font-size: 17px;
+          font-weight: 500;
+        }
         .secondaryLabel {
           color: var(--colorSecondaryLabel);
           font-size: 14px;
         }
+
 
     </style>
 
@@ -467,6 +471,16 @@ function toggleRegion(state) {
   onSearchCancel();
 }
 
+function numberColumn(region) {
+  let relativeCases = ((region['last-cases'] / region.population) * 100000).toFixed(1);
+  let changeRow = '<span class="secondaryLabel">–</span>';
+  if (relativeCases > 1) {
+    changeRow = `<div class="${region['change-cases'] < 0 ? 'isDown' : 'isUp'}">${region['change-cases'] > 0 ? '+' : ''}${region['change-cases']}%</div>`;
+  }
+  return `
+    <div>${relativeCases}</div>${changeRow}
+  `;
+}
 
 class SearchView extends HTMLElement {
   constructor() {
@@ -515,11 +529,10 @@ class SearchView extends HTMLElement {
           let menuitem = root.append('div')
               .attr('class', `menuitem-wrapper`)
               .attr('onClick', `toggleRegion("${region.path}")`);
-          let casesColumn = ((region['last-cases'] / region.population) * 100000).toFixed(1);
-          menuitem.append('div').html(`<div>${region.name}</div><div class="secondaryLabel">${region.byline}${region.byline ? ' · ' : ''}${Number(region.population).toLocaleString()}</div></div>`);
+          menuitem.append('div').html(`<div class="primaryLabel">${region.name.replace(/_/g, ' ')}</div><div class="secondaryLabel">${region.byline}${region.byline ? ' · ' : ''}${Number(region.population).toLocaleString()}</div></div>`);
           menuitem.append('div')
             .attr('class', `menuitem-numbers`)
-            .html(`<div>${casesColumn}</div><div class="${region['change-cases'] < 0 ? 'isDown' : 'isUp'}">${region['change-cases']}%</div>`);
+            .html(numberColumn(region));
         })
     } else {
       if (this.isSearching) {
@@ -540,11 +553,10 @@ class SearchView extends HTMLElement {
           let menuitem = root.append('div')
               .attr('class', `menuitem-wrapper`)
               .on('click', function() { detailView.region = region });
-          let casesColumn = ((region['last-cases'] / region.population) * 100000).toFixed(1);
-          menuitem.append('div').html(`<div>${region.name}</div><div class="secondaryLabel">${region.byline}${region.byline ? ' · ' : ''}${Number(region.population).toLocaleString()}</div></div>`);
+          menuitem.append('div').html(`<div class="primaryLabel">${region.name.replace(/_/g, ' ')}</div><div class="secondaryLabel">${region.byline}${region.byline ? ' · ' : ''}${Number(region.population).toLocaleString()}</div></div>`);
           menuitem.append('div')
             .attr('class', `menuitem-numbers`)
-            .html(`<div>${casesColumn}</div><div class="${region['change-cases'] < 0 ? 'isDown' : 'isUp'}">${region['change-cases']}%</div>`);
+            .html(numberColumn(region));
         })
     }
     
@@ -609,7 +621,7 @@ class DetailView extends HTMLElement {
     `;
     d3.select(this)
       .append('a')
-      .attr('style', `display: block; padding: 16px`)
+      .attr('style', `display: inline-block; margin-right: 12px; padding: 16px; border: 1px solid var(--colorSeparator);`)
       .html('Remove from watchlist')
       .on('click', () => {
         toggleRegion(this._region.path);
@@ -619,7 +631,7 @@ class DetailView extends HTMLElement {
     d3.select(this)
       .append('a')
       .html('Close')
-      .attr('style', `display: block; padding: 16px`)
+      .attr('style', `display: inline-block; margin-right: 12px; padding: 16px; border: 1px solid var(--colorSeparator);`)
       .on('click', () => {
         this.region = null;
       })
