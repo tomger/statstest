@@ -467,14 +467,12 @@ function getRegionFromLocation() {
 }
 
 function closeDetailView() {
-  if (didPushHistoryState) {
-    window.history.back()
-  }
+  history.replaceState({}, 'COVID-19 Watchlist', `/`)
   showDetailView(null)
 }
 function navigateToDetailView(region) {
   didPushHistoryState = true;
-  history.pushState({}, region.name, `region/${region.path}`)
+  history.pushState({}, region.name, `/region/${region.path}`)
   showDetailView(region)
 }
 
