@@ -369,7 +369,9 @@
 
 </head>
 <body>
-      <a name="top"></a>
+      <div class="wrapper">
+        <detail-view></detail-view>
+      </div>
       <div class="titlebar-wrapper">
         <div class="titlebar">
           <a class="titlebar-header" href="#top">
@@ -382,7 +384,7 @@
           </div>
         </div>
       </div>
-      <div class="wrapper">
+      <div class="wrapper listing-wrapper">
         <div class="search-bar">
           <input 
             class="searchinput" 
@@ -396,7 +398,7 @@
             onclick="onSearchCancel()"
             >Cancel</a>
         </div>
-        <detail-view></detail-view>
+        
         <search-view></search-view>
 
         <div class="menu"></div>
@@ -407,6 +409,7 @@
           United States data provided by <a href="https://github.com/nytimes/covid-19-data">The New York Times</a>. World data provided by <a href="https://www.ecdc.europa.eu/en/publications-data/download-todays-data-geographic-distribution-covid-19-cases-worldwide">European Centre for Disease Prevention and Control</a>. <span class="lastupdated"></span>.
         </div>
       </div>
+
 </body>
 <script src="d3.v5.min.js"></script>
 <script>
@@ -437,6 +440,13 @@ function loadRegions() {
   d3.csv("data/regions.csv").then(data => {
     searchView.regions = data;
   })
+}
+
+function showDetailView(region) {
+  [...document.querySelectorAll('.listing-wrapper, .titlebar-wrapper')].forEach(e => {
+    e.style.display = !!region ? 'none' : 'block'
+  })
+  detailView.region = region;
 }
 
 function readSettings() {
@@ -552,7 +562,7 @@ class SearchView extends HTMLElement {
         .forEach(region => {
           let menuitem = root.append('div')
               .attr('class', `menuitem-wrapper`)
-              .on('click', function() { detailView.region = region });
+              .on('click', function() { showDetailView(region) });
           menuitem.append('div').html(`<div class="primaryLabel">${region.name.replace(/_/g, ' ')}</div><div class="secondaryLabel">${region.byline}${region.byline ? ' · ' : ''}${Number(region.population).toLocaleString()}</div></div>`);
           menuitem.append('div')
             .attr('class', `menuitem-numbers`)
@@ -606,35 +616,30 @@ class DetailView extends HTMLElement {
       return;
     }
     this.style.cssText = `
-      position: absolute;
-      top: 0px; left: 0; right: 0; min-height: 400px;
-      z-index: 2;
       padding: 20px;
       background: var(--colorBackground);
     `;
 
+    let cases = Number((this._region['last-cases'] / this.region.population) * 100000).toFixed(1);
     this.innerHTML = `
-      <div>${this._region.name}</div>
-      <div>${this._region['last-cases']}</div>
-      <div>${this._region['last-updated']}</div>
-      <div>${Number(this.region.population).toLocaleString()}</div>
+      <div onClick="showDetailView(null)" style="width: 44px; height: 44px">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+      </div>
+      <div style="font-size: 20px; margin-bottom: 12px; font-weight: 600;">${this._region.name}</div>
+      <div>New cases: ${cases} per 100k residents</div>
+      <div>Last updated:${this._region['last-updated']}</div>
+      <div>Population: ${Number(this.region.population).toLocaleString()}</div>
     `;
-    d3.select(this)
-      .append('a')
-      .attr('style', `display: inline-block; margin-right: 12px; padding: 16px; border: 1px solid var(--colorSeparator);`)
-      .html('Remove from watchlist')
-      .on('click', () => {
-        toggleRegion(this._region.path);
-        this.region = null;
-      })
 
     d3.select(this)
       .append('a')
-      .html('Close')
-      .attr('style', `display: inline-block; margin-right: 12px; padding: 16px; border: 1px solid var(--colorSeparator);`)
+      .attr('style', `margin: 20px 0;display: inline-block; margin-right: 12px; padding: 16px; border: 1px solid var(--colorSeparator);`)
+      .html('Remove from watchlist')
       .on('click', () => {
-        this.region = null;
+        toggleRegion(this._region.path);
+        showDetailView(null)
       })
+
 
     d3.csv(this.region.path).then(data => {
       d3.select(this).append('table').attr('style', `font-size: 13px`).html(
