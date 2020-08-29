@@ -5,6 +5,7 @@ import pandas as pd
 import datetime
 #https://epistat.sciensano.be/Data/COVID19BE_CASES_AGESEX.csv
 region_index = []
+path_mask = "data/{}.csv"
 end_date = (datetime.datetime.now() - pd.to_timedelta("1day")).date()
 start_date = end_date - pd.to_timedelta("30day")
 
@@ -41,8 +42,8 @@ def get_ecdc():
         state_df.sort_values(by='date', inplace=True, ascending=True) 
 
         # output
-        path = "data/world-{}.csv".format(state).replace(" ", "-").lower()
-        state_df.to_csv(path, index = False, header=True)
+        path = "world-{}".format(state).replace(" ", "-").lower()
+        state_df.to_csv(path_mask.format(path), index = False, header=True)
 
         # find population
         population = df.loc[df['countriesAndTerritories'] == state].tail(1)['popData2019'].to_string(index=False)
@@ -95,8 +96,8 @@ def get_counties():
             continue
 
         # output
-        path = "data/us-co-{}-{}.csv".format(county, state).replace(" ", "-").lower()
-        df.to_csv(path, index = False, header=True)
+        path = "us-co-{}-{}".format(county, state).replace(" ", "-").lower()
+        df.to_csv(path_mask.format(path), index = False, header=True)
 
 
         # add to index
@@ -132,8 +133,8 @@ def get_states():
         state_df = state_df.loc[df['date'] > start_date]
 
         # output
-        path = "data/us-st-{}.csv".format(state).replace(" ", "-").lower()
-        state_df.to_csv(path, index = False, header=True)
+        path = "us-st-{}".format(state).replace(" ", "-").lower()
+        state_df.to_csv(path_mask.format(path), index = False, header=True)
 
         # find population
         population_row = population_states.query("NAME == '{}'".format(state))
