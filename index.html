@@ -440,7 +440,30 @@ function init() {
 function loadRegions() {
   d3.csv("data/regions.csv").then(data => {
     searchView.regions = data;
-  })
+
+    let pathname = '/region/us-st-maine';
+    // let pathname = location.pathname;
+    let pathMatch = pathname.match(/region\/(.*)/);
+    if (pathMatch) {
+      let needlePath = pathMatch[1];
+      let region = data.find(line => line.path === needlePath);
+      if (region) {
+        showDetailView(region)
+      }
+    }
+  });
+}
+
+function closeDetailView() {
+  if (didPushHistoryState) {
+    window.history.back()
+  }
+  showDetailView(null)
+}
+function navigateToDetailView(region) {
+  didPushHistoryState = true;
+  history.pushState({}, region.name, `region/${region.path}`)
+  showDetailView(region)
 }
 
 function showDetailView(region) {
@@ -563,7 +586,9 @@ class SearchView extends HTMLElement {
         .forEach(region => {
           let menuitem = root.append('div')
               .attr('class', `menuitem-wrapper`)
-              .on('click', function() { showDetailView(region) });
+              .on('click', function() { 
+                navigateToDetailView(region) 
+              });
           menuitem.append('div').html(`<div class="primaryLabel">${region.name.replace(/_/g, ' ')}</div><div class="secondaryLabel">${region.byline}${region.byline ? ' · ' : ''}${Number(region.population).toLocaleString()}</div></div>`);
           menuitem.append('div')
             .attr('class', `menuitem-numbers`)
@@ -623,7 +648,7 @@ class DetailView extends HTMLElement {
 
     let cases = Number((this._region['last-cases'] / this.region.population) * 100000).toFixed(1);
     this.innerHTML = `
-      <div onClick="showDetailView(null)" style="width: 44px; height: 44px">
+      <div onClick="closeDetailView()" style="width: 44px; height: 44px">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
       </div>
       <div style="font-size: 20px; margin-bottom: 12px; font-weight: 600;">${this._region.name}</div>
@@ -642,7 +667,7 @@ class DetailView extends HTMLElement {
       })
 
 
-    d3.csv(this.region.path).then(data => {
+    d3.csv(`data/${this.region.path}.csv`).then(data => {
       d3.select(this).append('table').attr('style', `font-size: 13px`).html(
         `<tr><td></td><td>Delta cases</td><td>Delta cases per 100k</td></tr>` +
         data.map(l => {
@@ -664,6 +689,7 @@ class DetailView extends HTMLElement {
 }
 customElements.define("detail-view", DetailView);
 
+let didPushHistoryState = false;
 const searchView = document.querySelector('search-view');
 const detailView = document.querySelector('detail-view');
 const selectedRegions = readSettings();
