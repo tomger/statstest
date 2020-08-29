@@ -314,6 +314,7 @@
           padding: 12px 0;
           display: flex;
           border-bottom: 0.5px solid var(--colorSeparator);
+          cursor: pointer;
         }
         .menuitem-wrapper > div:first-child{ 
           flex: 1
@@ -444,7 +445,7 @@ function loadRegions() {
 
 function showDetailView(region) {
   [...document.querySelectorAll('.listing-wrapper, .titlebar-wrapper')].forEach(e => {
-    e.style.display = !!region ? 'none' : 'block'
+    e.style.display = !!region ? 'none' : ''
   })
   detailView.region = region;
 }
