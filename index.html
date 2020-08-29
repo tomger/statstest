@@ -441,17 +441,29 @@ function loadRegions() {
   d3.csv("/data/regions.csv").then(data => {
     searchView.regions = data;
 
-    // let pathname = '/region/us-st-maine';
-    let pathname = location.pathname;
-    let pathMatch = pathname.match(/region\/(.*)/);
-    if (pathMatch) {
-      let needlePath = pathMatch[1];
-      let region = data.find(line => line.path === needlePath);
-      if (region) {
-        showDetailView(region)
-      }
+    let region = getRegionFromLocation();
+    if (region) {
+      showDetailView(region)
     }
   });
+}
+
+window.onpopstate = function() {
+  let region = getRegionFromLocation();
+  if (region) {
+    showDetailView(region)
+  }
+}
+
+function getRegionFromLocation() {
+  // let pathname = '/region/us-st-maine';
+  let pathname = location.pathname;
+  let pathMatch = pathname.match(/region\/(.*)/);
+  if (pathMatch) {
+    let needlePath = pathMatch[1];
+    let region = data.find(line => line.path === needlePath);
+    return region;
+  }
 }
 
 function closeDetailView() {
