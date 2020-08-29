@@ -460,7 +460,7 @@ function getRegionFromLocation() {
   let pathMatch = pathname.match(/region\/(.*)/);
   if (pathMatch) {
     let needlePath = pathMatch[1];
-    let region = data.find(line => line.path === needlePath);
+    let region = searchView.regions.find(line => line.path === needlePath);
     return region;
   }
   return null;
