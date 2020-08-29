@@ -438,11 +438,11 @@ function init() {
 }
 
 function loadRegions() {
-  d3.csv("data/regions.csv").then(data => {
+  d3.csv("/data/regions.csv").then(data => {
     searchView.regions = data;
 
-    let pathname = '/region/us-st-maine';
-    // let pathname = location.pathname;
+    // let pathname = '/region/us-st-maine';
+    let pathname = location.pathname;
     let pathMatch = pathname.match(/region\/(.*)/);
     if (pathMatch) {
       let needlePath = pathMatch[1];
