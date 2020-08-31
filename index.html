@@ -686,8 +686,22 @@ class DetailView extends HTMLElement {
       margin-bottom: 20px;
     `;
     this.innerHTML = /*html*/`
-      <div onClick="closeDetailView()" style="width: 44px; height: 44px">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+      <div style="display:flex; flex-direction: row">
+        <div onClick="closeDetailView()" style="width: 44px; height: 44px; flex: 1">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        </div>
+        <div 
+        onclick="navigator.share({title: 'COVID-19 Watchlist: ${this.region.name}', text: '', url: location.href})"
+        style="margin-right: 10px;text-decoration: underline;font-size: 14px; font-weight: 600; display: inline-block;padding: 8px 12px; border-radius: 40px; ">
+          Share
+          </div>
+        <div>
+        <div 
+          onclick="toggleRegion('${this._region.path}');showDetailView(null)"
+          style="font-size: 14px; font-weight: 600; display: inline-block;padding: 8px 12px; border-radius: 40px;background: #1d5ab5; color: var(--colorBackground)">
+          ${isRegionSelected(this.region.path) ? 'Remove from watchlist' : 'Add to watchlist'}
+        </div>
+        </div>
       </div>
       <div style="font-size: 30px; margin-bottom: 12px; font-weight: 700;">${this._region.name}</div>
       <div style="color: var(--colorSecondaryLabel); font-size: 13px; margin: -12px 0 20px 0">${Number(this.region.population).toLocaleString()} residents</div>
@@ -698,22 +712,12 @@ class DetailView extends HTMLElement {
         </div>
         <div style="flex: 1">
           <div style="${bigNumberStyle}">${changeNumber(this.region)}</div>
-          <div style="${bigNumberCaptionStyle}">Last 30 day change in cases. <div>Start vs end 7 day average.</div></div>
+          <div style="${bigNumberCaptionStyle}">Last 30 day change in cases. <div>First vs last 7 day average.</div></div>
         </div>
       </div>
       <div></div>
       <div style="color: var(--colorSecondaryLabel); font-size: 13px;">Last included data point:${this._region['last-updated']}</div>
     `;
-
-    d3.select(this)
-      .append('a')
-      .attr('style', `margin: 20px 0;display: inline-block; margin-right: 12px; padding: 16px; border: 1px solid var(--colorSeparator);`)
-      .html(isRegionSelected(this.region.path) ? 'Remove from watchlist' : 'Add to watchlist')
-      .on('click', () => {
-        toggleRegion(this._region.path);
-        showDetailView(null)
-      })
-
 
     d3.csv(`/data/${this.region.path}.csv`).then(data => {
       d3.select(this).append('table').attr('style', `font-size: 13px`).html(
