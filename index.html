@@ -325,11 +325,11 @@
           font-size: 14px;
         }
 
-        .menuitem-numbers .isUp {
+        .isUp {
           color: var(--colorRed)
         }
 
-        .menuitem-numbers .isDown {
+        .isDown {
           color: var(--colorGreen)
         }
 
@@ -515,11 +515,20 @@ function toggleRegion(state) {
   onSearchCancel();
 }
 
+function changeNumber(region) {
+  let change = region['change-cases'];
+  return /*html*/`
+    <div class="${change < 0 ? 'isDown' : 'isUp'}">
+      ${change > 0 ? '+' : ''}${change}%
+    </div>
+  `;
+}
+
 function numberColumn(region) {
   let relativeCases = ((region['last-cases'] / region.population) * 100000).toFixed(1);
   let changeRow = '<span class="secondaryLabel">–</span>';
   if (relativeCases > 1) {
-    changeRow = `<div class="${region['change-cases'] < 0 ? 'isDown' : 'isUp'}">${region['change-cases'] > 0 ? '+' : ''}${region['change-cases']}%</div>`;
+    changeRow = changeNumber(region)
   }
   return `
     <div>${relativeCases}</div>${changeRow}
@@ -572,7 +581,9 @@ class SearchView extends HTMLElement {
         .forEach(region => {
           let menuitem = root.append('div')
               .attr('class', `menuitem-wrapper`)
-              .attr('onClick', `toggleRegion("${region.path}")`);
+              .on('click', function() { 
+                navigateToDetailView(region) 
+              });
           menuitem.append('div').html(`<div class="primaryLabel">${region.name.replace(/_/g, ' ')}</div><div class="secondaryLabel">${region.byline}${region.byline ? ' · ' : ''}${Number(region.population).toLocaleString()}</div></div>`);
           menuitem.append('div')
             .attr('class', `menuitem-numbers`)
@@ -657,20 +668,47 @@ class DetailView extends HTMLElement {
     `;
 
     let cases = Number((this._region['last-cases'] / this.region.population) * 100000).toFixed(1);
-    this.innerHTML = `
+    let bigNumberStyle = /*css*/`
+      font-size: 28px;
+      font-weight: 600;
+    `;
+    let bigNumberCaptionStyle = /*css*/`
+      font-size: 13px;
+      color: var(--colorSecondaryLabel);
+    `
+    let numberWrapperStyle = /*css*/`
+      display: flex; 
+      flex-direction: row;
+      border: 1px solid var(--colorSeparator);
+      border-width: 1px 0 1px 0;
+      padding: 12px 0;
+      gap: 20px;
+      margin-bottom: 20px;
+    `;
+    this.innerHTML = /*html*/`
       <div onClick="closeDetailView()" style="width: 44px; height: 44px">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
       </div>
-      <div style="font-size: 20px; margin-bottom: 12px; font-weight: 600;">${this._region.name}</div>
-      <div>New cases: ${cases} per 100k residents</div>
-      <div>Last updated:${this._region['last-updated']}</div>
-      <div>Population: ${Number(this.region.population).toLocaleString()}</div>
+      <div style="font-size: 30px; margin-bottom: 12px; font-weight: 700;">${this._region.name}</div>
+      <div style="color: var(--colorSecondaryLabel); font-size: 13px; margin: -12px 0 20px 0">${Number(this.region.population).toLocaleString()} residents</div>
+      <div style="${numberWrapperStyle}">
+        <div style="flex: 1">
+          <div style="${bigNumberStyle}">${cases}</div>
+          <div style="${bigNumberCaptionStyle}">New cases per 100k residents. <div>Last 7 day average.</div></div>
+        </div>
+        <div style="flex: 1">
+          <div style="${bigNumberStyle}">${changeNumber(this.region)}</div>
+          <div style="${bigNumberCaptionStyle}">Last 30 day change in cases. <div>Start vs end 7 day average.</div></div>
+        </div>
+      </div>
+      <div></div>
+      <div style="color: var(--colorSecondaryLabel); font-size: 13px;">Last included data point:${this._region['last-updated']}</div>
     `;
 
     d3.select(this)
       .append('a')
       .attr('style', `margin: 20px 0;display: inline-block; margin-right: 12px; padding: 16px; border: 1px solid var(--colorSeparator);`)
-      .html('Remove from watchlist')
+      .html(isRegionSelected(this.region.path) ? 'Remove from watchlist' : 'Add to watchlist')
       .on('click', () => {
         toggleRegion(this._region.path);
         showDetailView(null)
