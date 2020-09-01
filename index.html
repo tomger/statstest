@@ -320,11 +320,6 @@
           flex: 1
         }
 
-        .menuitem-numbers {
-          text-align: right;
-          font-size: 14px;
-        }
-
         .isUp {
           color: var(--colorRed)
         }
@@ -536,8 +531,10 @@ function numberColumn(region) {
   if (relativeCases > 1) {
     changeRow = changeNumber(region)
   }
-  return `
-    <div>${relativeCases}</div>${changeRow}
+  return /*html*/`
+    <div style="text-align: right; font-size: 14px; width: 57px;">
+      <div>${relativeCases}</div>${changeRow}
+    </div>
   `;
 }
 
@@ -589,16 +586,16 @@ class SearchView extends HTMLElement {
               .attr('class', `menuitem-wrapper`)
               .on('click', function() { 
                 navigateToDetailView(region) 
-              });
-          menuitem.append('div').html(/*html*/`
-            <div class="primaryLabel">${region.name.replace(/_/g, ' ')}</div>
-            <div class="secondaryLabel">
-              ${region.byline}${region.byline ? ' · ' : ''}${Number(region.population).toLocaleString()}
-            </div>
-          `);
-          menuitem.append('div')
-            .attr('class', `menuitem-numbers`)
-            .html(numberColumn(region));
+              })
+              .html(/*html*/`
+                <div>
+                  <div class="primaryLabel">${region.name.replace(/_/g, ' ')}</div>
+                  <div class="secondaryLabel">
+                      ${region.byline}${region.byline ? ' · ' : ''}${Number(region.population).toLocaleString()}
+                  </div>
+                </div>
+                ${numberColumn(region)}
+              `);  
         })
     } else {
       if (this.isSearching) {
@@ -616,30 +613,29 @@ class SearchView extends HTMLElement {
           return (a['last-cases'] / a.population) - (b['last-cases'] / b.population)
         })
         .forEach(region => {
+          const sparkStyle = `
+            padding-top: 2px;
+            margin-right: 16px;
+            display: flex;
+            align-items: center
+          `;
           let menuitem = root.append('div')
               .attr('class', `menuitem-wrapper`)
               .on('click', function() { 
                 navigateToDetailView(region) 
-              });
-          menuitem.append('div').html(/*html*/`
-            <div class="primaryLabel">${region.name.replace(/_/g, ' ')}</div>
-            <div class="secondaryLabel">
-              ${region.byline}${region.byline ? ' · ' : ''}${Number(region.population).toLocaleString()}
-            </div>
+              })
+              .html(/*html*/`
+              <div>
+                <div class="primaryLabel">${region.name.replace(/_/g, ' ')}</div>
+                <div class="secondaryLabel">
+                  ${region.byline}${region.byline ? ' · ' : ''}${Number(region.population).toLocaleString()}
+                </div>
+              </div>
+              <div style="${sparkStyle}">
+                <spark-line class="${region["change-cases"] < 0 ? 'isDown' : 'isUp'}" src="/data/${region.path}.csv"></spark-line>
+              </div>
+              ${numberColumn(region)}
           `);
-          menuitem.append('div')
-            .attr('style', `
-              padding-top: 2px;
-              margin-right: 16px;
-              display: flex;
-              align-items: center
-            `)
-            .html(/*html*/`
-            <spark-line class="${region["change-cases"] < 0 ? 'isDown' : 'isUp'}" src="data/${region.path}.csv"></spark-line>
-          `);
-          menuitem.append('div')
-            .attr('class', `menuitem-numbers`)
-            .html(numberColumn(region));
         })
     }
     
@@ -723,7 +719,7 @@ class DetailView extends HTMLElement {
           </div>
         <div>
         <div 
-          onclick="toggleRegion('${this._region.path}');showDetailView(null)"
+          onclick="toggleRegion('${this._region.path}');closeDetailView()"
           style="font-size: 14px; font-weight: 600; display: inline-block;padding: 8px 12px; border-radius: 40px;background: #1d5ab5; color: var(--colorBackground)">
           ${isRegionSelected(this.region.path) ? 'Remove' : 'Add to watchlist'}
         </div>
