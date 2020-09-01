@@ -315,6 +315,7 @@
           display: flex;
           border-bottom: 0.5px solid var(--colorSeparator);
           cursor: pointer;
+          gap: 16px;
         }
         .menuitem-wrapper > div:first-child{ 
           flex: 1
@@ -584,7 +585,12 @@ class SearchView extends HTMLElement {
               .on('click', function() { 
                 navigateToDetailView(region) 
               });
-          menuitem.append('div').html(`<div class="primaryLabel">${region.name.replace(/_/g, ' ')}</div><div class="secondaryLabel">${region.byline}${region.byline ? ' · ' : ''}${Number(region.population).toLocaleString()}</div></div>`);
+          menuitem.append('div').html(/*html*/`
+            <div class="primaryLabel">${region.name.replace(/_/g, ' ')}</div>
+            <div class="secondaryLabel">
+              ${region.byline}${region.byline ? ' · ' : ''}${Number(region.population).toLocaleString()}
+            </div>
+          `);
           menuitem.append('div')
             .attr('class', `menuitem-numbers`)
             .html(numberColumn(region));
@@ -610,7 +616,21 @@ class SearchView extends HTMLElement {
               .on('click', function() { 
                 navigateToDetailView(region) 
               });
-          menuitem.append('div').html(`<div class="primaryLabel">${region.name.replace(/_/g, ' ')}</div><div class="secondaryLabel">${region.byline}${region.byline ? ' · ' : ''}${Number(region.population).toLocaleString()}</div></div>`);
+          menuitem.append('div').html(/*html*/`
+            <div class="primaryLabel">${region.name.replace(/_/g, ' ')}</div>
+            <div class="secondaryLabel">
+              ${region.byline}${region.byline ? ' · ' : ''}${Number(region.population).toLocaleString()}
+            </div>
+          `);
+          menuitem.append('div')
+            .attr('style', `
+              padding-top: 2px;
+              display: flex;
+              align-items: center
+            `)
+            .html(/*html*/`
+            <spark-line class="${region["change-cases"] < 0 ? 'isDown' : 'isUp'}" src="data/${region.path}.csv"></spark-line>
+          `);
           menuitem.append('div')
             .attr('class', `menuitem-numbers`)
             .html(numberColumn(region));
@@ -742,6 +762,68 @@ class DetailView extends HTMLElement {
   }
 }
 customElements.define("detail-view", DetailView);
+
+
+function sum(array) {
+  return array.reduce((a, b) => {
+    return a + b;
+  }, 0);
+}
+
+function average(array) {
+  return sum(array) / (array.length || 1);
+}
+
+function movingAverage(array) {
+  const before = 0;
+  const after = 3;
+  return array.map((line, index) => {
+    const start = Math.max(0, index - before);
+    const end   = Math.min(array.length, index + after + 1);
+    return average(array.slice(start, end))
+  })
+}
+
+
+class SparklineElement extends HTMLElement {
+  constructor() {
+    super();
+    const width = this.getAttribute('width') ||  60;
+    const height = this.getAttribute('height') || 24;
+    const color = this.getAttribute('color') || 'currentColor';
+    d3.csv(this.getAttribute('src')).then(data => {
+      this.innerHTML = ''
+      let svg = d3.select(this).append("svg")
+        .html("")
+        .attr("width", width)
+        .attr("height", height)
+
+      let values = movingAverage(data.map(d => parseInt(d.cases, 10)));
+      const scaleX = d3.scaleLinear().range([0, width]).domain([0, values.length]);
+      const scaleY = d3.scaleLinear().range([height, 0]).domain([
+      d3.min(values), d3.max(values)
+      ]);
+      svg
+        .datum(values)
+        .append("path")
+        .attr("fill", "none")
+        .attr("stroke", color)
+        .attr("stroke-width",1.75)
+        .attr("d", d3.line()
+            .x(function(d, i) { 
+              return scaleX(i);
+            })
+            .y(function(d) {  
+              return scaleY(d)
+            })
+        )
+    })
+  }
+
+}
+customElements.define("spark-line", SparklineElement);
+
+
 
 let didPushHistoryState = false;
 const searchView = document.querySelector('search-view');
