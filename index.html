@@ -348,6 +348,12 @@
           /* transform: translateY (0px); */
 
         }
+        @media (prefers-color-scheme: dark) {
+          .titlebar-wrapper {
+            background: rgba(0,0,0,0.8);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+          }
+        }
 
         .titlebar-wrapper.isHidden {
           margin-top: -70px;
