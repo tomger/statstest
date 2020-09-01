@@ -366,6 +366,18 @@
           font-size: 14px;
         }
 
+        .marketing {
+          padding: 16px;
+          border-radius: 8px;
+          margin-bottom: 16px;
+          background:var(--colorSecondaryBackground);
+          display: table;
+        }
+        .marketing span {
+          display: table-cell;
+          padding-right: 12px;
+          vertical-align: center;
+        }
 
     </style>
 
@@ -400,15 +412,10 @@
             onclick="onSearchCancel()"
             >Cancel</a>
         </div>
-        <div style="
-          padding: 16px;
-          border-radius: 8px;
-          margin-bottom: 16px;
-          background:var(--colorSecondaryBackground);
-          ">
-            <div style="margin-bottom:14px"><span style="margin-right: 8px">🧘🏼‍♂️</span> Daily cases & warning levels without distractions</div>
-            <div style="margin-bottom:14px"><span style="margin-right: 8px">📌</span> Track countries, US States & US Counties</div>
-            <div><span style="margin-right: 8px">🎛</span> Keep track of places you care about</div>
+        <div class="marketing">
+            <div style="margin-bottom:14px"><span style="margin-right: 8px">🧘🏼‍♂️</span><span>Daily cases & warning levels without distractions</span></div>
+            <div style="margin-bottom:14px"><span style="margin-right: 8px">📌</span><span>Track countries, US States & US Counties</span></div>
+            <div><span style="margin-right: 8px">🎛</span><span>Keep track of places you care about</span></div>
           </div>
         <search-view></search-view>
 
