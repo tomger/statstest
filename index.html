@@ -315,7 +315,6 @@
           display: flex;
           border-bottom: 0.5px solid var(--colorSeparator);
           cursor: pointer;
-          gap: 16px;
         }
         .menuitem-wrapper > div:first-child{ 
           flex: 1
@@ -625,6 +624,7 @@ class SearchView extends HTMLElement {
           menuitem.append('div')
             .attr('style', `
               padding-top: 2px;
+              margin-right: 16px;
               display: flex;
               align-items: center
             `)
