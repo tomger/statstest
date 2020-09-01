@@ -25,8 +25,8 @@
 
         @media (prefers-color-scheme: dark) {
             :root {
-            --colorBackground: rgb(0, 0, 3);
-            --colorSecondaryBackground: rgb(33, 33, 36);
+            --colorBackground: #000003;
+            --colorSecondaryBackground: #212124; /*1C1C1E*/
             --colorLabel: #fff;
             --colorSecondaryLabel: rgb(101, 102, 105);
             --colorSeparator: #222;
@@ -400,7 +400,16 @@
             onclick="onSearchCancel()"
             >Cancel</a>
         </div>
-        
+        <div style="
+          padding: 16px;
+          border-radius: 8px;
+          margin-bottom: 16px;
+          background:var(--colorSecondaryBackground);
+          ">
+            <div style="margin-bottom:14px"><span style="margin-right: 8px">🧘🏼‍♂️</span> Daily cases & warning levels without distractions</div>
+            <div style="margin-bottom:14px"><span style="margin-right: 8px">📌</span> Track countries, US States & US Counties</div>
+            <div><span style="margin-right: 8px">🎛</span> Keep track of places you care about</div>
+          </div>
         <search-view></search-view>
 
         <div class="menu"></div>
