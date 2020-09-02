@@ -659,6 +659,48 @@ class DetailView extends HTMLElement {
   constructor() {
     super();
   }
+
+  drawChart(node, data) {
+    const width = node.node().getBoundingClientRect().width - 30;
+    const height = width / 2.2;
+    const color = 'currentColor';
+
+    let svg = node.append("svg")
+      .html("")
+      .attr("width", width)
+      .attr("height", height)
+
+    let values = movingAverage(data.map(d => parseInt(d.cases, 10)));
+    const scaleX = d3.scaleLinear().range([0, width]).domain([0, values.length]);
+    const scaleY = d3.scaleLinear().range([height, 0]).domain([
+    0, d3.max(values)
+    ]);
+
+    svg.append("g")
+      .attr("transform", `translate(${width}, 0)`)
+      .call(d3.axisRight(scaleY).tickValues(scaleY.ticks(2)))
+      .call(g => g.selectAll(".tick text")).attr('color', 'var(--colorSecondaryLabel)')
+    svg.append("g")
+      .attr("transform", `translate(0, ${height})`)
+      .call(d3.axisBottom(scaleX).tickValues(scaleX.ticks(2)))
+      .call(g => g.selectAll(".tick text")).attr('color', 'var(--colorSecondaryLabel)')
+    svg
+      .datum(values)
+      .append("path")
+      .attr("fill", "none")
+      .attr("stroke", color)
+      .attr("stroke-width",1.75)
+      .attr("d", d3.line()
+          .x(function(d, i) { 
+            return scaleX(i);
+          })
+          .y(function(d) {  
+            return scaleY(d)
+          })
+      )
+
+  }
+
   update() {
     if (!this.region) {
       this.style.display = "none";
@@ -736,11 +778,14 @@ class DetailView extends HTMLElement {
       <div style="padding: 20px 0; border-bottom: 1px solid var(--colorSeparator)">
         ${iff(isRegionSelected(this.region.path), removeButton)}
       </div>
+      <div class="chart-view" style="padding: 20px 0; border-bottom: 1px solid var(--colorSeparator)">
+      </div>
       <div class="table-view" style="padding: 20px 0; border-bottom: 1px solid var(--colorSeparator)">
       </div>
     `;
 
     d3.csv(`/data/${this.region.path}.csv`).then(data => {
+      this.drawChart(d3.select('.chart-view'), data)
       d3.select('.table-view').append('table').attr('style', `font-size: 13px;`).html(
         `<tr><td>Date</td><td>New cases</td><td>New cases per 100k</td></tr>` +
         data.map(l => {
