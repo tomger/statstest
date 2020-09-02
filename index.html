@@ -758,7 +758,7 @@ class DetailView extends HTMLElement {
         ${this._region.name}
       </div>
       <div style="padding-bottom: 20px; color: var(--colorSecondaryLabel); font-size: 13px; margin: -12px 0 0px 0">
-        ${this.region.byline ? `this.region.byline · ` : ''}
+        ${this.region.byline ? this.region.byline + ' · ' : ''}
         ${Number(this.region.population).toLocaleString()} residents
       </div>
       <div style="${numberWrapperStyle}">
