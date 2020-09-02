@@ -549,6 +549,14 @@ function changeNumber(region) {
 }
 
 function numberColumn(region) {
+  const warnSign = `
+  <svg width="13" height="12" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M6.02051 2.52216C6.45587 1.82595 7.54427 1.82595 7.97963 2.52216L12.6326 9.96293C13.0679 10.6591 12.5237 11.5294 11.653 11.5294H2.34714C1.47642 11.5294 0.932221 10.6591 1.36758 9.96293L6.02051 2.52216ZM7.8266 9.43878C7.8266 9.89526 7.45655 10.2653 7.00007 10.2653C6.54359 10.2653 6.17354 9.89526 6.17354 9.43878C6.17354 8.9823 6.54359 8.61224 7.00007 8.61224C7.45655 8.61224 7.8266 8.9823 7.8266 9.43878ZM7.00007 4.47959C6.5674 4.47959 6.23829 4.8681 6.30942 5.29488L6.67927 7.51395C6.7054 7.67077 6.84109 7.78571 7.00007 7.78571C7.15905 7.78571 7.29474 7.67077 7.32087 7.51395L7.69072 5.29488C7.76185 4.8681 7.43274 4.47959 7.00007 4.47959Z" fill="#EAAF17"/>
+</svg>
+
+
+  `;
+
   let relativeCases = ((region['last-cases'] / region.population) * 100000).toFixed(1);
   let changeRow = '<span class="secondaryLabel">–</span>';
   if (relativeCases > 1) {
@@ -556,7 +564,7 @@ function numberColumn(region) {
   }
   return /*html*/`
     <div style="text-align: right; font-size: 14px; width: 54px;">
-      <div>${relativeCases}</div>${changeRow}
+      <div>${relativeCases > 10 ? warnSign : '' }${relativeCases}</div>${changeRow}
     </div>
   `;
 }
