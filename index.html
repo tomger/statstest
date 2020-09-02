@@ -682,11 +682,22 @@ class DetailView extends HTMLElement {
       flex-direction: row;
       border: 1px solid var(--colorSeparator);
       border-width: 1px 0 1px 0;
-      padding: 12px 0;
+      padding: 20px 0;
       gap: 40px;
-      margin-bottom: 20px;
     `;
     let captionStyle = ``;
+    const iff = (condition, result) => condition ? result : '';
+    let removeButton = `        <div 
+          onclick="toggleRegion('${this._region.path}');closeDetailView()" 
+          style="">Remove from watchlist
+        </div>`;
+    let addButton = `<div 
+      onclick="toggleRegion('${this._region.path}');closeDetailView()"
+      style="font-size: 14px;
+      font-weight: 600; display: inline-block;padding: 8px 12px;
+      border-radius: 40px;background: #1d5ab5; color: var(--colorBackground)">
+      Add to watchlist
+    </div>`;
     this.innerHTML = /*html*/`
       <div style="display:flex; flex-direction: row">
         <div onClick="closeDetailView()" style="width: 44px; height: 44px; flex: 1">
@@ -698,15 +709,15 @@ class DetailView extends HTMLElement {
           Share
           </div>
         <div>
-        <div 
-          onclick="toggleRegion('${this._region.path}');closeDetailView()"
-          style="font-size: 14px; font-weight: 600; display: inline-block;padding: 8px 12px; border-radius: 40px;background: #1d5ab5; color: var(--colorBackground)">
-          ${isRegionSelected(this.region.path) ? 'Remove' : 'Add to watchlist'}
-        </div>
+          ${iff(!isRegionSelected(this.region.path), addButton)}
         </div>
       </div>
-      <div style="font-size: 30px; margin-top: 32px; margin-bottom: 12px; font-weight: 700;">${this._region.name}</div>
-      <div style="color: var(--colorSecondaryLabel); font-size: 13px; margin: -12px 0 20px 0">${Number(this.region.population).toLocaleString()} residents</div>
+      <div style="font-size: 30px; margin-top: 32px; margin-bottom: 12px; font-weight: 700;">
+        ${this._region.name}
+      </div>
+      <div style="padding-bottom: 20px; color: var(--colorSecondaryLabel); font-size: 13px; margin: -12px 0 0px 0">
+        ${Number(this.region.population).toLocaleString()} residents
+      </div>
       <div style="${numberWrapperStyle}">
         <div style="flex: 1">
           <div style="${captionStyle}">New cases</div>
@@ -719,12 +730,18 @@ class DetailView extends HTMLElement {
           <div style="${bigNumberCaptionStyle}">First and last 7 day averages compared</div>
         </div>
       </div>
-      <div></div>
-      <div style="color: var(--colorSecondaryLabel); font-size: 13px;">Last included data point:${this._region['last-updated']}</div>
+      <div style="padding: 20px 0; color: var(--colorSecondaryLabel); border-bottom: 1px solid var(--colorSeparator)">
+        Last included data point:${this._region['last-updated']}
+      </div>
+      <div style="padding: 20px 0; border-bottom: 1px solid var(--colorSeparator)">
+        ${iff(isRegionSelected(this.region.path), removeButton)}
+      </div>
+      <div class="table-view" style="padding: 20px 0; border-bottom: 1px solid var(--colorSeparator)">
+      </div>
     `;
 
     d3.csv(`/data/${this.region.path}.csv`).then(data => {
-      d3.select(this).append('table').attr('style', `font-size: 13px;`).html(
+      d3.select('.table-view').append('table').attr('style', `font-size: 13px;`).html(
         `<tr><td>Date</td><td>New cases</td><td>New cases per 100k</td></tr>` +
         data.map(l => {
           return `<tr><td style="color:var(--colorSecondaryLabel) ">${l.date}</td><td>${l.cases}</td><td>${Number((l.cases / this.region.population) * 100000).toFixed(1)}</td></tr>`
