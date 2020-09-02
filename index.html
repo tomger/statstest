@@ -99,57 +99,7 @@
           color: var(--colorLabel);
           outline: none
         }
-        .menu {
-          padding: 16px;
-          display: flex;
-          flex-wrap: wrap;
-          flex-direction: column;
-          font-size: 15px;
-          
-          font-variant-numeric: tabular-nums;
-        }
-        .menu > a,
-        .menu > div.menu-header
-        {
-          line-height: 32px;
-          padding: 4px 0;
-          display: flex;
-          justify-content: space-between;
-          flex-direction: row;
-          width: 100%;
-          border-bottom: .5px solid var(--colorSeparator);
-        }
-        .menu > div.menu-header {
-          font-size: 12px;
-          color:var(--colorSecondaryLabel);
-          font-weight: 300;
-          text-transform: uppercase;
-          line-height: 14px;
-        }
-        .menu .state-name {
-          font-weight: 600;
-        }
-        .menu > * > div:first-child {
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-        .menu > * > div:nth-child(2) {
-          text-align: right;
-          width: 90px;
-          flex: 1;
-        }
-
-        .menu > * > div:nth-child(3) {
-          text-align: right;
-
-          width: 110px;
-          flex-shrink: 0;
-        }
-
-        .menu a {
-          text-decoration: none;
-        }
+        
         .button {
           line-height: 40px;
           padding: 0 14px;
@@ -369,17 +319,19 @@
         .marketing {
           padding: 12px 12px 12px 12px;
           font-size: 14px;
+          font-weight: 600;
           border-radius: 8px;
-          margin-bottom: 16px;
-          border: 1px solid var(--colorSeparator);
+          margin: 20px 0;
           display: flex;
           align-content: center;
           width: 100%;
           align-items: center;
+          background:#e29c05;
+          color: var(--colorBackground);
         }
         .marketing svg {
-          color: #90789a;
-          margin-right: 12px;
+          color: var(--colorBackground);
+          margin-right: 16px;
         }
 
     </style>
@@ -415,21 +367,18 @@
             onclick="onSearchCancel()"
             >Cancel</a>
         </div>
-        <div class="marketing">
-
-            <svg width="40" height="40" viewBox="0 0 54 54" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path fill-rule="evenodd" clip-rule="evenodd" d="M27 54C41.9117 54 54 41.9117 54 27C54 12.0883 41.9117 0 27 0C12.0883 0 0 12.0883 0 27C0 41.9117 12.0883 54 27 54ZM13.7656 23.4922V21.5859H16.5391V23.4922H18.0703V25.5312H16.5391V29.1016C16.5391 29.6875 16.8516 29.9844 17.5156 29.9844C17.7344 29.9844 17.8984 29.9766 18.0625 29.9453V31.9141C17.7969 31.9688 17.3906 32.0156 16.8516 32.0156C14.6406 32.0156 13.7656 31.3359 13.7656 29.6641V25.5312H12.6094V23.4922H13.7656ZM22.0312 32H19.2578V20.7266H22.0312V32ZM26.5234 25.4531C26.5234 26.2578 25.875 26.9062 25.0703 26.9062C24.2656 26.9062 23.625 26.2578 23.625 25.4531C23.625 24.6484 24.2656 24 25.0703 24C25.875 24 26.5234 24.6484 26.5234 25.4531ZM26.5234 29.9609L25.4844 34.5859H23.4766L23.9688 29.9609H26.5234ZM33.7969 30.5391C33.4531 31.4453 32.4688 32.125 31.2031 32.125C29.0859 32.125 27.8125 30.4766 27.8125 27.7266C27.8125 25.0078 29.1094 23.3672 31.2344 23.3672C32.4688 23.3672 33.4062 24.0391 33.7812 24.9922H33.8359V20.7266H36.6016V32H33.8516V30.5391H33.7969ZM33.8438 27.75C33.8438 26.3828 33.2344 25.5312 32.2422 25.5312C31.25 25.5312 30.6484 26.3828 30.6484 27.75C30.6484 29.125 31.2422 29.9609 32.2422 29.9609C33.2422 29.9609 33.8438 29.1328 33.8438 27.75ZM40.7344 32H37.9609V23.4922H40.6562V25.1016H40.7109C41.0234 23.9531 41.7109 23.3672 42.7109 23.3672C42.9922 23.3672 43.2266 23.4062 43.4141 23.4766V25.8359C43.1797 25.7422 42.8594 25.6797 42.5312 25.6797C41.3672 25.6797 40.7344 26.3359 40.7344 27.5234V32Z" fill="currentColor"/>
-            </svg>
-            
-            <div>No frills daily cases & warnings for countries, US States & US Counties.</div>
-            <!--div>Daily cases & warning levels without distractions. Add countries, US States & US Counties.</div-->
-        </div>
         <search-view></search-view>
 
-        <div class="menu"></div>
-        <div class="graph">
+        <div class="marketing">
 
+          <svg width="48" height="48" viewBox="0 0 54 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M27 54C41.9117 54 54 41.9117 54 27C54 12.0883 41.9117 0 27 0C12.0883 0 0 12.0883 0 27C0 41.9117 12.0883 54 27 54ZM13.7656 23.4922V21.5859H16.5391V23.4922H18.0703V25.5312H16.5391V29.1016C16.5391 29.6875 16.8516 29.9844 17.5156 29.9844C17.7344 29.9844 17.8984 29.9766 18.0625 29.9453V31.9141C17.7969 31.9688 17.3906 32.0156 16.8516 32.0156C14.6406 32.0156 13.7656 31.3359 13.7656 29.6641V25.5312H12.6094V23.4922H13.7656ZM22.0312 32H19.2578V20.7266H22.0312V32ZM26.5234 25.4531C26.5234 26.2578 25.875 26.9062 25.0703 26.9062C24.2656 26.9062 23.625 26.2578 23.625 25.4531C23.625 24.6484 24.2656 24 25.0703 24C25.875 24 26.5234 24.6484 26.5234 25.4531ZM26.5234 29.9609L25.4844 34.5859H23.4766L23.9688 29.9609H26.5234ZM33.7969 30.5391C33.4531 31.4453 32.4688 32.125 31.2031 32.125C29.0859 32.125 27.8125 30.4766 27.8125 27.7266C27.8125 25.0078 29.1094 23.3672 31.2344 23.3672C32.4688 23.3672 33.4062 24.0391 33.7812 24.9922H33.8359V20.7266H36.6016V32H33.8516V30.5391H33.7969ZM33.8438 27.75C33.8438 26.3828 33.2344 25.5312 32.2422 25.5312C31.25 25.5312 30.6484 26.3828 30.6484 27.75C30.6484 29.125 31.2422 29.9609 32.2422 29.9609C33.2422 29.9609 33.8438 29.1328 33.8438 27.75ZM40.7344 32H37.9609V23.4922H40.6562V25.1016H40.7109C41.0234 23.9531 41.7109 23.3672 42.7109 23.3672C42.9922 23.3672 43.2266 23.4062 43.4141 23.4766V25.8359C43.1797 25.7422 42.8594 25.6797 42.5312 25.6797C41.3672 25.6797 40.7344 26.3359 40.7344 27.5234V32Z" fill="currentColor"/>
+          </svg>
+          
+          <div>No frills new cases & warnings tracker. Add countries, US States & US Counties to your list.</div>
+          <!--div>Daily cases & warning levels without distractions. Add countries, US States & US Counties.</div-->
         </div>
+
         <div class="info">
           United States data provided by <a href="https://github.com/nytimes/covid-19-data">The New York Times</a>. World data provided by <a href="https://www.ecdc.europa.eu/en/publications-data/download-todays-data-geographic-distribution-covid-19-cases-worldwide">European Centre for Disease Prevention and Control</a>. <span class="lastupdated"></span>.
         </div>
