@@ -138,9 +138,9 @@
           display: block;
         }
         .titlebar-subheader {
-          font-size: 13px;
-          font-weight: 300;;
-          color: var(--colorSecondaryLabel);
+          font-size: 20px;
+          font-weight: 800;
+          opacity: 0.5;
           line-height: 14px;
         }
         .header-add {
@@ -344,8 +344,8 @@
       <div class="titlebar-wrapper">
         <div class="titlebar">
           <a class="titlebar-header" href="#top">
-            <div>COVID-19 <span>Watchlist</span></div>
-            <div class="titlebar-subheader">Daily updates from CDC, NYT and ECDC</div>
+            <div>COVID-19</div>
+            <div class="titlebar-subheader">Watchlist</div>
           </a>
           
           <div class="header-add">
@@ -380,7 +380,7 @@
         </div>
 
         <div class="info">
-          United States data provided by <a href="https://github.com/nytimes/covid-19-data">The New York Times</a>. World data provided by <a href="https://www.ecdc.europa.eu/en/publications-data/download-todays-data-geographic-distribution-covid-19-cases-worldwide">European Centre for Disease Prevention and Control</a>. <span class="lastupdated"></span>.
+          <span class="lastupdated"></span>United States data provided by <a href="https://github.com/nytimes/covid-19-data">The New York Times</a>. World data provided by <a href="https://www.ecdc.europa.eu/en/publications-data/download-todays-data-geographic-distribution-covid-19-cases-worldwide">European Centre for Disease Prevention and Control</a>.
         </div>
       </div>
 
@@ -408,6 +408,9 @@ function onSearchInput(event) {
 
 function init() {
   loadRegions();
+  d3.csv("/lastupdate").then(data => {
+    document.querySelector('.lastupdated').innerHTML = `Last updated on ${data[0].date}. `;
+  })
 }
 
 function loadRegions() {
