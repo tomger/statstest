@@ -51,7 +51,7 @@ def get_ecdc():
         # add to index
         region_index.append({
             'path': path,
-            'name': state,
+            'name': state.replace("_", " "),
             'byline': '',
             'population': population,
             'change-cases': get_change(state_df),
