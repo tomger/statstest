@@ -108,7 +108,7 @@ def get_counties():
             'population': population,
             'change-cases': get_change(df),
             'last-updated': df.tail(1)['date'].to_string(index=False),
-            'last-cases': round(df.tail(7)['cases'].mean()),
+            'last-cases': round(df.tail(7)['cases'].clip(lower=0).mean()),
         })
 
 
@@ -148,7 +148,7 @@ def get_states():
             'population': population,
             'change-cases': get_change(state_df),
             'last-updated': state_df.tail(1)['date'].to_string(index=False),
-            'last-cases': round(state_df.tail(7)['cases'].mean()),
+            'last-cases': round(state_df.tail(7)['cases'].clip(lower=0).mean()),
         })
 
 
