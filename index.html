@@ -747,15 +747,18 @@ class DetailView extends HTMLElement {
       flex-direction: row;
       border: 1px solid var(--colorSeparator);
       border-width: 1px 0 1px 0;
-      padding: 20px 0;
+      padding: 16px 0;
       gap: 40px;
     `;
     let captionStyle = ``;
     const iff = (condition, result) => condition ? result : '';
-    let removeButton = `        <div 
-          onclick="toggleRegion('${this._region.path}');closeDetailView()" 
-          style="">Remove from watchlist
-        </div>`;
+    let removeButton = /*html*/`
+      <div style="padding: 20px 0; border-bottom: 1px solid var(--colorSeparator)">
+        <div onclick="toggleRegion('${this._region.path}');closeDetailView()">
+          Remove from watchlist
+        </div>
+      </div>
+    `;
     let addButton = `<div 
       onclick="toggleRegion('${this._region.path}');closeDetailView()"
       style="font-size: 14px;
@@ -796,11 +799,9 @@ class DetailView extends HTMLElement {
           <div style="${bigNumberCaptionStyle}">First and last 7 day averages compared</div>
         </div>
       </div>
-      <div style="padding: 20px 0; border-bottom: 1px solid var(--colorSeparator)">
-        ${iff(isRegionSelected(this.region.path), removeButton)}
-      </div>
       <div class="chart-view" style="padding: 20px 0;">
       </div>
+      ${iff(isRegionSelected(this.region.path), removeButton)}
       <div class="table-view" style="padding: 20px 0;">
       </div>
     `;
