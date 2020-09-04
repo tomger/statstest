@@ -668,7 +668,7 @@ class DetailView extends HTMLElement {
   }
 
   drawChart(node, data) {
-    const width = node.node().getBoundingClientRect().width - 30;
+    const width = node.node().getBoundingClientRect().width;
     const height = width / 2.2;
     const color = 'currentColor';
 
@@ -684,13 +684,29 @@ class DetailView extends HTMLElement {
     ]);
 
     svg.append("g")
-      .attr("transform", `translate(${width}, 0)`)
-      .call(d3.axisRight(scaleY).tickValues(scaleY.ticks(2)))
-      .call(g => g.selectAll(".tick text")).attr('color', 'var(--colorSecondaryLabel)')
+      .attr("transform", `translate(0, 0)`)
+      .call(d3.axisRight(scaleY).tickValues(scaleY.ticks(5))) //.ticks(2)
+      .call(g => g.selectAll(".tick text")
+        .attr('color', 'var(--colorSecondaryLabel)')
+        .attr("transform", `translate(-2, -7)`))
+      .call(g => g.selectAll(".tick line")
+        .attr('x2', width))
+        .attr('color', 'var(--colorSecondaryLabel)')
+        .attr('stroke-dasharray', 4)
+        .attr('style', 'opacity:.5')
+      .call(g => g.selectAll(".domain").attr('stroke', 'transparent'))
+
     svg.append("g")
-      .attr("transform", `translate(0, ${height})`)
-      .call(d3.axisBottom(scaleX).tickValues(scaleX.ticks(2)))
-      .call(g => g.selectAll(".tick text")).attr('color', 'var(--colorSecondaryLabel)')
+      .call(d3.axisBottom(scaleX).tickValues(scaleX.ticks(5))) // ticks(2)
+      .call(g => g.selectAll(".tick text")
+        .attr('color', 'var(--colorSecondaryLabel)')
+        .attr("transform", `translate(0, ${height})`))
+      .call(g => g.selectAll(".tick line")
+        .attr('y2', height))
+        .attr('color', 'var(--colorSecondaryLabel)')
+        .attr('style', 'opacity:.5')
+      .call(g => g.selectAll(".domain").attr('stroke', 'transparent'))
+
     svg
       .datum(values)
       .append("path")
