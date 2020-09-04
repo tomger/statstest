@@ -80,8 +80,8 @@ def get_counties():
             (covid_counties['county'] == county)].filter(['date', 'cases', 'deaths'])
 
         # cummulative to delta
-        df['cases'] = df['cases'].diff().fillna(0).astype(int)
-        df['deaths'] = df['deaths'].diff().fillna(0).astype(int)
+        df['cases'] = df['cases'].diff().fillna(0).clip(lower=0).astype(int)
+        df['deaths'] = df['deaths'].diff().fillna(0).clip(lower=0).astype(int)
     
         # format date
         df['date'] = pd.to_datetime(df['date']).dt.date
@@ -127,8 +127,8 @@ def get_states():
         state_df = df.loc[df['state'] == state].filter(['date', 'cases', 'deaths'])
 
         # cummulative to delta
-        state_df['cases'] = state_df['cases'].diff().fillna(0).astype(int)
-        state_df['deaths'] = state_df['deaths'].diff().fillna(0).astype(int)
+        state_df['cases'] = state_df['cases'].diff().fillna(0).clip(lower=0).astype(int)
+        state_df['deaths'] = state_df['deaths'].diff().fillna(0).clip(lower=0).astype(int)
         
         state_df = state_df.loc[df['date'] > start_date]
 
