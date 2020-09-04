@@ -806,6 +806,7 @@ class DetailView extends HTMLElement {
     `;
 
     d3.csv(`/data/${this.region.path}.csv`).then(data => {
+      d3.select('.chart-view').html(`<div style="margin-bottom: 20px">${data[0].date} to ${data[29].date}</div>`)
       this.drawChart(d3.select('.chart-view'), data)
       d3.select('.table-view').append('table').attr('style', `font-size: 13px;`).html(
         `<tr><td>Date</td><td>New cases</td><td>New cases per 100k</td></tr>` +
