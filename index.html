@@ -796,15 +796,12 @@ class DetailView extends HTMLElement {
           <div style="${bigNumberCaptionStyle}">First and last 7 day averages compared</div>
         </div>
       </div>
-      <div style="padding: 20px 0; color: var(--colorSecondaryLabel); border-bottom: 1px solid var(--colorSeparator)">
-        Last included data point:${this._region['last-updated']}
-      </div>
       <div style="padding: 20px 0; border-bottom: 1px solid var(--colorSeparator)">
         ${iff(isRegionSelected(this.region.path), removeButton)}
       </div>
-      <div class="chart-view" style="padding: 20px 0; border-bottom: 1px solid var(--colorSeparator)">
+      <div class="chart-view" style="padding: 20px 0;">
       </div>
-      <div class="table-view" style="padding: 20px 0; border-bottom: 1px solid var(--colorSeparator)">
+      <div class="table-view" style="padding: 20px 0;">
       </div>
     `;
 
