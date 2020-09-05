@@ -15,6 +15,7 @@
           --colorSeparator: #e5e5ea;
           --colorSeparatorTranslucent: #6d6d8530;
 
+          --colorOrange: #EAAF17;
           --colorBlue: #2268d8;
           --colorRed: #cc3a00;
           --colorGreen: #1d9422;
@@ -265,7 +266,7 @@
 
         @media (prefers-color-scheme: dark) {
           .searchinput {
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#aaaaaa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>');
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="gray" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>');
           }
         }
         .menuitem-wrapper {
@@ -502,13 +503,15 @@ function changeNumber(region) {
   `;
 }
 
+function isWarningRegion(region) {
+  return ((region['last-cases'] / region.population) * 100000) > 10;
+}
+
 function numberColumn(region) {
   const warnSign = `
-  <svg width="13" height="12" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path fill-rule="evenodd" clip-rule="evenodd" d="M6.02051 2.52216C6.45587 1.82595 7.54427 1.82595 7.97963 2.52216L12.6326 9.96293C13.0679 10.6591 12.5237 11.5294 11.653 11.5294H2.34714C1.47642 11.5294 0.932221 10.6591 1.36758 9.96293L6.02051 2.52216ZM7.8266 9.43878C7.8266 9.89526 7.45655 10.2653 7.00007 10.2653C6.54359 10.2653 6.17354 9.89526 6.17354 9.43878C6.17354 8.9823 6.54359 8.61224 7.00007 8.61224C7.45655 8.61224 7.8266 8.9823 7.8266 9.43878ZM7.00007 4.47959C6.5674 4.47959 6.23829 4.8681 6.30942 5.29488L6.67927 7.51395C6.7054 7.67077 6.84109 7.78571 7.00007 7.78571C7.15905 7.78571 7.29474 7.67077 7.32087 7.51395L7.69072 5.29488C7.76185 4.8681 7.43274 4.47959 7.00007 4.47959Z" fill="#EAAF17"/>
-</svg>
-
-
+  <svg style="transform:translateY(1px)" width="13" height="13" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M6.02051 2.52216C6.45587 1.82595 7.54427 1.82595 7.97963 2.52216L12.6326 9.96293C13.0679 10.6591 12.5237 11.5294 11.653 11.5294H2.34714C1.47642 11.5294 0.932221 10.6591 1.36758 9.96293L6.02051 2.52216ZM7.8266 9.43878C7.8266 9.89526 7.45655 10.2653 7.00007 10.2653C6.54359 10.2653 6.17354 9.89526 6.17354 9.43878C6.17354 8.9823 6.54359 8.61224 7.00007 8.61224C7.45655 8.61224 7.8266 8.9823 7.8266 9.43878ZM7.00007 4.47959C6.5674 4.47959 6.23829 4.8681 6.30942 5.29488L6.67927 7.51395C6.7054 7.67077 6.84109 7.78571 7.00007 7.78571C7.15905 7.78571 7.29474 7.67077 7.32087 7.51395L7.69072 5.29488C7.76185 4.8681 7.43274 4.47959 7.00007 4.47959Z" fill="#EAAF17"/>
+  </svg>
   `;
 
   let relativeCases = ((region['last-cases'] / region.population) * 100000).toFixed(1);
@@ -517,8 +520,8 @@ function numberColumn(region) {
     changeRow = changeNumber(region)
   }
   return /*html*/`
-    <div style="text-align: right; font-size: 14px; width: 54px;">
-      <div>${relativeCases > 10 ? warnSign : '' }${relativeCases}</div>${changeRow}
+    <div style="text-align: right; font-size: 16px; width: 54px;">
+      <div>${isWarningRegion(region) ? warnSign : '' }${relativeCases}</div><span style="font-size: 14px;">${changeRow}</span>
     </div>
   `;
 }
@@ -792,6 +795,20 @@ class DetailView extends HTMLElement {
         </div>
       </div>
     `;
+    let warningModule = /*html*/`
+      <div style="display: flex; flex-direction: column;padding: 20px 0; border-bottom: 1px solid var(--colorSeparator)">
+        <svg style="transform:translateY(-2px)" width="24" height="24" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M6.02051 2.52216C6.45587 1.82595 7.54427 1.82595 7.97963 2.52216L12.6326 9.96293C13.0679 10.6591 12.5237 11.5294 11.653 11.5294H2.34714C1.47642 11.5294 0.932221 10.6591 1.36758 9.96293L6.02051 2.52216ZM7.8266 9.43878C7.8266 9.89526 7.45655 10.2653 7.00007 10.2653C6.54359 10.2653 6.17354 9.89526 6.17354 9.43878C6.17354 8.9823 6.54359 8.61224 7.00007 8.61224C7.45655 8.61224 7.8266 8.9823 7.8266 9.43878ZM7.00007 4.47959C6.5674 4.47959 6.23829 4.8681 6.30942 5.29488L6.67927 7.51395C6.7054 7.67077 6.84109 7.78571 7.00007 7.78571C7.15905 7.78571 7.29474 7.67077 7.32087 7.51395L7.69072 5.29488C7.76185 4.8681 7.43274 4.47959 7.00007 4.47959Z" fill="#EAAF17"/>
+        </svg>
+        <div style="padding: 6px 0 0 0; font-size: 13px;">More than 10 new cases per 100,000 residents over a seven-day rolling average. 
+          States like 
+          <a target="_blank" href="https://covid19.nj.gov/faqs/nj-information/travel-and-transportation/which-states-are-on-the-travel-advisory-list-are-there-travel-restrictions-to-or-from-new-jersey">New Jersey</a>
+          and
+          <a target="_blank" href="https://coronavirus.health.ny.gov/covid-19-travel-advisory#restricted-states">New York</a>
+          issue a travel restrictions based on these criteria.
+        </div>
+      </div>
+    `;
     let addButton = `<div 
       onclick="toggleRegion('${this._region.path}');closeDetailView()"
       style="font-size: 14px;
@@ -834,6 +851,7 @@ class DetailView extends HTMLElement {
           <div style="${bigNumberCaptionStyle}">First and last 7 day averages compared</div>
         </div>
       </div>
+      ${iff(isWarningRegion(this.region), warningModule)}
       <div class="chart-view" style="padding: 20px 0;">
       </div>
       ${iff(isRegionSelected(this.region.path), removeButton)}
