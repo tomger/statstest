@@ -216,7 +216,7 @@
           font-weight: 400;
           color: #999;
           margin-bottom: 50px;
-          margin-top: 30px;
+          margin-top: 16px;
         }
         .info a {
           color: #777
@@ -534,6 +534,7 @@ class SearchView extends HTMLElement {
   constructor() {
     super();
     this.style.display = "block";
+    this.style.marginBottom = "16px";
     this.style.transition = "opacity 50ms ease";
     // console.log(this.getAttribute("filter"));
   }
