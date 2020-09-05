@@ -686,7 +686,7 @@ class DetailView extends HTMLElement {
     const scaleY = d3.scaleLinear().range([height, 0]).domain([0, d3.max(values)]);
 
     const scaleXBand = d3.scaleBand()
-      .range([0, width/60])
+      .range([0, width/30])
       .padding(0)
       .align(1)
       .domain([0, d3.max(values)]);
