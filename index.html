@@ -619,7 +619,7 @@ class SearchView extends HTMLElement {
     
         let banner = root.append('div').attr('style', `
           background: var(--colorSecondaryBackground);
-          padding: 16px;
+          padding: 12px;
           border-radius: 12px;
           margin-top: 20px;
         
@@ -943,7 +943,7 @@ function movingAverage(array) {
 class SparklineElement extends HTMLElement {
   constructor() {
     super();
-    const width = this.getAttribute('width') ||  60;
+    const width = this.getAttribute('width') ||  55;
     const height = this.getAttribute('height') || 24;
     const color = this.getAttribute('color') || 'currentColor';
     d3.csv(this.getAttribute('src')).then(data => {
