@@ -628,7 +628,7 @@ class SearchView extends HTMLElement {
         `);
         let regions = this._regions
           .filter(region => {
-            return suggestedRegions.indexOf(region.path) !== -1
+            return suggestedRegions.indexOf(region.path) !== -1 && !isRegionSelected(region.path)
           });
         this.appendListItems(banner, regions)
       }
