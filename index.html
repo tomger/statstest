@@ -15,6 +15,7 @@
           --colorSeparator: #e5e5ea;
           --colorSeparatorTranslucent: #6d6d8530;
 
+          --colorBlue: #2268d8;
           --colorRed: #cc3a00;
           --colorGreen: #1d9422;
         }
@@ -32,6 +33,7 @@
             --colorSeparator: #222;
             --colorSeparatorTranslucent: #6d6d8530;
             
+            --colorBlue: #3A82F7;
             --colorRed: #da531e;
             --colorGreen: #3ece43;
           }
@@ -338,6 +340,10 @@
         .marketing svg {
           color: var(--colorBackground);
           margin-right: 16px;
+        }
+
+        .table-view td{
+          padding: 5px 20px 0 0
         }
 
     </style>
@@ -789,8 +795,9 @@ class DetailView extends HTMLElement {
     let addButton = `<div 
       onclick="toggleRegion('${this._region.path}');closeDetailView()"
       style="font-size: 14px;
+      cursor: pointer;
       font-weight: 600; display: inline-block;padding: 8px 12px;
-      border-radius: 40px;background: #1d5ab5; color: var(--colorBackground)">
+      border-radius: 40px;background: var(--colorBlue); color: var(--colorBackground)">
       Add to watchlist
     </div>`;
     this.innerHTML = /*html*/`
@@ -807,7 +814,7 @@ class DetailView extends HTMLElement {
           ${iff(!isRegionSelected(this.region.path), addButton)}
         </div>
       </div>
-      <div style="font-size: 30px; margin-top: 32px; margin-bottom: 12px; font-weight: 700;">
+      <div style="font-size: 30px; line-height: 1.1; margin-top: 32px; margin-bottom: 20px; font-weight: 700;">
         ${this._region.name}
       </div>
       <div style="padding-bottom: 20px; color: var(--colorSecondaryLabel); font-size: 13px; margin: -12px 0 0px 0">
@@ -816,7 +823,7 @@ class DetailView extends HTMLElement {
         ${Number(this.region.population).toLocaleString()} residents
       </div>
       <div style="${numberWrapperStyle}">
-        <div style="flex: 1">
+        <div style="flex: 1; padding-right: 16px;">
           <div style="${captionStyle}">New cases</div>
           <div style="${bigNumberStyle}">${cases}</div>
           <div style="${bigNumberCaptionStyle}">Last 7 day average per 100k residents</div>
@@ -839,7 +846,7 @@ class DetailView extends HTMLElement {
       this.drawChart(d3.select('.chart-view'), data)
 
       d3.select('.chart-view svg').attr('class', this.region["change-cases"] < 0 ? 'isDown' : 'isUp')
-      d3.select('.table-view').append('table').attr('style', `font-size: 13px;`).html(
+      d3.select('.table-view').append('table').attr('style', `font-size: 13px; border-spacing: 0`).html(
         `<tr><td>Date</td><td>New cases</td><td>New cases per 100k</td></tr>` +
         data.map(l => {
           return `<tr><td style="color:var(--colorSecondaryLabel) ">${l.date}</td><td>${l.cases}</td><td>${Number((l.cases / this.region.population) * 100000).toFixed(1)}</td></tr>`
