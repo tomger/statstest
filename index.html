@@ -681,7 +681,8 @@ class DetailView extends HTMLElement {
       .attr("width", width)
       .attr("height", height)
 
-    let values = movingAverage(data.map(d => parseInt(d.cases, 10)));
+    let denominator = this.region.population / 100000;
+    let values = movingAverage(data.map(d => parseInt(d.cases, 10) / denominator));
     const scaleX = d3.scaleLinear().range([0, width]).domain([0, values.length]);
     const scaleY = d3.scaleLinear().range([height, 0]).domain([0, d3.max(values)]);
 
@@ -705,10 +706,13 @@ class DetailView extends HTMLElement {
       .call(g => g.selectAll(".domain").attr('stroke', 'transparent'))
 
     svg.append("g")
-      .call(d3.axisBottom(scaleX).tickValues(scaleX.ticks(5))) // ticks(2)
+      .call(d3.axisBottom(scaleX).tickFormat(d => {
+        return `T-${30 -d}`;
+      }).tickValues(scaleX.ticks(3))) // ticks(2)
       .call(g => g.selectAll(".tick text")
         .attr('color', 'var(--colorSecondaryLabel)')
         .attr("transform", `translate(0, ${height})`))
+        .attr("text-anchor", "start")
       .call(g => g.selectAll(".tick line")
         .attr('y2', 0))
         .attr('color', 'var(--colorSecondaryLabel)')
@@ -808,6 +812,7 @@ class DetailView extends HTMLElement {
       </div>
       <div style="padding-bottom: 20px; color: var(--colorSecondaryLabel); font-size: 13px; margin: -12px 0 0px 0">
         ${this.region.byline ? this.region.byline + ' · ' : ''}
+        <svg xmlns="http://www.w3.org/2000/svg" style="transform:translateY(2px)" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-users"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
         ${Number(this.region.population).toLocaleString()} residents
       </div>
       <div style="${numberWrapperStyle}">
