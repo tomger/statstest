@@ -253,6 +253,7 @@
           text-align: center;
           display: inline-block;
           opacity: 0;
+          color: var(--colorBlue);
           -webkit-tap-highlight-color: rgba(0,0,0,0);
         }
 
@@ -386,10 +387,6 @@
 
       </div>
       <div class="wrapper">
-
-        <div class="info">
-          <span class="lastupdated"></span>United States data provided by <a href="https://github.com/nytimes/covid-19-data">The New York Times</a>. World data provided by <a href="https://www.ecdc.europa.eu/en/publications-data/download-todays-data-geographic-distribution-covid-19-cases-worldwide">European Centre for Disease Prevention and Control</a>.
-        </div>
 
       </div>
 
@@ -625,11 +622,20 @@ class SearchView extends HTMLElement {
           padding: 0 0;
           text-align: center;
         `).html(/*html*/`
-          <div style="margin: 16px 10% 16px 10%; font-size: 16px">Add regions to see daily COVID-19 cases (per 100,000 residents)</div>
+          <div style="margin: 40px 10% 16px 10%; font-size: 16px">Add regions to see daily COVID-19 cases (per 100,000 residents)</div>
           <div style="margin: 0 0 16px 0; font-size: 16px; color: var(--colorBlue);cursor: pointer" onclick="onSearchFocus(); document.querySelector('input').focus()">Add region</div>
         `);
+      } else {
+
+      root.append('div').attr('class', 'info').html(`
+          <span class="lastupdated"></span>United States data provided by <a href="https://github.com/nytimes/covid-19-data">The New York Times</a>. World data provided by <a href="https://www.ecdc.europa.eu/en/publications-data/download-todays-data-geographic-distribution-covid-19-cases-worldwide">European Centre for Disease Prevention and Control</a>.
+	`);
+
       }
-      }
+    }
+
+     
+
 
     }
     
