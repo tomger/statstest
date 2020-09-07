@@ -624,7 +624,6 @@ class SearchView extends HTMLElement {
             return suggestedRegions.indexOf(region.path) !== -1 && !isRegionSelected(region.path)
           });
         this.appendListItems({target: banner, regions: regions, addButton: true})
-        root.append('div').attr('class', 'info').html(dataDisclaimer());
       } else {
         //  this.style.opacity = "1";
         this.innerHTML = ``; 
