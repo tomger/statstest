@@ -393,6 +393,7 @@
 </body>
 <script src="/d3.v5.min.js"></script>
 <script>
+let lastupdatedDate = '';
 
 const suggestedRegions = [
   'us-st-illinois',
@@ -421,7 +422,9 @@ function onSearchInput(event) {
 function init() {
   loadRegions();
   d3.csv("/lastupdate").then(data => {
-    document.querySelector('.lastupdated').innerHTML = `Last updated on ${data[0].date}. `;
+    lastupdatedDate = data[0].date;
+    let span = document.querySelector('.lastupdated');
+    if (span) span.innerHTML = lastUpdatedSpan();
   })
 }
 
@@ -510,6 +513,20 @@ function changeNumber(region) {
       ${change > 0 ? '+' : ''}${change}%
     </div>
   `;
+}
+
+function lastUpdatedSpan() {
+  return `Last updated on ${lastupdatedDate}. `;
+}
+
+function dataDisclaimer() {
+  
+  return /*html*/`
+    <span class="lastupdated">${lastUpdatedSpan()}</span>United States data provided by 
+    <a href="https://github.com/nytimes/covid-19-data">The New York Times</a>. 
+    World data provided by
+    <a href="https://www.ecdc.europa.eu/en/publications-data/download-todays-data-geographic-distribution-covid-19-cases-worldwide">European Centre for Disease Prevention and Control</a>.
+	`;
 }
 
 function isWarningRegion(region) {
@@ -630,9 +647,7 @@ class SearchView extends HTMLElement {
         `);
       } else {
 
-      root.append('div').attr('class', 'info').html(`
-          <span class="lastupdated"></span>United States data provided by <a href="https://github.com/nytimes/covid-19-data">The New York Times</a>. World data provided by <a href="https://www.ecdc.europa.eu/en/publications-data/download-todays-data-geographic-distribution-covid-19-cases-worldwide">European Centre for Disease Prevention and Control</a>.
-	`);
+      root.append('div').attr('class', 'info').html(dataDisclaimer());
 
       }
     }
