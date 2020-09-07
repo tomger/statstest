@@ -931,6 +931,10 @@ class DetailView extends HTMLElement {
       <div class="chart-view" style="padding: 20px 0;">
       </div>
       <div class="table-view" style="padding: 20px 0; border-bottom: 1px solid var(--colorSeparator)">
+        <div onclick="detailView.drawTable()" style="display: flex; align-items: center; justify-content: space-between">
+          <span>Show data</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right"><polyline points="9 18 15 12 9 6"></polyline></svg>  
+        </div>
       </div>
       <div class="info">
       ${dataDisclaimer()}
@@ -942,14 +946,20 @@ class DetailView extends HTMLElement {
       this.drawChart(d3.select('.chart-view'), data)
 
       d3.select('.chart-view svg').attr('class', this.region["change-cases"] < 0 ? 'isDown' : 'isUp')
-      d3.select('.table-view').append('table').attr('style', `font-size: 13px; border-spacing: 0`).html(
-        `<tr><td>Date</td><td>New cases</td><td>New cases per 100k</td></tr>` +
-        data.map(l => {
-          return `<tr><td style="color:var(--colorSecondaryLabel) ">${l.date}</td><td>${l.cases}</td><td>${Number((l.cases / this.region.population) * 100000).toFixed(1)}</td></tr>`
-        }).join('')
-      )
+      this.data = data;
     })
 
+  }
+
+  drawTable() {
+    d3.select('.table-view')
+      .html(
+        `<table style="font-size: 13px; border-spacing: 0"><tr><td>Date</td><td>New cases</td><td>New cases per 100k</td></tr>
+        ${this.data.map(l => {
+          return `<tr><td style="color:var(--colorSecondaryLabel) ">${l.date}</td><td>${l.cases}</td><td>${Number((l.cases / this.region.population) * 100000).toFixed(1)}</td></tr>`
+        }).join('')}
+        </table>`
+      )
   }
 
   set region(value) {
