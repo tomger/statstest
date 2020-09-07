@@ -913,6 +913,9 @@ class DetailView extends HTMLElement {
       ${iff(isRegionSelected(this.region.path), removeButton)}
       <div class="table-view" style="padding: 20px 0; border-bottom: 1px solid var(--colorSeparator)">
       </div>
+      <div class="info">
+      ${dataDisclaimer()}
+      </div>
     `;
 
     d3.csv(`/data/${this.region.path}.csv`).then(data => {
