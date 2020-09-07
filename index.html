@@ -277,9 +277,6 @@
           border-bottom: 0.5px solid var(--colorSeparatorTranslucent);
           cursor: pointer;
         }
-        .menuitem-wrapper > div:first-child{ 
-          flex: 1
-        }
 
         .isUp {
           color: var(--colorRed)
@@ -400,6 +397,8 @@ const suggestedRegions = [
   'us-co-los-angeles-california',
   'world-united_kingdom',
   'world-united_states_of_america']
+
+const iff = (condition, result) => condition ? result : '';
 
 function onSearchFocus() {
   document.querySelector('.titlebar-wrapper').classList.add('isHidden')
@@ -584,30 +583,31 @@ class SearchView extends HTMLElement {
       this.innerHTML = ``;
       this.style.opacity = "1";
 
-      this._regions
+      let searchResults = this._regions
         .filter(region => {
           return region.name.toLowerCase().indexOf(this.query.toLowerCase()) !== -1;
         })
         .sort((a, b) => {
           return b.population - a.population;
         })
-        .slice(0, 20)
-        .forEach(region => {
-          let menuitem = root.append('div')
-              .attr('class', `menuitem-wrapper`)
-              .on('click', function() { 
-                navigateToDetailView(region) 
-              })
-              .html(/*html*/`
-                <div>
-                  <div class="primaryLabel">${region.name.replace(/_/g, ' ')}</div>
-                  <div class="secondaryLabel">
-                      ${region.byline}${region.byline ? ' · ' : ''}${Number(region.population).toLocaleString()}
-                  </div>
-                </div>
-                ${numberColumn(region)}
-              `);  
-        })
+        .slice(0, 20);
+      this.appendListItems({target: root, regions: searchResults, addButton: true})
+        // .forEach(region => {
+        //   let menuitem = root.append('div')
+        //       .attr('class', `menuitem-wrapper`)
+        //       .on('click', function() { 
+        //         navigateToDetailView(region) 
+        //       })
+        //       .html(/*html*/`
+        //         <div>
+        //           <div class="primaryLabel">${region.name.replace(/_/g, ' ')}</div>
+        //           <div class="secondaryLabel">
+        //               ${region.byline}${region.byline ? ' · ' : ''}${Number(region.population).toLocaleString()}
+        //           </div>
+        //         </div>
+        //         ${numberColumn(region)}
+        //       `);  
+        // })
         root.append('div').attr('class', 'info').html(dataDisclaimer());
     } else {
       if (this.isSearching) {
@@ -623,7 +623,7 @@ class SearchView extends HTMLElement {
           .filter(region => {
             return suggestedRegions.indexOf(region.path) !== -1 && !isRegionSelected(region.path)
           });
-        this.appendListItems(banner, regions)
+        this.appendListItems({target: banner, regions: regions, addButton: true})
         root.append('div').attr('class', 'info').html(dataDisclaimer());
       } else {
         //  this.style.opacity = "1";
@@ -633,7 +633,7 @@ class SearchView extends HTMLElement {
             return isRegionSelected(region.path)
           });
       
-        this.appendListItems(root, selectedRegions)
+        this.appendListItems({target: root, regions: selectedRegions});
         if (selectedRegions.length < 1) {
 
           let banner = root.append('div').attr('style', `
@@ -660,7 +660,7 @@ class SearchView extends HTMLElement {
 
   }
 
-  appendListItems(target, regions) {
+  appendListItems({target, regions = [], addButton = false}) {
     regions
       .sort((a, b) => {
         return (a['last-cases'] / a.population) - (b['last-cases'] / b.population)
@@ -676,18 +676,27 @@ class SearchView extends HTMLElement {
             .attr('class', `menuitem-wrapper`)
             .attr('style', i === list.length - 1 ? 'border-bottom: 0' : '')
             .on('click', function() { 
-              navigateToDetailView(region) 
+              navigateToDetailView(region);
             })
             .html(/*html*/`
-            <div>
+            ${iff(addButton, /*html*/`
+            <div
+              onclick="event.stopPropagation();toggleRegion('${region.path}');closeDetailView()"
+              style="display:flex; align-items: center; padding-right: 16px; color: var(--colorBlue)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus-circle"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+            </div>
+            `)}
+            <div style="flex:1">
               <div class="primaryLabel">${region.name.replace(/_/g, ' ')}</div>
               <div class="secondaryLabel">
                 ${region.byline}${region.byline ? ' · ' : ''}${Number(region.population).toLocaleString()}
               </div>
             </div>
-            <div style="${sparkStyle}">
-              <spark-line class="${region["change-cases"] < 0 ? 'isDown' : 'isUp'}" src="/data/${region.path}.csv"></spark-line>
-            </div>
+            ${iff(!addButton, /*html*/`
+              <div style="${sparkStyle}">
+                <spark-line class="${region["change-cases"] < 0 ? 'isDown' : 'isUp'}" src="/data/${region.path}.csv"></spark-line>
+              </div>
+            `)}
             ${numberColumn(region)}
         `);
       })
@@ -839,7 +848,7 @@ class DetailView extends HTMLElement {
       gap: 40px;
     `;
     let captionStyle = ``;
-    const iff = (condition, result) => condition ? result : '';
+    
     let removeButton = /*html*/`
       <div style="padding: 20px 0; border-bottom: 1px solid var(--colorSeparator); cursor: pointer;">
         <div onclick="toggleRegion('${this._region.path}');closeDetailView()">
