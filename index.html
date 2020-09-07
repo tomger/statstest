@@ -849,13 +849,6 @@ class DetailView extends HTMLElement {
     `;
     let captionStyle = ``;
     
-    let removeButton = /*html*/`
-      <div style="padding: 20px 0; border-bottom: 1px solid var(--colorSeparator); cursor: pointer;">
-        <div onclick="toggleRegion('${this._region.path}');closeDetailView()">
-          Remove from watchlist
-        </div>
-      </div>
-    `;
     let warningModule = /*html*/`
       <div style="display: flex; flex-direction: column;padding: 20px 0; border-bottom: 1px solid var(--colorSeparator)">
         <svg style="transform:translateY(-2px)" width="24" height="24" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -876,9 +869,26 @@ class DetailView extends HTMLElement {
         style="margin-right: 10px;text-decoration: underline;font-size: 14px; font-weight: 600; display: inline-block;padding: 8px 12px; border-radius: 40px; ">
           Share
       </div>
-    `
+    `;
+
+    let removeButton = `<div 
+      onclick="toggleRegion('${this._region.path}');detailView.update()"
+      style="font-size: 14px;
+      cursor: pointer;
+      font-weight: 600; display: inline-block;padding: 8px 12px;
+      border-radius: 40px;
+      background: transparent; 
+      color: var(--colorLabel);
+      border: 1px solid var(--colorSeparator);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      ">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      Following
+    </div>`;
     let addButton = `<div 
-      onclick="toggleRegion('${this._region.path}');closeDetailView()"
+      onclick="toggleRegion('${this._region.path}');detailView.update()()"
       style="font-size: 14px;
       cursor: pointer;
       font-weight: 600; display: inline-block;padding: 8px 12px;
@@ -893,7 +903,7 @@ class DetailView extends HTMLElement {
         ${iff(navigator.share, shareButton)}
   
         <div>
-          ${iff(!isRegionSelected(this.region.path), addButton)}
+          ${isRegionSelected(this.region.path) ? removeButton : addButton}
         </div>
       </div>
       <div style="font-size: 30px; line-height: 1.1; margin-top: 32px; margin-bottom: 20px; font-weight: 700;">
@@ -919,7 +929,6 @@ class DetailView extends HTMLElement {
       ${iff(isWarningRegion(this.region), warningModule)}
       <div class="chart-view" style="padding: 20px 0;">
       </div>
-      ${iff(isRegionSelected(this.region.path), removeButton)}
       <div class="table-view" style="padding: 20px 0; border-bottom: 1px solid var(--colorSeparator)">
       </div>
       <div class="info">
