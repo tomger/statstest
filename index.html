@@ -274,7 +274,7 @@
         .menuitem-wrapper {
           padding: 12px 0;
           display: flex;
-          border-bottom: 0.5px solid var(--colorSeparatorTranslucent);
+          border-bottom: 0.5px solid var(--colorSeparator);
           cursor: pointer;
         }
 
@@ -287,7 +287,7 @@
         }
 
         .titlebar-wrapper {
-          border-bottom: 1px solid var(--colorSeparatorTranslucent);
+          border-bottom: 1px solid var(--colorSeparator);
           width: 100%;
           display: flex;
           justify-content: center;
@@ -843,7 +843,7 @@ class DetailView extends HTMLElement {
     let numberWrapperStyle = /*css*/`
       display: flex; 
       flex-direction: row;
-      border: 1px solid var(--colorSeparator);
+      border: 0.5px solid var(--colorSeparator);
       border-width: 1px 0 1px 0;
       padding: 16px 0;
       gap: 40px;
@@ -851,7 +851,7 @@ class DetailView extends HTMLElement {
     let captionStyle = ``;
     
     let warningModule = /*html*/`
-      <div style="display: flex; flex-direction: column;padding: 20px 0; border-bottom: 1px solid var(--colorSeparator)">
+      <div style="display: flex; flex-direction: column;padding: 20px 0; border-bottom: 0.5px solid var(--colorSeparator)">
         <svg style="transform:translateY(-2px)" width="24" height="24" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path fill-rule="evenodd" clip-rule="evenodd" d="M6.02051 2.52216C6.45587 1.82595 7.54427 1.82595 7.97963 2.52216L12.6326 9.96293C13.0679 10.6591 12.5237 11.5294 11.653 11.5294H2.34714C1.47642 11.5294 0.932221 10.6591 1.36758 9.96293L6.02051 2.52216ZM7.8266 9.43878C7.8266 9.89526 7.45655 10.2653 7.00007 10.2653C6.54359 10.2653 6.17354 9.89526 6.17354 9.43878C6.17354 8.9823 6.54359 8.61224 7.00007 8.61224C7.45655 8.61224 7.8266 8.9823 7.8266 9.43878ZM7.00007 4.47959C6.5674 4.47959 6.23829 4.8681 6.30942 5.29488L6.67927 7.51395C6.7054 7.67077 6.84109 7.78571 7.00007 7.78571C7.15905 7.78571 7.29474 7.67077 7.32087 7.51395L7.69072 5.29488C7.76185 4.8681 7.43274 4.47959 7.00007 4.47959Z" fill="#EAAF17"/>
         </svg>
@@ -929,7 +929,7 @@ class DetailView extends HTMLElement {
       ${iff(isWarningRegion(this.region), warningModule)}
       <div class="chart-view" style="padding: 20px 0;">
       </div>
-      <div class="table-view" style="padding: 20px 0; border-bottom: 1px solid var(--colorSeparator)">
+      <div class="table-view" style="padding: 20px 0; border-bottom: 0.5px solid var(--colorSeparator)">
         <div onclick="detailView.drawTable()" style="display: flex; align-items: center; justify-content: space-between">
           <span>Show data</span>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right"><polyline points="9 18 15 12 9 6"></polyline></svg>  
