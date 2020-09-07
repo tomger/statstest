@@ -515,7 +515,9 @@ function changeNumber(region) {
 }
 
 function lastUpdatedSpan() {
-  return `Last updated on ${lastupdatedDate}. `;
+  let options = { month: 'short', day: 'numeric', hour: 'numeric', minute:'numeric' };
+
+  return `Last updated ${new Date(lastupdatedDate).toLocaleString(undefined, options)}. `;
 }
 
 function dataDisclaimer() {
@@ -752,7 +754,7 @@ class DetailView extends HTMLElement {
 
     let denominator = this.region.population / 100000;
     let values = movingAverage(data.map(d => parseInt(d.cases, 10) / denominator));
-    const scaleX = d3.scaleLinear().range([0, width]).domain([0, values.length]);
+    const scaleX = d3.scaleLinear().range([0, width]).domain([0, values.length-1]);
     const scaleY = d3.scaleLinear().range([height, 0]).domain([0, d3.max(values)]);
 
     const scaleXBand = d3.scaleBand()
@@ -763,21 +765,21 @@ class DetailView extends HTMLElement {
 
     svg.append("g")
       .attr("transform", `translate(0, 0)`)
-      .call(d3.axisRight(scaleY).tickValues(scaleY.ticks(5))) //.ticks(2)
+      .call(d3.axisLeft(scaleY).tickValues(scaleY.ticks(4))) //.ticks(2)
       .call(g => g.selectAll(".tick text")
         .attr('color', 'var(--colorSecondaryLabel)')
-        .attr("transform", `translate(${width}, -7)`))
+        .attr("transform", `translate(${width+37}, -7)`))
       .call(g => g.selectAll(".tick line")
         .attr('x2', width+rightPadding))
         .attr('color', 'var(--colorSecondaryLabel)')
         .attr('stroke-dasharray', 2)
-        .attr('style', 'opacity:.5; stroke-width: .5px')
+        .attr('style', 'opacity:.9; stroke-width: .5px')
       .call(g => g.selectAll(".domain").attr('stroke', 'transparent'))
 
     svg.append("g")
       .call(d3.axisBottom(scaleX).tickFormat(d => {
-        return `T-${30 -d}`;
-      }).tickValues(scaleX.ticks(3))) // ticks(2)
+        return `${new Date(data[d].date).toLocaleString(undefined, {day: 'numeric'})}`;
+      }).tickValues(scaleX.ticks(7)))
       .call(g => g.selectAll(".tick text")
         .attr('color', 'var(--colorSecondaryLabel)')
         .attr("transform", `translate(0, ${height})`))
@@ -785,7 +787,7 @@ class DetailView extends HTMLElement {
       .call(g => g.selectAll(".tick line")
         .attr('y2', 0))
         .attr('color', 'var(--colorSecondaryLabel)')
-        .attr('style', 'opacity:.5')
+        .attr('style', 'opacity:.9')
       .call(g => g.selectAll(".domain").attr('stroke', 'transparent'))
     
     svg
@@ -802,21 +804,6 @@ class DetailView extends HTMLElement {
       .attr("ry", 2)
       .attr("width", scaleXBand.bandwidth()*1.3)
       .attr("height", function(d) { return (height) - scaleY(d); });
-
-    // svg
-    //   .datum(values)
-    //   .append("path")
-    //   .attr("fill", "none")
-    //   .attr("stroke", color)
-    //   .attr("stroke-width",1.75)
-    //   .attr("d", d3.line()
-    //       .x(function(d, i) { 
-    //         return scaleX(i);
-    //       })
-    //       .y(function(d) {  
-    //         return scaleY(d)
-    //       })
-    //   )
 
   }
 
@@ -940,7 +927,13 @@ class DetailView extends HTMLElement {
     `;
 
     d3.csv(`/data/${this.region.path}.csv`).then(data => {
-      d3.select('.chart-view').html(`<div style="margin-bottom: 20px">${data[0].date} to ${data[29].date}</div>`)
+      let options = { month: 'short', day: 'numeric' };
+      d3.select('.chart-view').html(/*html*/`
+        <div style="margin-bottom: 20px">
+          ${new Date(data[0].date).toLocaleString(undefined, options)} –
+          ${new Date(data[29].date).toLocaleString(undefined, options)}
+        </div>
+      `)
       this.drawChart(d3.select('.chart-view'), data)
 
       d3.select('.chart-view svg').attr('class', this.region["change-cases"] < 0 ? 'isDown' : 'isUp')
