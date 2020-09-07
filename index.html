@@ -778,7 +778,9 @@ class DetailView extends HTMLElement {
 
     svg.append("g")
       .call(d3.axisBottom(scaleX).tickFormat(d => {
-        return `${new Date(data[d].date).toLocaleString(undefined, {day: 'numeric'})}`;
+        let options = {day: 'numeric'};
+        if (d === 0) options.month = "short";
+        return `${new Date(data[d].date).toLocaleString(undefined, options)}`;
       }).tickValues(scaleX.ticks(7)))
       .call(g => g.selectAll(".tick text")
         .attr('color', 'var(--colorSecondaryLabel)')
