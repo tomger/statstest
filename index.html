@@ -827,7 +827,9 @@ class DetailView extends HTMLElement {
       return;
     }
     this.style.cssText = `
-      padding: 20px;
+      padding: 20px 0;
+      display: block;
+      min-height: 1000px;
     `;
 
     let cases = Number((this._region['last-cases'] / this.region.population) * 100000).toFixed(1);
@@ -895,8 +897,8 @@ class DetailView extends HTMLElement {
       Add to watchlist
     </div>`;
     this.innerHTML = /*html*/`
-      <div style="display:flex; flex-direction: row">
-        <div onClick="closeDetailView()" style="width: 44px; height: 44px; flex: 1">
+      <div style="display:flex; flex-direction: row; position: -webkit-sticky; position: sticky; top: 0; display: flex; align-items: center">
+        <div onClick="closeDetailView()" style="width: 44px; height: 44px; flex: 1; display: flex; align-items: center;">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
         </div>
         ${iff(navigator.share, shareButton)}
