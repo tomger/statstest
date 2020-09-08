@@ -104,7 +104,13 @@
         }
         a {
           color: var(--colorLabel);
-          outline: none
+          outline: none;
+          text-decoration: none;
+        }
+
+        .info a {
+          text-decoration: underline;
+
         }
         
         .button {
@@ -691,9 +697,11 @@ class SearchView extends HTMLElement {
           display: flex;
           align-items: center
         `;
-        let menuitem = target.append('div')
+        let menuitem = target.append('a')
             .attr('class', `menuitem-wrapper`)
-            .on('click', function() { 
+            .attr('href', `/region/${region.path}`)
+            .on('click', function(event) { 
+              d3.event.preventDefault();
               navigateToDetailView(region);
             })
             .html(/*html*/`
