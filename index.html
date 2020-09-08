@@ -771,7 +771,7 @@ class DetailView extends HTMLElement {
       .attr("transform", `translate(0, 0)`)
       .call(d3.axisLeft(scaleY).tickValues(scaleY.ticks(4))) //.ticks(2)
       .call(g => g.selectAll(".tick text")
-        .attr('color', 'var(--colorSecondaryLabel)')
+        .attr('fill', 'var(--colorSecondaryLabel)')
         .attr("transform", `translate(${width+37}, -7)`))
       .call(g => g.selectAll(".tick line")
         .attr('x2', width+rightPadding))
@@ -787,7 +787,7 @@ class DetailView extends HTMLElement {
         return `${new Date(data[d].date).toLocaleString(undefined, options)}`;
       }).tickValues(scaleX.ticks(7)))
       .call(g => g.selectAll(".tick text")
-        .attr('color', 'var(--colorSecondaryLabel)')
+        .attr('fill', 'var(--colorSecondaryLabel)')
         .attr("transform", `translate(0, ${height})`))
         .attr("text-anchor", "start")
       .call(g => g.selectAll(".tick line")
