@@ -777,7 +777,7 @@ class DetailView extends HTMLElement {
         .attr('x2', width+rightPadding)
         .attr('color', 'var(--colorSecondaryLabel)')
         .attr('stroke-dasharray', 1)
-        .attr('style', 'opacity:.5; stroke-width: .5px'))
+        .attr('style', 'opacity:.8; stroke-width: .5px'))
       .call(g => g.selectAll(".domain").attr('stroke', 'transparent'))
 
     svg.append("g")
@@ -792,8 +792,6 @@ class DetailView extends HTMLElement {
         .attr("text-anchor", "start")
       .call(g => g.selectAll(".tick line")
         .attr('y2', 0)
-        .attr('color', 'var(--colorSecondaryLabel)')
-        .attr('style', 'opacity:.5'))
       .call(g => g.selectAll(".domain").attr('stroke', 'transparent'))
     
     svg
