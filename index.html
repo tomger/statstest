@@ -23,6 +23,7 @@
 
         * {
           box-sizing: border-box;
+          touch-action: manipulation;
         }
 
         @media (prefers-color-scheme: dark) {
@@ -48,7 +49,6 @@
           flex-direction: column;
           background: var(--colorBackground);
           color: var(--colorLabel);
-          touch-action: manipulation;
         }
 
         svg {overflow: visible}
@@ -404,15 +404,18 @@ const iff = (condition, result) => condition ? result : '';
 function onSearchFocus() {
   document.querySelector('.titlebar-wrapper').classList.add('isHidden')
   document.querySelector('.search-bar').classList.add('isFocussed')
-  searchView.isSearching = true
+  searchView.isSearching = true;
+  history.replaceState({}, 'COVID-19 Watchlist', `/`)
 }
 
 function onSearchCancel() {
   document.querySelector('.searchinput').value='';
+  document.querySelector('.searchinput').blur();
   document.querySelector('.titlebar-wrapper').classList.remove('isHidden')
   document.querySelector('.search-bar').classList.remove('isFocussed')
   searchView.query = null
-  searchView.isSearching = false
+  searchView.isSearching = false;
+  history.replaceState({}, 'COVID-19 Watchlist', `/`)
 }
 
 function onSearchInput(event) {
@@ -442,7 +445,7 @@ function loadRegions() {
 window.onpopstate = function() {
   let region = getRegionFromLocation();
   showDetailView(region);
-
+  onSearchCancel();
 }
 
 function getRegionFromLocation() {
