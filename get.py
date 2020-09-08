@@ -99,11 +99,15 @@ def get_counties():
         path = "us-co-{}-{}".format(county, state).replace(" ", "-").lower()
         df.to_csv(path_mask.format(path), index = False, header=True)
 
+        if county == "New York City":
+            name = county
+        else:
+            name = "{} County".format(county)
 
         # add to index
         region_index.append({
             'path': path,
-            'name': "{} County".format(county),
+            'name': name,
             'byline': "{}".format(state),
             'population': population,
             'change-cases': get_change(df),
