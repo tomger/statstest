@@ -935,7 +935,7 @@ class DetailView extends HTMLElement {
       d3.select('.chart-view').html(/*html*/`
         <div style="margin-bottom: 20px">
           ${dateParse(data[0].date).toLocaleString(undefined, options)} –
-          ${dateParse(data[data.length - 1].date).toLocaleString(undefined, options)} ${data[data.length - 1].date}
+          ${dateParse(data[data.length - 1].date).toLocaleString(undefined, options)}
         </div>
       `)
       this.drawChart(d3.select('.chart-view'), data)
