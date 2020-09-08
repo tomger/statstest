@@ -405,7 +405,7 @@ function onSearchFocus() {
   document.querySelector('.titlebar-wrapper').classList.add('isHidden')
   document.querySelector('.search-bar').classList.add('isFocussed')
   searchView.isSearching = true;
-  history.replaceState({}, 'COVID-19 Watchlist', `/`)
+  history.replaceState({}, 'COVID-19 Watchlist', `/q`)
 }
 
 function onSearchCancel() {
