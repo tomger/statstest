@@ -448,13 +448,21 @@ function init() {
   })
 }
 
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array
+}
+
 function loadRegions() {
   d3.csv("/data/regions.csv").then(data => {
     searchView.regions = data;
 
-    suggestedRegions.push(...data.filter(d => {
+    suggestedRegions.push(...shuffleArray(data.filter(d => {
       return d.path.indexOf('us-st') === 0 && (parseInt(d['last-cases'], 10) / parseInt(d['population'], 10) > 0.00014)
-    }).map(d=>d.path))
+    }).map(d=>d.path)))
 
     let region = getRegionFromLocation();
     if (region) {
