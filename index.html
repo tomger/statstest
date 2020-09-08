@@ -396,8 +396,9 @@ let lastupdatedDate = '';
 const suggestedRegions = [
   'us-st-illinois',
   'us-co-los-angeles-california',
-  'world-united_kingdom',
-  'world-united_states_of_america']
+  'world-france',
+  'world-united_states_of_america',
+  'world-united_kingdom',]
 
 const iff = (condition, result) => condition ? result : '';
 
@@ -597,23 +598,8 @@ class SearchView extends HTMLElement {
           return b.population - a.population;
         })
         .slice(0, 20);
-      this.appendListItems({target: root, regions: searchResults, addButton: true})
-        // .forEach(region => {
-        //   let menuitem = root.append('div')
-        //       .attr('class', `menuitem-wrapper`)
-        //       .on('click', function() { 
-        //         navigateToDetailView(region) 
-        //       })
-        //       .html(/*html*/`
-        //         <div>
-        //           <div class="primaryLabel">${region.name.replace(/_/g, ' ')}</div>
-        //           <div class="secondaryLabel">
-        //               ${region.byline}${region.byline ? ' · ' : ''}${Number(region.population).toLocaleString()}
-        //           </div>
-        //         </div>
-        //         ${numberColumn(region)}
-        //       `);  
-        // })
+        this.appendListItems({target: root, regions: searchResults, addButton: true})
+    
         root.append('div').attr('class', 'info').html(dataDisclaimer());
     } else {
       if (this.isSearching) {
@@ -628,6 +614,10 @@ class SearchView extends HTMLElement {
         let regions = this._regions
           .filter(region => {
             return suggestedRegions.indexOf(region.path) !== -1 && !isRegionSelected(region.path)
+          })
+          .slice(0, 4)
+          .sort((a, b) => {
+            return (a['last-cases'] / a.population) - (b['last-cases'] / b.population)
           });
         this.appendListItems({target: banner, regions: regions, addButton: true})
       } else {
@@ -636,6 +626,9 @@ class SearchView extends HTMLElement {
         let selectedRegions = this._regions
           .filter(region => {
             return isRegionSelected(region.path)
+          })
+          .sort((a, b) => {
+            return (a['last-cases'] / a.population) - (b['last-cases'] / b.population)
           });
       
         this.appendListItems({target: root, regions: selectedRegions});
@@ -674,9 +667,6 @@ class SearchView extends HTMLElement {
 
   appendListItems({target, regions = [], addButton = false}) {
     regions
-      .sort((a, b) => {
-        return (a['last-cases'] / a.population) - (b['last-cases'] / b.population)
-      })
       .forEach((region, i, list) => {
         const sparkStyle = `
           padding-top: 2px;
