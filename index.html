@@ -403,6 +403,7 @@ const suggestedRegions = [
   ]
 
 const iff = (condition, result) => condition ? result : '';
+const dateParse = d3.timeParse("%Y-%m-%d");
 
 function onSearchFocus() {
   document.querySelector('.titlebar-wrapper').classList.add('isHidden')
@@ -782,7 +783,7 @@ class DetailView extends HTMLElement {
       .call(d3.axisBottom(scaleX).tickFormat(d => {
         let options = {day: 'numeric'};
         if (d === 0) options.month = "short";
-        return `${new Date(data[d].date).toLocaleString(undefined, options)}`;
+        return `${dateParse(data[d].date).toLocaleString(undefined, options)}`;
       }).tickValues(scaleX.ticks(7)))
       .call(g => g.selectAll(".tick text")
         .attr('style', 'fill:var(--colorSecondaryLabel)')
@@ -933,8 +934,8 @@ class DetailView extends HTMLElement {
       let options = { month: 'short', day: 'numeric' };
       d3.select('.chart-view').html(/*html*/`
         <div style="margin-bottom: 20px">
-          ${new Date(data[0].date).toLocaleString(undefined, options)} –
-          ${new Date(data[data.length - 1].date).toLocaleString(undefined, options)} ${data[data.length - 1].date}
+          ${dateParse(data[0].date).toLocaleString(undefined, options)} –
+          ${dateParse(data[data.length - 1].date).toLocaleString(undefined, options)} ${data[data.length - 1].date}
         </div>
       `)
       this.drawChart(d3.select('.chart-view'), data)
