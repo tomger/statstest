@@ -410,11 +410,9 @@ let lastupdatedDate = '';
 
 const suggestedRegions = [
   'world-united_states_of_america',
-  'us-st-illinois',
-  'us-co-los-angeles-california',
   'world-france',
-  'world-united_kingdom',
-  'us-co-san-francisco-california',
+  'us-co-los-angeles-california',
+  // 'us-co-san-francisco-california',
   ]
 
 const iff = (condition, result) => condition ? result : '';
@@ -453,6 +451,10 @@ function init() {
 function loadRegions() {
   d3.csv("/data/regions.csv").then(data => {
     searchView.regions = data;
+
+    suggestedRegions.push(...data.filter(d => {
+      return d.path.indexOf('us-st') === 0 && (parseInt(d['last-cases'], 10) / parseInt(d['population'], 10) > 0.00014)
+    }).map(d=>d.path))
 
     let region = getRegionFromLocation();
     if (region) {
@@ -625,7 +627,7 @@ class SearchView extends HTMLElement {
           .sort((a, b) => {
             return suggestedRegions.indexOf(a.path) - suggestedRegions.indexOf(b.path)
           })
-          .slice(0, 4);
+          .slice(0, 5);
         this.appendListItems({target: banner, regions: regions, addButton: true})
       } else {
         //  this.style.opacity = "1";
