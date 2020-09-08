@@ -394,11 +394,13 @@
 let lastupdatedDate = '';
 
 const suggestedRegions = [
+  'world-united_states_of_america',
   'us-st-illinois',
   'us-co-los-angeles-california',
   'world-france',
-  'world-united_states_of_america',
-  'world-united_kingdom',]
+  'world-united_kingdom',
+  'us-co-san-francisco-california',
+  ]
 
 const iff = (condition, result) => condition ? result : '';
 
@@ -615,10 +617,10 @@ class SearchView extends HTMLElement {
           .filter(region => {
             return suggestedRegions.indexOf(region.path) !== -1 && !isRegionSelected(region.path)
           })
-          .slice(0, 4)
           .sort((a, b) => {
-            return (a['last-cases'] / a.population) - (b['last-cases'] / b.population)
-          });
+            return suggestedRegions.indexOf(a.path) - suggestedRegions.indexOf(b.path)
+          })
+          .slice(0, 4);
         this.appendListItems({target: banner, regions: regions, addButton: true})
       } else {
         //  this.style.opacity = "1";
