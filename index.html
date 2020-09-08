@@ -791,7 +791,7 @@ class DetailView extends HTMLElement {
         .attr("transform", `translate(0, ${height})`))
         .attr("text-anchor", "start")
       .call(g => g.selectAll(".tick line")
-        .attr('y2', 0)
+        .attr('y2', 0))
       .call(g => g.selectAll(".domain").attr('stroke', 'transparent'))
     
     svg
