@@ -653,6 +653,13 @@ class SearchView extends HTMLElement {
             </div>
           `);
         } else {
+          if (selectedRegions.length < 2) {
+            root.append('div').html(`
+              <div style="margin: 32px 0; cursor:pointer; font-size: 14px;" onclick="onSearchFocus(); document.querySelector('input').focus()">
+                <span style="color: var(--colorBlue)">Add one more?</span> Where do your family or friends live?
+                </div>
+            `);
+          }
           root.append('div').attr('class', 'info').html(dataDisclaimer());
         }
     }
@@ -679,7 +686,6 @@ class SearchView extends HTMLElement {
         `;
         let menuitem = target.append('div')
             .attr('class', `menuitem-wrapper`)
-            .attr('style', i === list.length - 1 ? 'border-bottom: 0' : '')
             .on('click', function() { 
               navigateToDetailView(region);
             })
