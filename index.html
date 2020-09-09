@@ -878,7 +878,7 @@ class DetailView extends HTMLElement {
     let shareButton = `
       <div 
         onclick="navigator.share({title: 'COVID-19 Watchlist: ${this.region.name}', text: '', url: location.href})"
-        style="margin-right: 10px;text-decoration: underline;font-size: 14px; font-weight: 600; display: inline-block;padding: 8px 12px; border-radius: 40px; ">
+        style="margin-right: 6px;text-decoration: underline;font-size: 14px; font-weight: 600; display: inline-block;padding: 8px 12px; border-radius: 40px; ">
           Share
       </div>
     `;
@@ -902,6 +902,7 @@ class DetailView extends HTMLElement {
       onclick="toggleRegion('${this._region.path}');detailView.update()()"
       style="font-size: 14px;
       cursor: pointer;
+      white-space: nowrap;
       font-weight: 600; display: inline-block;padding: 8px 12px;
       border-radius: 40px;background: var(--colorBlue); color: var(--colorBackground)">
       Add to watchlist
