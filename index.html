@@ -692,10 +692,10 @@ class SearchView extends HTMLElement {
     regions
       .forEach((region, i, list) => {
         const sparkStyle = `
-          padding-top: 2px;
+          padding-top: 6px;
           margin-right: 5px;
           display: flex;
-          align-items: center
+          align-items: top;
         `;
         let menuitem = target.append('a')
             .attr('class', `menuitem-wrapper`)
