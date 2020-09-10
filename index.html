@@ -531,6 +531,7 @@ function showDetailView(region) {
   [...document.querySelectorAll('.listing-wrapper, .titlebar-wrapper')].forEach(e => {
     e.style.display = !!region ? 'none' : ''
   })
+  document.title = `COVID-19 Watchlist ${region.name}`;
   detailView.region = region;
 }
 
