@@ -305,9 +305,9 @@
           background: var(--colorBackground);
           overflow: hidden;
           transition: all 250ms ease-in-out;
-          /* transform: translateY (0px); */
-
+          will-change: transform;
         }
+
         @media (prefers-color-scheme: dark) {
           .titlebar-wrapper {
             background: rgba(0,0,0,0.8);
@@ -317,10 +317,10 @@
 
         .titlebar-wrapper.isHidden {
           margin-top: -70px;
-          /* position: absolute; */
           transform: translateY(-70px);
           opacity: 0;
         }
+
         .primaryLabel {
           color: var(--colorLabel);
           font-size: 17px;
