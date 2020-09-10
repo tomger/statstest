@@ -304,8 +304,6 @@
           top: 0;
           background: var(--colorBackground);
           overflow: hidden;
-          transition: all 250ms ease-in-out;
-          will-change: transform;
         }
 
         @media (prefers-color-scheme: dark) {
@@ -315,10 +313,19 @@
           }
         }
 
-        .titlebar-wrapper.isHidden {
-          margin-top: -70px;
+        .titlebar-wrapper, .listing-wrapper {
+          will-change: transform;
+          transition: all 250ms ease-in-out;
+        }
+
+        .titlebar-wrapper.isSearchMode {
           transform: translateY(-70px);
           opacity: 0;
+          /* pointer-events: none; */
+        }
+
+        .listing-wrapper.isSearchMode {
+          transform: translateY(-70px);
         }
 
         .primaryLabel {
@@ -440,7 +447,8 @@ function debounce(callback, wait, immediate = false) {
 }
 
 function onSearchFocus() {
-  document.querySelector('.titlebar-wrapper').classList.add('isHidden')
+  document.querySelector('.titlebar-wrapper').classList.add('isSearchMode')
+  document.querySelector('.listing-wrapper').classList.add('isSearchMode')
   document.querySelector('.search-bar').classList.add('isFocussed')
   searchView.isSearching = true;
   history.pushState({}, 'COVID-19 Watchlist', `#search`)
@@ -449,7 +457,8 @@ function onSearchFocus() {
 function onSearchCancel() {
   document.querySelector('.searchinput').value='';
   document.querySelector('.searchinput').blur();
-  document.querySelector('.titlebar-wrapper').classList.remove('isHidden')
+  document.querySelector('.titlebar-wrapper').classList.remove('isSearchMode')
+  document.querySelector('.listing-wrapper').classList.remove('isSearchMode')
   document.querySelector('.search-bar').classList.remove('isFocussed')
   searchView.query = null
   searchView.isSearching = false;
