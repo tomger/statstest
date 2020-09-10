@@ -1058,8 +1058,8 @@ function average(array) {
 }
 
 function movingAverage(array) {
-  const before = 0;
-  const after = 3;
+  const before = 7;
+  const after = 0;
   return array.map((line, index) => {
     const start = Math.max(0, index - before);
     const end   = Math.min(array.length, index + after + 1);
