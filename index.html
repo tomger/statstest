@@ -1000,7 +1000,7 @@ class DetailView extends HTMLElement {
 
     let similar = searchView.regions
       .filter(d => d.name !== this.region.name)
-      .filter(d => d.path.slice(0, 5) !== 'us-co-')
+      .filter(d => d.path.indexOf('us-co-') === -1)
       .filter(d => Math.abs(cases - (parseInt(d['last-cases'], 10) / parseInt(d['population'], 10) * 100000)) < 2)
       shuffleArray(similar)
         .slice(0, 3)
