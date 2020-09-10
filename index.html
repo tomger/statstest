@@ -531,7 +531,11 @@ function showDetailView(region) {
   [...document.querySelectorAll('.listing-wrapper, .titlebar-wrapper')].forEach(e => {
     e.style.display = !!region ? 'none' : ''
   })
-  document.title = `COVID-19 Watchlist ${region.name}`;
+  if (region) {
+    document.title = `COVID-19 Watchlist ${region.name}`;
+  } else {
+    document.title = `COVID-19 Watchlist`;
+  }
   detailView.region = region;
 }
 
