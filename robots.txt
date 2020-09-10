@@ -1,0 +1,2 @@
+User-agent: *
+Sitemap: https://covid.iterator.us/sitemap.xml

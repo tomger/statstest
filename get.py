@@ -75,6 +75,10 @@ def get_counties():
         county = row['CTYNAME'].replace(" County", "")
         population = row['POPESTIMATE2019']
 
+        # skip small counties
+        if population < 100000:
+            continue
+
         df = covid_counties.loc[
             (covid_counties['state'] == state) &
             (covid_counties['county'] == county)].filter(['date', 'cases', 'deaths'])
@@ -155,6 +159,20 @@ def get_states():
             'last-cases': round(state_df.tail(7)['cases'].clip(lower=0).mean()),
         })
 
+def write_sitemap(path, array):
+    sitemap_head = '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">'
+    sitemap_item = '<url><loc>https://covid.iterator.us/region/{}</loc></url>'
+    sitemap_foot = '</urlset>'
+
+    output = [sitemap_head]
+    for region in array:
+        output.append(sitemap_item.format(region['path']))
+    output.append(sitemap_foot)
+
+    file = open(path, "w")
+    file.write(''.join(output))
+    file.close()
+
 
 get_states()
 get_counties()
@@ -162,3 +180,6 @@ get_ecdc()
 
 region_index_df = pd.DataFrame(region_index)
 region_index_df.to_csv("data/regions.csv", index = False, header=True)
+write_sitemap('sitemap.xml', region_index)
+
+
