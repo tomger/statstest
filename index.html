@@ -534,6 +534,7 @@ function navigateToDetailView(region) {
   didPushHistoryState = true;
   history.pushState({}, region.name, `/region/${region.path}`)
   showDetailView(region)
+  window.scrollTo(0,0)
 }
 
 function showDetailView(region) {
@@ -626,6 +627,44 @@ function numberColumn(region) {
       <div>${isWarningRegion(region) ? warnSign : '' }${relativeCases}</div><span style="font-size: 14px;">${changeRow}</span>
     </div>
   `;
+}
+
+function appendListItem(target, region, addButton) {
+  const sparkStyle = `
+          padding-top: 6px;
+          margin-right: 5px;
+          display: flex;
+          align-items: top;
+        `;
+  let menuitem = target.append('a')
+      .attr('class', `menuitem-wrapper`)
+      .attr('href', `/region/${region.path}`)
+      .on('click', function(event) { 
+        d3.event.preventDefault();
+        trackEvent('click-listitem', region.path);
+        navigateToDetailView(region);
+      })
+      .html(/*html*/`
+      ${iff(addButton, /*html*/`
+      <div
+        onclick="event.stopPropagation();event.preventDefault();trackEvent('list-follow','${region.path}');toggleRegion('${region.path}');closeDetailView()"
+        style="display:flex; align-items: center; padding-right: 16px; color: var(--colorBlue)">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus-circle"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+      </div>
+      `)}
+      <div style="flex:1">
+        <div class="primaryLabel">${region.name.replace(/_/g, ' ')}</div>
+        <div class="secondaryLabel">
+          ${region.byline}${region.byline ? ' · ' : ''}${Number(region.population).toLocaleString()}
+        </div>
+      </div>
+      ${iff(!addButton, /*html*/`
+        <div style="${sparkStyle}">
+          <spark-line class="${region["change-cases"] < 0 ? 'isDown' : 'isUp'}" src="/data/${region.path}.csv"></spark-line>
+        </div>
+      `)}
+      ${numberColumn(region)}
+  `);
 }
 
 class SearchView extends HTMLElement {
@@ -727,41 +766,7 @@ class SearchView extends HTMLElement {
   appendListItems({target, regions = [], addButton = false}) {
     regions
       .forEach((region, i, list) => {
-        const sparkStyle = `
-          padding-top: 6px;
-          margin-right: 5px;
-          display: flex;
-          align-items: top;
-        `;
-        let menuitem = target.append('a')
-            .attr('class', `menuitem-wrapper`)
-            .attr('href', `/region/${region.path}`)
-            .on('click', function(event) { 
-              d3.event.preventDefault();
-              trackEvent('click-listitem', region.path);
-              navigateToDetailView(region);
-            })
-            .html(/*html*/`
-            ${iff(addButton, /*html*/`
-            <div
-              onclick="event.stopPropagation();event.preventDefault();trackEvent('list-follow','${region.path}');toggleRegion('${region.path}');closeDetailView()"
-              style="display:flex; align-items: center; padding-right: 16px; color: var(--colorBlue)">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus-circle"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
-            </div>
-            `)}
-            <div style="flex:1">
-              <div class="primaryLabel">${region.name.replace(/_/g, ' ')}</div>
-              <div class="secondaryLabel">
-                ${region.byline}${region.byline ? ' · ' : ''}${Number(region.population).toLocaleString()}
-              </div>
-            </div>
-            ${iff(!addButton, /*html*/`
-              <div style="${sparkStyle}">
-                <spark-line class="${region["change-cases"] < 0 ? 'isDown' : 'isUp'}" src="/data/${region.path}.csv"></spark-line>
-              </div>
-            `)}
-            ${numberColumn(region)}
-        `);
+        appendListItem(target, region, addButton)
       })
   }
 
@@ -985,10 +990,23 @@ class DetailView extends HTMLElement {
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right"><polyline points="9 18 15 12 9 6"></polyline></svg>  
         </div>
       </div>
+      <div class="related">
+      <div style="margin: 16px 0 16px 0; color: var(--colorSecondaryLabel); font-size: 16px; font-weight: 500;">Similar case levels</div>
+      </div>
       <div class="info">
       ${dataDisclaimer()}
       </div>
     `;
+
+    let similar = searchView.regions
+      .filter(d => d.name !== this.region.name)
+      .filter(d => d.path.slice(0, 5) === this.region.path.slice(0, 5))
+      .filter(d => Math.abs(cases - (parseInt(d['last-cases'], 10) / parseInt(d['population'], 10) * 100000)) < 2)
+      shuffleArray(similar)
+        .slice(0, 3)
+        .forEach(d => {
+          appendListItem(d3.select('.related'), d, false)
+        })
 
     d3.csv(`/data/${this.region.path}.csv`).then(data => {
       let options = { month: 'short', day: 'numeric' };
