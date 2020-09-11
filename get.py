@@ -31,15 +31,17 @@ def get_ecdc():
 
         # cummulative to delta
         # already cummulative
-        state_df['rolling_cases'] = state_df['cases'].rolling(7).mean().fillna(0).astype(int)
 
         # rename fields
         state_df = state_df.rename(columns={"dateRep": "date"})
         
         # format date
         state_df["date"] = state_df["date"].apply(lambda x: datetime.datetime.strptime(x, '%d/%m/%Y').date())
-        state_df = state_df.loc[(state_df['date'] > start_date) & (state_df['date'] <= end_date)]
         state_df.sort_values(by='date', inplace=True, ascending=True) 
+        state_df['rolling_cases'] = state_df['cases'].rolling(7).mean().fillna(0).astype(int)
+
+        # keep 30 days
+        state_df = state_df.loc[(state_df['date'] > start_date) & (state_df['date'] <= end_date)]
 
         # output
         path = "world-{}".format(state).replace(" ", "-").lower()
