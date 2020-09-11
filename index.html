@@ -123,9 +123,8 @@
 
         .wrapper {
           width: 100%;
-          flex:1;
+          flex: 1;
           max-width: 500px;
-          overflow: hidden;
           padding: 0 16px;
         }
 
@@ -880,7 +879,7 @@ class DetailView extends HTMLElement {
       return;
     }
     this.style.cssText = `
-      padding: 20px 0;
+      padding: 0 0;
       display: block;
     `;
 
@@ -920,7 +919,7 @@ class DetailView extends HTMLElement {
     let shareButton = `
       <div 
         onclick="navigator.share({title: 'COVID-19 Watchlist: ${this.region.name}', text: '', url: location.href})"
-        style="margin-right: 6px;text-decoration: underline;font-size: 14px; font-weight: 600; display: inline-block;padding: 8px 12px; border-radius: 40px; ">
+        style="cursor: pointer; margin-right: 6px;text-decoration: underline;font-size: 14px; font-weight: 600; display: inline-block;padding: 8px 12px; border-radius: 40px; ">
           Share
       </div>
     `;
@@ -950,8 +949,8 @@ class DetailView extends HTMLElement {
       Add to watchlist
     </div>`;
     this.innerHTML = /*html*/`
-      <div style="cursor: pointer; display:flex; flex-direction: row; position: -webkit-sticky; position: sticky; top: 0; display: flex; align-items: center">
-        <div onClick="closeDetailView()" style="font-weight: 600;font-size:14px;transform:translateX(-7px);height: 44px; flex: 1; display: flex; align-items: center;">
+      <div style="position:-webkit-sticky; background: var(--colorBackground); display:flex; flex-direction: row; position: sticky; top: 0; padding: 16px 0 8px 0; display: flex; align-items: center">
+        <div onClick="closeDetailView()" style="cursor: pointer; color: var(--colorBlue);font-weight: 600;font-size:14px;transform:translateX(-7px);height: 44px; flex: 1; display: flex; align-items: center;">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-left"><polyline points="15 18 9 12 15 6"></polyline></svg>
           Watchlist
         </div>
