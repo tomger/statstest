@@ -823,7 +823,7 @@ class DetailView extends HTMLElement {
     let denominator = this.region.population / 100000;
     let values = movingAverage(data.map(d => parseInt(d.cases, 10) / denominator));
     const scaleX = d3.scaleLinear().range([0, width]).domain([0, values.length-1]);
-    const scaleY = d3.scaleLinear().range([height, 0]).domain([0, d3.max(values)]);
+    const scaleY = d3.scaleLinear().range([height, 0]).domain([0, Math.max(10, d3.max(values))]);
 
     const scaleXBand = d3.scaleBand()
       .range([0, width/30])
