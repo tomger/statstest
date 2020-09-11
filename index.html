@@ -821,7 +821,7 @@ class DetailView extends HTMLElement {
       .attr("height", height)
 
     let denominator = this.region.population / 100000;
-    let values = movingAverage(data.map(d => parseInt(d.cases, 10) / denominator));
+    let values = data.map(d => parseInt(d['rolling_cases'], 10) / denominator);
     const scaleX = d3.scaleLinear().range([0, width]).domain([0, values.length-1]);
     const scaleY = d3.scaleLinear().range([height, 0]).domain([0, Math.max(10, d3.max(values))]);
 
@@ -1028,9 +1028,9 @@ class DetailView extends HTMLElement {
   drawTable() {
     d3.select('.table-view')
       .html(
-        `<table style="font-size: 13px; border-spacing: 0"><tr><td>Date</td><td>New cases</td><td>New cases per 100k</td></tr>
+        `<table style="font-size: 13px; border-spacing: 0"><tr><td>Date</td><td>New cases</td><td>New cases (7 day avg)</td><td>New cases per 100k</td></tr>
         ${this.data.map(l => {
-          return `<tr><td style="color:var(--colorSecondaryLabel) ">${l.date}</td><td>${l.cases}</td><td>${Number((l.cases / this.region.population) * 100000).toFixed(1)}</td></tr>`
+          return `<tr><td style="color:var(--colorSecondaryLabel);white-space: nowrap ">${l.date}</td><td>${l.cases}</td><td>${l['rolling_cases']}</td><td>${Number((l.cases / this.region.population) * 100000).toFixed(1)}</td></tr>`
         }).join('')}
         </table>`
       )
@@ -1047,28 +1047,6 @@ class DetailView extends HTMLElement {
 }
 customElements.define("detail-view", DetailView);
 
-
-function sum(array) {
-  return array.reduce((a, b) => {
-    return a + b;
-  }, 0);
-}
-
-function average(array) {
-  return sum(array) / (array.length || 1);
-}
-
-function movingAverage(array) {
-  const before = 7;
-  const after = 0;
-  return array.map((line, index) => {
-    const start = Math.max(0, index - before);
-    const end   = Math.min(array.length, index + after + 1);
-    return average(array.slice(start, end))
-  })
-}
-
-
 class SparklineElement extends HTMLElement {
   constructor() {
     super();
@@ -1082,7 +1060,7 @@ class SparklineElement extends HTMLElement {
         .attr("width", width)
         .attr("height", height)
 
-      let values = movingAverage(data.map(d => parseInt(d.cases, 10)));
+      let values = data.map(d => parseInt(d['rolling_cases'], 10));
       const scaleX = d3.scaleLinear().range([0, width]).domain([0, values.length]);
       const scaleY = d3.scaleLinear().range([height, 0]).domain([
       d3.min(values), d3.max(values)
