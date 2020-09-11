@@ -27,11 +27,11 @@ def get_ecdc():
 
     for state in df['countriesAndTerritories'].unique():
         # select fields
-        # dateRep,day,month,year,cases,deaths,countriesAndTerritories,countryterritoryCode,popData2019
-        state_df = df.loc[df['countriesAndTerritories'] == state].filter(['dateRep', 'cases', 'deaths'])
+        state_df = df.loc[df['countriesAndTerritories'] == state].filter(['dateRep', 'cases'])
 
         # cummulative to delta
         # already cummulative
+        state_df['rolling_cases'] = state_df['cases'].rolling(7).mean().fillna(0).astype(int)
 
         # rename fields
         state_df = state_df.rename(columns={"dateRep": "date"})
@@ -81,12 +81,12 @@ def get_counties():
 
         df = covid_counties.loc[
             (covid_counties['state'] == state) &
-            (covid_counties['county'] == county)].filter(['date', 'cases', 'deaths'])
+            (covid_counties['county'] == county)].filter(['date', 'cases'])
 
         # cummulative to delta
         df['cases'] = df['cases'].diff().fillna(0).clip(lower=0).astype(int)
-        df['deaths'] = df['deaths'].diff().fillna(0).clip(lower=0).astype(int)
-    
+        df['rolling_cases'] = df['cases'].rolling(7).mean().fillna(0).astype(int)
+
         # format date
         df['date'] = pd.to_datetime(df['date']).dt.date
         df = df.loc[df['date'] > start_date]
@@ -132,11 +132,11 @@ def get_states():
 
     for state in df['state'].unique():
         # select fields
-        state_df = df.loc[df['state'] == state].filter(['date', 'cases', 'deaths'])
+        state_df = df.loc[df['state'] == state].filter(['date', 'cases'])
 
         # cummulative to delta
         state_df['cases'] = state_df['cases'].diff().fillna(0).clip(lower=0).astype(int)
-        state_df['deaths'] = state_df['deaths'].diff().fillna(0).clip(lower=0).astype(int)
+        state_df['rolling_cases'] = state_df['cases'].rolling(7).mean().fillna(0).astype(int)
         
         state_df = state_df.loc[df['date'] > start_date]
 
