@@ -1028,9 +1028,9 @@ class DetailView extends HTMLElement {
   drawTable() {
     d3.select('.table-view')
       .html(
-        `<table style="font-size: 13px; border-spacing: 0"><tr><td>Date</td><td>New cases</td><td>New cases (7 day avg)</td><td>New cases per 100k</td></tr>
+        `<table style="font-size: 13px; border-spacing: 0"><tr><td>Date</td><td>New cases</td><td>New cases (7 day avg)</td><td>New cases 7 day avg per 100k</td></tr>
         ${this.data.map(l => {
-          return `<tr><td style="color:var(--colorSecondaryLabel);white-space: nowrap ">${l.date}</td><td>${l.cases}</td><td>${l['rolling_cases']}</td><td>${Number((l.cases / this.region.population) * 100000).toFixed(1)}</td></tr>`
+          return `<tr><td style="color:var(--colorSecondaryLabel);white-space: nowrap ">${l.date}</td><td>${l.cases}</td><td>${l['rolling_cases']}</td><td>${Number((l['rolling_cases'] / this.region.population) * 100000).toFixed(1)}</td></tr>`
         }).join('')}
         </table>`
       )
