@@ -951,6 +951,21 @@ class DetailView extends HTMLElement {
       border-radius: 40px;background: var(--colorBlue); color: var(--colorBackground)">
       Add to watchlist
     </div>`;
+    let addModule = `<div style="font-size: 14px; padding: 20px 0; text-align: center; border-bottom: 0.5px solid var(--colorSeparator)">
+      Follow the regions you care about in a single list.
+      <div 
+        onclick="trackEvent('click-button-detail-addtolist', '${this._region.path}'); toggleRegion('${this._region.path}');detailView.update()()"
+        style="font-size: 14px;
+        margin-top: 12px;
+        cursor: pointer;
+        white-space: nowrap;
+        font-weight: 600; display: inline-block;padding: 8px 12px;
+        border-radius: 40px;
+        background: var(--colorBlue); color: var(--colorBackground)">
+        Add to your free watchlist
+      </div>
+      
+      </div>`;
     this.innerHTML = /*html*/`
       <div style="position:-webkit-sticky; background: var(--colorBackground); display:flex; flex-direction: row; position: sticky; top: 0; padding: 16px 0 8px 0; display: flex; align-items: center">
         <div onClick="closeDetailView()" style="cursor: pointer; color: var(--colorBlue);font-weight: 600;font-size:14px;transform:translateX(-7px);height: 44px; flex: 1; display: flex; align-items: center;">
@@ -984,6 +999,7 @@ class DetailView extends HTMLElement {
         </div>
       </div>
       ${iff(isWarningRegion(this.region), warningModule)}
+      ${isRegionSelected(this.region.path) ? '' : addModule}
       <div class="chart-view" style="padding: 20px 0;">
       </div>
       <div class="table-view" style="padding: 20px 0; border-bottom: 0.5px solid var(--colorSeparator)">
