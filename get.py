@@ -175,6 +175,15 @@ def write_sitemap(path, array):
     file.write(''.join(output))
     file.close()
 
+def write_indexes(array):
+    template_file = open('index.html', 'r')
+    template = template_file.read()
+    template_file.close()
+
+    for region in array:
+        file = open('region/{}'.format(region['path']), "w")
+        file.write(template.replace('<title>COVID-19 Watchlist</title>', '<title>COVID-19 Watchlist {}</title>'.format(region['name'])))
+        file.close()
 
 get_states()
 get_counties()
@@ -182,6 +191,7 @@ get_ecdc()
 
 region_index_df = pd.DataFrame(region_index)
 region_index_df.to_csv("data/regions.csv", index = False, header=True)
+write_indexes(region_index)
 write_sitemap('sitemap.xml', region_index)
 
 
