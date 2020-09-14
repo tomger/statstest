@@ -3,3 +3,5 @@ lastupdate
 data
 sitemap.xml
 region
+.vscode/settings.json
+.DS_Store
