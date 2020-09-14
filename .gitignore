@@ -1,6 +1,6 @@
 
 lastupdate
-data
+data/*.csv
 sitemap.xml
 region
 .vscode/settings.json
