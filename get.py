@@ -72,7 +72,7 @@ def get_counties():
     covid_counties = pd.read_csv(io.StringIO(csv_data.decode('utf-8')))
 
     # Test: .query("CTYNAME == 'New York City'")
-    for index, row in population_counties.query("CTYNAME == 'Citrus County'").iterrows():
+    for index, row in population_counties.iterrows():
         state = row['STNAME']
         county = row['CTYNAME'].replace(" County", "")
         population = row['POPESTIMATE2019']
@@ -140,7 +140,7 @@ def get_states():
         state_df['cases'] = state_df['cases'].diff().fillna(0).clip(lower=0).astype(int)
         state_df['rolling_cases'] = state_df['cases'].rolling(7).mean().fillna(0).astype(int)
         
-        state_df = state_df.loc[df['date'] > start_date & (state_df['date'] <= end_date]
+        state_df = state_df.loc[df['date'] > start_date]
 
         # output
         path = "us-st-{}".format(state).replace(" ", "-").lower()
@@ -185,9 +185,9 @@ def write_indexes(array):
         file.write(template.replace('<title>COVID-19 Watchlist</title>', '<title>COVID-19 Watchlist {}</title>'.format(region['name'])))
         file.close()
 
-# get_states()
+get_states()
 get_counties()
-# get_ecdc()
+get_ecdc()
 
 region_index_df = pd.DataFrame(region_index)
 region_index_df.to_csv("data/regions.csv", index = False, header=True)
