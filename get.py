@@ -62,7 +62,7 @@ def get_ecdc():
         })
 
 def get_counties():
-    population_counties = pd.read_csv('data/co-est2019.csv')
+    population_counties = pd.read_csv('lib/co-est2019.csv')
     population_counties = population_counties
 
     # covid_counties = pd.read_csv('us-counties.csv')
@@ -125,7 +125,7 @@ def get_counties():
 # States
 
 def get_states():
-    population_states = pd.read_csv('data/nst-est2019-alldata.csv')
+    population_states = pd.read_csv('lib/nst-est2019-alldata.csv')
     request = urllib2.urlopen('https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv')
     csv_data = request.read()
     data = pd.read_csv(io.StringIO(csv_data.decode('utf-8')))
