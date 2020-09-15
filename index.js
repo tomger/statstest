@@ -256,107 +256,115 @@ class SearchView extends HTMLElement {
     }
 
     update() {
-    let root = d3.select(this);
-    if (!this.regions || this.regions.length === 0) {
-        this.innerHTML = `
-        <div style="display:flex; flex:1; justify-content: center; margin-top: 40px">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="rotating feather-loader"><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line></svg>
-        </div>
-        `;
-    } else if (this.isSearching && this.query) {
-        this.innerHTML = ``;
-        this.style.opacity = "1";
-
-        let searchResults = this._regions
-        .filter(region => {
-            return region.name.toLowerCase().indexOf(this.query.toLowerCase()) !== -1;
-        })
-        .sort((a, b) => {
-            return b.population - a.population;
-        })
-        .slice(0, 20);
-        this.appendListItems({target: root, regions: searchResults, addButton: true})
-    
-        root.append('div').attr('class', 'info').html(dataDisclaimer());
-    } else {
-        if (this.isSearching) {
-        this.innerHTML = ``;
-        let banner = root.append('div').attr('style', `
-            padding: 0 0;
-            margin-top: 0px;
-        
-        `).html(/*html*/`
-            <div style="margin: 4px 0 16px 0; color: var(--colorSecondaryLabel); font-size: 20px; font-weight: 600;">You might be interested in</div>
-        `);
-        let regions = this._regions
-            .filter(region => {
-            return suggestedRegions.indexOf(region.path) !== -1 && !isRegionSelected(region.path)
-            })
-            .sort((a, b) => {
-            return suggestedRegions.indexOf(a.path) - suggestedRegions.indexOf(b.path)
-            })
-            .slice(0, 5);
-        this.appendListItems({target: banner, regions: regions, addButton: true})
-        } else {
-        //  this.style.opacity = "1";
-        this.innerHTML = ``; 
-        let selectedRegions = this._regions
-            .filter(region => {
-            return isRegionSelected(region.path)
-            })
-            .sort((a, b) => {
-            return (a['last-cases'] / a.population) - (b['last-cases'] / b.population)
-            });
-        
-        this.appendListItems({target: root, regions: selectedRegions});
-        if (selectedRegions.length < 1) {
-
-            let banner = root.append('div').attr('style', `
-            padding: 0 0;
-            text-align: center;
-            `).html(/*html*/`
-            <div style="margin: 32px 10% 12px 10%; font-size: 16px; font-weight: 600;">Create your own watchlist</div>
-            <div style="margin: 0 10% 16px 10%; font-size: 16px; color: var(--colorSecondaryLabel)">Add regions to see daily COVID-19 cases per 100,000 residents.</div>
-            <div style="margin: 0 0 16px 0; font-size: 16px; color: var(--colorBlue);cursor: pointer" onclick="trackEvent('click', 'button-addregion'); onSearchFocus(); document.querySelector('input').focus()">
-                <svg style="transform:translateY(4px)" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus-circle"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
-                <span>Add region</span>
+        let root = d3.select(this);
+        if (!this.regions || this.regions.length === 0) {
+            this.innerHTML = `
+            <div style="display:flex; flex:1; justify-content: center; margin-top: 40px">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="rotating feather-loader"><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line></svg>
             </div>
-            `);
-        } else {
-            if (selectedRegions.length < 2) {
-            root.append('div').html(`
-                <div style="margin: 32px 0; cursor:pointer; font-size: 14px;" onclick="onSearchFocus(); document.querySelector('input').focus()">
-                <span style="color: var(--colorBlue)">Add one more?</span> Where do your family or friends live?
-                </div>
-            `);
-            }
-            root.append('div').attr('class', 'info').html(dataDisclaimer());
-        }
-    }
+            `;
+        } else if (this.isSearching && this.query) {
+            this.innerHTML = ``;
+            this.style.opacity = "1";
 
+            let searchResults = this._regions
+            .filter(region => {
+                return region.name.toLowerCase().indexOf(this.query.toLowerCase()) !== -1;
+            })
+            .sort((a, b) => {
+                return b.population - a.population;
+            })
+            .slice(0, 20);
+            this.appendListItems({target: root, regions: searchResults, addButton: true})
         
+            root.append('div').attr('class', 'info').html(dataDisclaimer());
+        } else {
+            if (this.isSearching) {
+                this.innerHTML = ``;
+                let banner = root.append('div').attr('style', `
+                    padding: 0 0;
+                    margin-top: 0px;
+                
+                `).html(/*html*/`
+                    <div class="list-header">You might be interested in</div>
+                `);
+                let regions = this._regions
+                    .filter(region => {
+                    return suggestedRegions.indexOf(region.path) !== -1 && !isRegionSelected(region.path)
+                    })
+                    .sort((a, b) => {
+                    return suggestedRegions.indexOf(a.path) - suggestedRegions.indexOf(b.path)
+                    })
+                    .slice(0, 5);
+                this.appendListItems({target: banner, regions: regions, addButton: true})
+            } else {
+                this.innerHTML = ``;
+                root.append('div').html(`
+                <div class="list-header">Watchlist</div>
+                `)
+                let selectedRegions = this._regions
+                    .filter(region => {
+                    return isRegionSelected(region.path)
+                    })
+                    .sort((a, b) => {
+                    return (a['last-cases'] / a.population) - (b['last-cases'] / b.population)
+                    });
+                
+                this.appendListItems({target: root, regions: selectedRegions});
 
+                if (selectedRegions.length < 1) {
 
-    }
+                    let banner = root.append('div').attr('style', `
+                    padding: 0 0;
+                    text-align: center;
+                    `).html(/*html*/`
+                    <div style="margin: 32px 10% 12px 10%; font-size: 16px; font-weight: 600;">Create your own watchlist</div>
+                    <div style="margin: 0 10% 16px 10%; font-size: 16px; color: var(--colorSecondaryLabel)">Add regions to see daily COVID-19 cases per 100,000 residents.</div>
+                    <div style="margin: 0 0 16px 0; font-size: 16px; color: var(--colorBlue);cursor: pointer" onclick="trackEvent('click', 'button-addregion'); onSearchFocus(); document.querySelector('input').focus()">
+                        <svg style="transform:translateY(4px)" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus-circle"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                        <span>Add region</span>
+                    </div>
+                    `);
+                } else if (selectedRegions.length < 2) {
+                    root.append('div').html(`
+                        <div style="margin: 32px 0; cursor:pointer; font-size: 14px;" onclick="onSearchFocus(); document.querySelector('input').focus()">
+                        <span style="color: var(--colorBlue)">Add one more?</span> Where do your family or friends live?
+                        </div>
+                    `);
+                }
+                root.append('div').html(`
+                <div class="list-header">Improving fast</div>`)
+                let improving = this._regions
+                  .filter(region => {
+                    return region.path.indexOf('us-st') === 0 && (parseInt(region['last-cases'], 10) / parseInt(region['population'], 10) > 0.00008);
+                  })
+                  .sort((a, b) => {
+                    return a['change-cases'] - b['change-cases']
+                  })
+                  .slice(0, 3);
+                this.appendListItems({target: root, regions: improving})
+                root.append('div').attr('class', 'info').html(dataDisclaimer());
+            }
+        }
     
 
     }
 
     appendListItems({target, regions = [], addButton = false}) {
-    regions
-        .forEach((region, i, list) => {
-        appendListItem(target, region, addButton)
-        })
-    }
+      regions
+          .forEach((region, i, list) => {
+            appendListItem(target, region, addButton)
+          })
+      }
 
 
     set isSearching(value) {
-    this._isSearching = value;
-    this.update();
+      this._isSearching = value;
+      this.update();
     }
 
     get isSearching() {
-    return this._isSearching;
+      return this._isSearching;
     }
 
     set query(value) {
