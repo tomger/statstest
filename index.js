@@ -344,6 +344,20 @@ class SearchView extends HTMLElement {
                   })
                   .slice(0, 3);
                 this.appendListItems({target: root, regions: improving})
+
+                root.append('div').html(`
+                <div class="list-header">Getting worse</div>`)
+                let improving = this._regions
+                  .filter(region => {
+                    return region.path.indexOf('us-st') === 0 && (parseInt(region['last-cases'], 10) / parseInt(region['population'], 10) > 0.00004);
+                  })
+                  .sort((a, b) => {
+                    return b['change-cases'] - a['change-cases']
+                  })
+                  .slice(0, 3);
+                this.appendListItems({target: root, regions: improving})
+
+
                 root.append('div').attr('class', 'info').html(dataDisclaimer());
             }
         }
