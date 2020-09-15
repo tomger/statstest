@@ -1,0 +1,3 @@
+- www-data cron is setup to call update.sh
+- nginx serves root of repository
+- get.py needs pandas -> pip install pandas. server is linux/python 2.7
