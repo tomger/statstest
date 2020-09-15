@@ -347,7 +347,7 @@ class SearchView extends HTMLElement {
 
                 root.append('div').html(`
                 <div class="list-header">Getting worse</div>`)
-                let improving = this._regions
+                let worsening = this._regions
                   .filter(region => {
                     return region.path.indexOf('us-st') === 0 && (parseInt(region['last-cases'], 10) / parseInt(region['population'], 10) > 0.00004);
                   })
@@ -355,7 +355,7 @@ class SearchView extends HTMLElement {
                     return b['change-cases'] - a['change-cases']
                   })
                   .slice(0, 3);
-                this.appendListItems({target: root, regions: improving})
+                this.appendListItems({target: root, regions: worsening})
 
 
                 root.append('div').attr('class', 'info').html(dataDisclaimer());
