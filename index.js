@@ -300,7 +300,7 @@ class SearchView extends HTMLElement {
             } else {
                 this.innerHTML = ``;
                 root.append('div').html(`
-                <div class="list-header">Watchlist</div>
+                <div class="list-header">Your list</div>
                 `)
                 let selectedRegions = this._regions
                     .filter(region => {
@@ -356,6 +356,19 @@ class SearchView extends HTMLElement {
                   })
                   .slice(0, 3);
                 this.appendListItems({target: root, regions: worsening})
+
+
+                root.append('div').html(`
+                <div class="list-header">Highest 7 day avg</div>`)
+                let highest = this._regions
+                  .filter(region => {
+                    return region.path.indexOf('us-st') === 0 && (parseInt(region['last-cases'], 10) / parseInt(region['population'], 10) > 0.00012);
+                  })
+                  .sort((a, b) => {
+                    return b['last-cases'] - a['last-cases']
+                  })
+                  .slice(0, 3);
+                this.appendListItems({target: root, regions: highest})
 
 
                 root.append('div').attr('class', 'info').html(dataDisclaimer());
