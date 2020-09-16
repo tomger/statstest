@@ -568,7 +568,7 @@ class DetailView extends HTMLElement {
         Add to watchlist
     </div>`;
     let addModule = `<div style="font-size: 14px; padding: 20px 20px; text-align: center; border-bottom: 0.5px solid var(--colorSeparator)">
-        Follow multiple regions you care about in a single list. No account needed.
+        <div>Follow multiple regions you care about in a single list. Free and no account needed.</div>
         <div 
         onclick="trackEvent('click-button-detail-addtolist', '${this._region.path}'); toggleRegion('${this._region.path}');detailView.update()()"
         style="font-size: 14px;
@@ -578,7 +578,7 @@ class DetailView extends HTMLElement {
         font-weight: 600; display: inline-block;padding: 8px 12px;
         border-radius: 40px;
         background: var(--colorBlue); color: var(--colorBackground)">
-        Add to your free watchlist
+        Add to your watchlist
         </div>
         
         </div>`;
