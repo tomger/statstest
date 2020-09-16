@@ -46,6 +46,9 @@ function onSearchCancel() {
 
 function trackEvent(name, value) {
     fetch(`/learn?${name}=${value}`, { cache: 'no-cache' });
+    if (window.mixpanel) {
+        mixpanel.track(name, {"value" : value});
+    }
 }
 
 var trackInput = debounce(value => trackEvent('search', value), 1500)
@@ -564,8 +567,8 @@ class DetailView extends HTMLElement {
         border-radius: 40px;background: var(--colorBlue); color: var(--colorBackground)">
         Add to watchlist
     </div>`;
-    let addModule = `<div style="font-size: 14px; padding: 20px 0; text-align: center; border-bottom: 0.5px solid var(--colorSeparator)">
-        Follow the regions you care about in a single list.
+    let addModule = `<div style="font-size: 14px; padding: 20px 20px; text-align: center; border-bottom: 0.5px solid var(--colorSeparator)">
+        Follow multiple regions you care about in a single list. No account needed.
         <div 
         onclick="trackEvent('click-button-detail-addtolist', '${this._region.path}'); toggleRegion('${this._region.path}');detailView.update()()"
         style="font-size: 14px;
