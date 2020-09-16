@@ -568,7 +568,7 @@ class DetailView extends HTMLElement {
         Add to watchlist
     </div>`;
     let addModule = `<div style="font-size: 14px; padding: 20px 20px; text-align: center; border-bottom: 0.5px solid var(--colorSeparator)">
-        <div>Follow multiple regions you care about in a single list. Free and no account needed.</div>
+        <div>Follow multiple regions you care about in a single list.<br/>Free and no account needed.</div>
         <div 
         onclick="trackEvent('click-button-detail-addtolist', '${this._region.path}'); toggleRegion('${this._region.path}');detailView.update()()"
         style="font-size: 14px;
