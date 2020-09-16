@@ -346,7 +346,7 @@ class SearchView extends HTMLElement {
                 this.appendListItems({target: root, regions: improving})
 
                 root.append('div').html(`
-                <div class="list-header">Getting worse</div>`)
+                <div class="list-header">Fastest risers</div>`)
                 let worsening = this._regions
                   .filter(region => {
                     return region.path.indexOf('us-st') === 0 && (parseInt(region['last-cases'], 10) / parseInt(region['population'], 10) > 0.00004);
@@ -622,7 +622,7 @@ class DetailView extends HTMLElement {
         </div>
         </div>
         <div class="related">
-        <div style="margin: 16px 0 16px 0; color: var(--colorSecondaryLabel); font-size: 16px; font-weight: 500;">Similar case levels</div>
+        <div style="margin: 16px 0 16px 0; color: var(--colorSecondaryLabel); font-size: 16px; font-weight: 500;">Fastest risers</div>
         </div>
         <div class="info">
         ${dataDisclaimer()}
@@ -632,12 +632,13 @@ class DetailView extends HTMLElement {
     let similar = searchView.regions
         .filter(d => d.name !== this.region.name)
         .filter(d => d.path.indexOf('us-co-') === -1)
-        .filter(d => Math.abs(cases - (parseInt(d['last-cases'], 10) / parseInt(d['population'], 10) * 100000)) < 2)
-        shuffleArray(similar)
+        .filter(region => { return (parseInt(region['last-cases'], 10) / parseInt(region['population'], 10) > 0.00004); })
+        .sort((a, b) => { return b['change-cases'] - a['change-cases'] })
         .slice(0, 3)
         .forEach(d => {
             appendListItem(d3.select('.related'), d, false)
         })
+
 
     d3.csv(`/data/${this.region.path}.csv`).then(data => {
         let options = { month: 'short', day: 'numeric' };
