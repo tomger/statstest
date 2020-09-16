@@ -337,7 +337,7 @@ class SearchView extends HTMLElement {
                 <div class="list-header">Improving fast</div>`)
                 let improving = this._regions
                   .filter(region => {
-                    return region.path.indexOf('us-co') === -1 && (parseInt(region['last-cases'], 10) / parseInt(region['population'], 10) > 0.00008);
+                    return region.path.indexOf('us-st') === 0 && (parseInt(region['last-cases'], 10) / parseInt(region['population'], 10) > 0.00008);
                   })
                   .sort((a, b) => {
                     return a['change-cases'] - b['change-cases']
@@ -349,7 +349,7 @@ class SearchView extends HTMLElement {
                 <div class="list-header">Getting worse</div>`)
                 let worsening = this._regions
                   .filter(region => {
-                    return region.path.indexOf('us-co') === -1 && (parseInt(region['last-cases'], 10) / parseInt(region['population'], 10) > 0.00004);
+                    return region.path.indexOf('us-st') === 0 && (parseInt(region['last-cases'], 10) / parseInt(region['population'], 10) > 0.00004);
                   })
                   .sort((a, b) => {
                     return b['change-cases'] - a['change-cases']
@@ -362,7 +362,7 @@ class SearchView extends HTMLElement {
                 <div class="list-header">Highest 7 day averages</div>`)
                 let highest = this._regions
                   .filter(region => {
-                    return region.path.indexOf('us-co') === -1 && (parseInt(region['last-cases'], 10) / parseInt(region['population'], 10) > 0.00012);
+                    return region.path.indexOf('us-st') === 0 && (parseInt(region['last-cases'], 10) / parseInt(region['population'], 10) > 0.00012);
                   })
                   .sort((a, b) => {
                     return (parseInt(b['last-cases'], 10) / parseInt(b['population'], 10)) - (parseInt(a['last-cases'], 10) / parseInt(a['population'], 10))
