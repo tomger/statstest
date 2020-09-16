@@ -365,7 +365,7 @@ class SearchView extends HTMLElement {
                     return region.path.indexOf('us-st') === 0 && (parseInt(region['last-cases'], 10) / parseInt(region['population'], 10) > 0.00012);
                   })
                   .sort((a, b) => {
-                    return a['last-cases'] - b['last-cases']
+                    return parseInt(a['last-cases'], 10) - parseInt(b['last-cases'], 10)
                   })
                   .slice(0, 3);
                 this.appendListItems({target: root, regions: highest})
