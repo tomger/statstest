@@ -60,10 +60,13 @@ function onSearchInput(event) {
 
 function init() {
     loadRegions();
+    if (window.mixpanel) {
+        mixpanel.track('page', {url: window.location.href});
+    }
     d3.csv("/lastupdate").then(data => {
-    lastupdatedDate = data[0].date;
-    let span = document.querySelector('.lastupdated');
-    if (span) span.innerHTML = lastUpdatedSpan();
+        lastupdatedDate = data[0].date;
+        let span = document.querySelector('.lastupdated');
+        if (span) span.innerHTML = lastUpdatedSpan();
     })
 }
 
