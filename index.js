@@ -359,13 +359,13 @@ class SearchView extends HTMLElement {
 
 
                 root.append('div').html(`
-                <div class="list-header">Highest 7 day avg</div>`)
+                <div class="list-header">Highest 7 day averages</div>`)
                 let highest = this._regions
                   .filter(region => {
                     return region.path.indexOf('us-st') === 0 && (parseInt(region['last-cases'], 10) / parseInt(region['population'], 10) > 0.00012);
                   })
                   .sort((a, b) => {
-                    return b['last-cases'] - a['last-cases']
+                    return a['last-cases'] - b['last-cases']
                   })
                   .slice(0, 3);
                 this.appendListItems({target: root, regions: highest})
