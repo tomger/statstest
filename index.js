@@ -632,7 +632,8 @@ class DetailView extends HTMLElement {
     let similar = searchView.regions
         .filter(d => d.name !== this.region.name)
         .filter(d => d.path.indexOf('us-co-') === -1)
-        .filter(region => { return (parseInt(region['last-cases'], 10) / parseInt(region['population'], 10) > 0.00004); })
+        .filter(region => { return parseInt(region['population'], 10) > 10000000 })
+        .filter(region => { return (parseInt(region['last-cases'], 10) / parseInt(region['population'], 10) > 0.00009); })
         .sort((a, b) => { return b['change-cases'] - a['change-cases'] })
         .slice(0, 3)
         .forEach(d => {
