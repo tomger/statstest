@@ -345,7 +345,6 @@ class SearchView extends HTMLElement {
 
 
                 let topLists = root.append('div');
-                topLists.attr('style', `margin-top: 16px; padding: 4px 12px; border-radius: 12px;background-color: var(--colorSecondaryBackground)`);
                 topLists.append('div').html(`
                     <div class="list-header">Improving fast</div>
                 `);
