@@ -11,6 +11,7 @@
         :root {
           --colorBackground: #ffffff;
           --colorSecondaryBackground: #ebebf0;
+          --colorTextfieldBackground: #ebebf0;
           --colorLabel: #000;
           --colorSecondaryLabel: #6e6e73;
           --colorSeparator: #e5e5ea;
@@ -30,7 +31,8 @@
         @media (prefers-color-scheme: dark) {
             :root {
             --colorBackground: #000003;
-            --colorSecondaryBackground: #212124; /*1C1C1E*/
+            --colorSecondaryBackground: #1C1C1D;
+            --colorTextfieldBackground: #212124;
             --colorLabel: #fff;
             --colorSecondaryLabel: rgb(101, 102, 105);
             --colorSeparator: #202024;
@@ -340,31 +342,14 @@
           font-size: 14px;
         }
 
-        .marketing {
-          padding: 16px;
-          font-size: 14px;
-          font-weight: 400;
-          border-radius: 8px;
-          margin: 20px 0;
-          display: flex;
-          align-content: center;
-          width: 100%;
-          align-items: center;
-
-          background: var(--colorSecondaryBackground);
-          color: var(--colorSecondaryLabel);
-        }
-        .marketing svg {
-          color: var(--colorGreen);
-          margin-right: 14px;
-        }
 
         .table-view td{
           padding: 5px 20px 0 0
         }
 
         .list-header {
-          margin: 20px 0 12px 0; color: var(--colorSecondaryLabel); font-size: 20px; font-weight: 600;
+          margin: 20px 0 12px 0; 
+          color: var(--colorLabel); font-size: 20px; font-weight: 600;
         }
 
         .rotating {
@@ -412,7 +397,7 @@
             class="searchinput" 
             autocomplete="off"
             autocorrect="off"
-            placeholder="Countries, U.S counties & states"
+            placeholder="Countries, U.S. counties & states"
             onfocus="onSearchFocus()"
             oninput="onSearchInput(event)"/>
           <a

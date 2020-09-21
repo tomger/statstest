@@ -339,8 +339,16 @@ class SearchView extends HTMLElement {
                         </div>
                     `);
                 }
-                root.append('div').html(`
-                <div class="list-header">Improving fast</div>`)
+
+
+
+
+
+                let topLists = root.append('div');
+                topLists.attr('style', `margin-top: 16px; padding: 4px 12px; border-radius: 12px;background-color: var(--colorSecondaryBackground)`);
+                topLists.append('div').html(`
+                    <div class="list-header">Improving fast</div>
+                `);
                 let improving = this._regions
                   .filter(region => {
                     return region.path.indexOf('us-st') === 0 && (parseInt(region['last-cases'], 10) / parseInt(region['population'], 10) > 0.00008);
@@ -349,9 +357,9 @@ class SearchView extends HTMLElement {
                     return a['change-cases'] - b['change-cases']
                   })
                   .slice(0, 3);
-                this.appendListItems({target: root, regions: improving})
+                this.appendListItems({target: topLists, regions: improving})
 
-                root.append('div').html(`
+                topLists.append('div').html(`
                 <div class="list-header">Fastest risers</div>`)
                 let worsening = this._regions
                   .filter(region => {
@@ -361,10 +369,10 @@ class SearchView extends HTMLElement {
                     return b['change-cases'] - a['change-cases']
                   })
                   .slice(0, 3);
-                this.appendListItems({target: root, regions: worsening})
+                this.appendListItems({target: topLists, regions: worsening})
 
 
-                root.append('div').html(`
+                topLists.append('div').html(`
                 <div class="list-header">Highest 7 day averages</div>`)
                 let highest = this._regions
                   .filter(region => {
@@ -374,10 +382,10 @@ class SearchView extends HTMLElement {
                     return (parseInt(b['last-cases'], 10) / parseInt(b['population'], 10)) - (parseInt(a['last-cases'], 10) / parseInt(a['population'], 10))
                   })
                   .slice(0, 5);
-                this.appendListItems({target: root, regions: highest})
+                this.appendListItems({target: topLists, regions: highest})
 
 
-                root.append('div').attr('class', 'info').html(dataDisclaimer());
+                topLists.append('div').attr('class', 'info').html(dataDisclaimer());
             }
         }
     
