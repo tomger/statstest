@@ -3,7 +3,7 @@ import io
 import math
 import pandas as pd
 import datetime
-#https://epistat.sciensano.be/Data/COVID19BE_CASES_AGESEX.csv
+
 region_index = []
 path_mask = "data/{}.csv"
 end_date = (datetime.datetime.now() - pd.to_timedelta("1day")).date()

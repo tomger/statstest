@@ -254,11 +254,12 @@ function appendListItem(target, region, addButton) {
 
 class SearchView extends HTMLElement {
     constructor() {
-    super();
-    this.style.display = "block";
-    this.style.marginBottom = "16px";
-    this.style.transition = "opacity 50ms ease";
-    this.update();
+        super();
+        this._groupPrefix = 'us-st';
+        this.style.display = "block";
+        this.style.marginBottom = "16px";
+        this.style.transition = "opacity 50ms ease";
+        this.update();
     }
 
     update() {
@@ -340,17 +341,22 @@ class SearchView extends HTMLElement {
                     `);
                 }
 
-
-
-
-
                 let topLists = root.append('div');
+                let toggleSelected = (v) => v === this.groupPrefix ? "margin-right: 16px;text-decoration: underline" : 'margin-right: 16px;cursor:pointer;opacity:.6';
+
+                topLists.append('div').html(`
+                    <div class="list-toggle" style="margin: 40px 0 20px 0;">
+                        <a style="${toggleSelected('us-st')}" onClick="searchView.groupPrefix = 'us-st'">U.S. States</a>
+                        <a style="${toggleSelected('us-co')}"  onClick="searchView.groupPrefix = 'us-co'">U.S. Counties</a>
+                        <a style="${toggleSelected('world')}"  onClick="searchView.groupPrefix = 'world'">Countries</a>
+                    </div>
+                `);
                 topLists.append('div').html(`
                     <div class="list-header">Improving fast</div>
                 `);
                 let improving = this._regions
                   .filter(region => {
-                    return region.path.indexOf('us-st') === 0 && (parseInt(region['last-cases'], 10) / parseInt(region['population'], 10) > 0.00008);
+                    return region.path.indexOf(this.groupPrefix) === 0 && (parseInt(region['last-cases'], 10) / parseInt(region['population'], 10) > 0.00008);
                   })
                   .sort((a, b) => {
                     return a['change-cases'] - b['change-cases']
@@ -362,7 +368,7 @@ class SearchView extends HTMLElement {
                 <div class="list-header">Fastest risers</div>`)
                 let worsening = this._regions
                   .filter(region => {
-                    return region.path.indexOf('us-st') === 0 && (parseInt(region['last-cases'], 10) / parseInt(region['population'], 10) > 0.00004);
+                    return region.path.indexOf(this.groupPrefix) === 0 && (parseInt(region['last-cases'], 10) / parseInt(region['population'], 10) > 0.00004);
                   })
                   .sort((a, b) => {
                     return b['change-cases'] - a['change-cases']
@@ -375,7 +381,7 @@ class SearchView extends HTMLElement {
                 <div class="list-header">Highest 7 day averages</div>`)
                 let highest = this._regions
                   .filter(region => {
-                    return region.path.indexOf('us-st') === 0 && (parseInt(region['last-cases'], 10) / parseInt(region['population'], 10) > 0.00012);
+                    return region.path.indexOf(this.groupPrefix) === 0 && (parseInt(region['last-cases'], 10) / parseInt(region['population'], 10) > 0.00012);
                   })
                   .sort((a, b) => {
                     return (parseInt(b['last-cases'], 10) / parseInt(b['population'], 10)) - (parseInt(a['last-cases'], 10) / parseInt(a['population'], 10))
@@ -425,6 +431,16 @@ class SearchView extends HTMLElement {
     get regions() {
     return this._regions;
     }
+
+    set groupPrefix(value) {
+        this._groupPrefix = value;
+        this.update();
+    }
+
+    get groupPrefix() {
+        return this._groupPrefix;
+    }
+
 }
 
 customElements.define("search-view", SearchView);
