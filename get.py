@@ -50,6 +50,10 @@ def get_ecdc():
         # find population
         population = df.loc[df['countriesAndTerritories'] == state].tail(1)['popData2019'].to_string(index=False)
 
+        # skip small countries
+        if population < 100000:
+            continue
+
         # add to index
         region_index.append({
             'path': path,
