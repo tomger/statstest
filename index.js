@@ -609,12 +609,12 @@ class DetailView extends HTMLElement {
         
         </div>`;
     this.innerHTML = /*html*/`
-        <div style="position:-webkit-sticky; background: var(--colorBackground); display:flex; flex-direction: row; position: sticky; top: 0; padding: 16px 0 8px 0; display: flex; align-items: center">
+        <div style="position:-webkit-sticky; background: var(--colorBackground); display:flex; flex-direction: row; position: sticky; top: 0; padding: 8px 0 8px 0; display: flex; align-items: center">
         <div onClick="closeDetailView()" style="
-            cursor: pointer; 
-            font-weight: 800;font-size:14px; flex: 1; display: flex; flex-direction: column;">
-            <div sty>COVID-19</div>
-            <div style="opacity: .5">Watchlist</div>
+            cursor: pointer; flex: 1;
+            font-weight: 800;font-size:18px;">
+            <div style="line-height: 26px">COVID-19</div>
+            <div style="opacity: .5;line-height: 13px;">Watchlist</div>
         </div>
         ${iff(false && navigator.share, shareButton)}
     
