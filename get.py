@@ -10,8 +10,8 @@ end_date = (datetime.datetime.now() - pd.to_timedelta("1day")).date()
 start_date = end_date - pd.to_timedelta("30day")
 
 def get_change(df):
-    start = df.head(7)['cases'].mean()
-    end = df.tail(7)['cases'].mean()
+    start = df.head(1)['rolling_cases'].mean()
+    end = df.tail(1)['rolling_cases'].mean()
     change = (end - start) / start
     if math.isnan(change):
         return 0
