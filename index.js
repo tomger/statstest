@@ -590,7 +590,7 @@ class DetailView extends HTMLElement {
         cursor: pointer;
         white-space: nowrap;
         font-weight: 600; display: inline-block;padding: 8px 12px;
-        border-radius: 40px;background: var(--colorBlue); color: var(--colorBackground)">
+        border-radius: 40px;background: var(--colorBlue); color: #fff)">
         Add to watchlist
     </div>`;
     let addModule = `<div style="font-size: 14px; padding: 20px 20px; text-align: center; border-bottom: 0.5px solid var(--colorSeparator)">
@@ -601,18 +601,20 @@ class DetailView extends HTMLElement {
         margin-top: 12px;
         cursor: pointer;
         white-space: nowrap;
-        font-weight: 600; display: inline-block;padding: 8px 12px;
+        font-weight: 500; display: inline-block;padding: 8px 12px;
         border-radius: 40px;
-        background: var(--colorBlue); color: var(--colorBackground)">
+        background: var(--colorBlue); color: #fff">
         Add to your watchlist
         </div>
         
         </div>`;
     this.innerHTML = /*html*/`
         <div style="position:-webkit-sticky; background: var(--colorBackground); display:flex; flex-direction: row; position: sticky; top: 0; padding: 16px 0 8px 0; display: flex; align-items: center">
-        <div onClick="closeDetailView()" style="cursor: pointer; color: var(--colorBlue);font-weight: 600;font-size:14px;transform:translateX(-7px);height: 44px; flex: 1; display: flex; align-items: center;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-left"><polyline points="15 18 9 12 15 6"></polyline></svg>
-            Watchlist
+        <div onClick="closeDetailView()" style="
+            cursor: pointer; 
+            font-weight: 800;font-size:14px; flex: 1; display: flex; flex-direction: column;">
+            <div sty>COVID-19</div>
+            <div style="opacity: .5">Watchlist</div>
         </div>
         ${iff(navigator.share, shareButton)}
     
@@ -640,19 +642,19 @@ class DetailView extends HTMLElement {
             <div style="${bigNumberCaptionStyle}">First and last 7 day averages compared</div>
         </div>
         </div>
-        ${iff(isWarningRegion(this.region), warningModule)}
-        ${isRegionSelected(this.region.path) ? '' : addModule}
         <div class="chart-view" style="padding: 20px 0;">
         </div>
         <div class="table-view" style="padding: 20px 0; border-bottom: 0.5px solid var(--colorSeparator)">
         <div onclick="detailView.drawTable()" style="display: flex; align-items: center; justify-content: space-between">
-            <span>Show data</span>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right"><polyline points="9 18 15 12 9 6"></polyline></svg>  
+        <span>Show data</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right"><polyline points="9 18 15 12 9 6"></polyline></svg>  
         </div>
         </div>
+        ${isRegionSelected(this.region.path) ? '' : addModule}
         <div class="related">
         <div style="margin: 16px 0 16px 0; color: var(--colorSecondaryLabel); font-size: 16px; font-weight: 500;">Fastest risers</div>
         </div>
+        ${iff(isWarningRegion(this.region), warningModule)}
         <div class="info">
         ${dataDisclaimer()}
         </div>
@@ -673,8 +675,10 @@ class DetailView extends HTMLElement {
         let options = { month: 'short', day: 'numeric' };
         d3.select('.chart-view').html(/*html*/`
         <div style="margin-bottom: 20px">
-            ${dateParse(data[0].date).toLocaleString(undefined, options)} –
+        7 day averages
+        from ${dateParse(data[0].date).toLocaleString(undefined, options)} to
             ${dateParse(data[data.length - 1].date).toLocaleString(undefined, options)}
+            
         </div>
         `)
         this.drawChart(d3.select('.chart-view'), data)
