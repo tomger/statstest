@@ -616,7 +616,7 @@ class DetailView extends HTMLElement {
             <div sty>COVID-19</div>
             <div style="opacity: .5">Watchlist</div>
         </div>
-        ${iff(navigator.share, shareButton)}
+        ${iff(false && navigator.share, shareButton)}
     
         <div>
             ${isRegionSelected(this.region.path) ? removeButton : addButton}
