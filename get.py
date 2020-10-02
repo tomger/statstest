@@ -48,7 +48,7 @@ def get_ecdc():
         state_df.to_csv(path_mask.format(path), index = False, header=True)
 
         # find population
-        population = df.loc[df['countriesAndTerritories'] == state].tail(1)['popData2019']
+        population = df.loc[df['countriesAndTerritories'] == state].tail(1)['popData2019'].item()
 
         # skip small countries
         if population < 100000:
@@ -59,7 +59,7 @@ def get_ecdc():
             'path': path,
             'name': state.replace("_", " "),
             'byline': '',
-            'population': population.to_string(index=False),
+            'population': population,
             'change-cases': get_change(state_df),
             'last-updated': state_df.tail(1)['date'].to_string(index=False),
             'last-cases': round(state_df.tail(7)['cases'].mean()),
