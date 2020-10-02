@@ -359,7 +359,7 @@ class SearchView extends HTMLElement {
                     return region.path.indexOf(this.groupPrefix) === 0 && (parseInt(region['last-cases'], 10) / parseInt(region['population'], 10) > 0.00008);
                   })
                   .sort((a, b) => {
-                    return a['change-cases'] - b['change-cases']
+                    return parseFloat(a['change-cases']) - parseFloat(b['change-cases'])
                   })
                   .slice(0, 3);
                 this.appendListItems({target: topLists, regions: improving})
@@ -371,7 +371,7 @@ class SearchView extends HTMLElement {
                     return region.path.indexOf(this.groupPrefix) === 0 && (parseInt(region['last-cases'], 10) / parseInt(region['population'], 10) > 0.00004);
                   })
                   .sort((a, b) => {
-                    return b['change-cases'] - a['change-cases']
+                    return parseFloat(b['change-cases']) - parseFloat(a['change-cases'])
                   })
                   .slice(0, 3);
                 this.appendListItems({target: topLists, regions: worsening})
@@ -381,10 +381,10 @@ class SearchView extends HTMLElement {
                 <div class="list-header">Highest 7 day averages</div>`)
                 let highest = this._regions
                   .filter(region => {
-                    return region.path.indexOf(this.groupPrefix) === 0 && (parseInt(region['last-cases'], 10) / parseInt(region['population'], 10) > 0.00012);
+                    return region.path.indexOf(this.groupPrefix) === 0 && (parseFloat(region['last-cases']) / parseFloat(region['population']) > 0.00012);
                   })
                   .sort((a, b) => {
-                    return (parseInt(b['last-cases'], 10) / parseInt(b['population'], 10)) - (parseInt(a['last-cases'], 10) / parseInt(a['population'], 10))
+                    return (parseFloat(b['last-cases']) / parseFloat(b['population'])) - (parseFloat(a['last-cases']) / parseFloat(a['population']))
                   })
                   .slice(0, 5);
                 this.appendListItems({target: topLists, regions: highest})
