@@ -343,27 +343,31 @@ class SearchView extends HTMLElement {
                 }
 
                 let topLists = root.append('div');
-                let toggleSelected = (v) => v === this.groupPrefix ? "margin-right: 16px;text-decoration: underline" : 'margin-right: 16px;cursor:pointer;opacity:.6';
+                let toggleSelected = (v) => v === this.groupPrefix ? 
+                    "padding: 6px;border-bottom: 1px solid currentColor" : 
+                    'padding: 6px;border-bottom: 1px solid transparent; cursor:pointer;opacity:.6';
 
                 topLists.append('div').html(`
-                    <div class="list-toggle" style="margin: 40px 0 20px 0;">
+                    <div class="list-toggle" style="display: flex; justify-content: space-between;border-radius: 12px; padding: 0px 12px;background: var(--colorSecondaryBackground); font-size: 14px;  margin: 40px 0 20px 0;">
                         <a style="${toggleSelected('us-st')}" onClick="searchView.groupPrefix = 'us-st'">U.S. States</a>
                         <a style="${toggleSelected('us-co')}"  onClick="searchView.groupPrefix = 'us-co'">U.S. Counties</a>
                         <a style="${toggleSelected('world')}"  onClick="searchView.groupPrefix = 'world'">Countries</a>
                     </div>
                 `);
+
+
                 topLists.append('div').html(`
-                    <div class="list-header">Improving fast</div>
-                `);
-                let improving = this._regions
+                <div class="list-header">Highest 7 day averages</div>`)
+                let highest = this._regions
                   .filter(region => {
-                    return region.path.indexOf(this.groupPrefix) === 0 && (parseInt(region['last-cases'], 10) / parseInt(region['population'], 10) > 0.00008);
+                    return region.path.indexOf(this.groupPrefix) === 0 && (parseFloat(region['last-cases']) / parseFloat(region['population']) > 0.00012);
                   })
                   .sort((a, b) => {
-                    return parseFloat(a['change-cases']) - parseFloat(b['change-cases'])
+                    return (parseFloat(b['last-cases']) / parseFloat(b['population'])) - (parseFloat(a['last-cases']) / parseFloat(a['population']))
                   })
                   .slice(0, 3);
-                this.appendListItems({target: topLists, regions: improving})
+                this.appendListItems({target: topLists, regions: highest})
+
 
                 topLists.append('div').html(`
                 <div class="list-header">Fastest risers</div>`)
@@ -376,20 +380,6 @@ class SearchView extends HTMLElement {
                   })
                   .slice(0, 3);
                 this.appendListItems({target: topLists, regions: worsening})
-
-
-                topLists.append('div').html(`
-                <div class="list-header">Highest 7 day averages</div>`)
-                let highest = this._regions
-                  .filter(region => {
-                    return region.path.indexOf(this.groupPrefix) === 0 && (parseFloat(region['last-cases']) / parseFloat(region['population']) > 0.00012);
-                  })
-                  .sort((a, b) => {
-                    return (parseFloat(b['last-cases']) / parseFloat(b['population'])) - (parseFloat(a['last-cases']) / parseFloat(a['population']))
-                  })
-                  .slice(0, 5);
-                this.appendListItems({target: topLists, regions: highest})
-
 
                 topLists.append('div').attr('class', 'info').html(dataDisclaimer());
             }
@@ -594,7 +584,7 @@ class DetailView extends HTMLElement {
         Follow
     </div>`;
     let addModule = `<div style="font-size: 14px; padding: 20px 20px; text-align: center; border-bottom: 0.5px solid var(--colorSeparator)">
-        <div>Follow multiple regions you care about in a single list.<br/>Free and no account needed.</div>
+        <div>Follow multiple regions you care about in a single list. Free and no account needed.</div>
         <div 
         onclick="trackEvent('click-button-detail-addtolist', '${this._region.path}'); toggleRegion('${this._region.path}');detailView.update()()"
         style="font-size: 14px;
