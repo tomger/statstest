@@ -344,11 +344,14 @@ class SearchView extends HTMLElement {
 
                 let topLists = root.append('div');
                 let toggleSelected = (v) => v === this.groupPrefix ? 
-                    "padding: 6px;border-bottom: 1px solid currentColor" : 
-                    'padding: 6px;border-bottom: 1px solid transparent; cursor:pointer;opacity:.6';
+                    "padding: 5px;border-bottom: 1px solid currentColor" : 
+                    'padding: 5px;border-bottom: 1px solid transparent; cursor:pointer;opacity:.6';
 
                 topLists.append('div').html(`
-                    <div class="list-toggle" style="display: flex; justify-content: space-between;border-radius: 12px; padding: 0px 12px;background: var(--colorSecondaryBackground); font-size: 14px;  margin: 40px 0 20px 0;">
+                    <div class="list-toggle" style="display: flex; 
+                        justify-content: space-around;
+                        border-bottom: 1px solid var(--colorSeparator);
+                        padding: 0px 0px; font-size: 15px;  margin: 40px 0 20px 0;">
                         <a style="${toggleSelected('us-st')}" onClick="searchView.groupPrefix = 'us-st'">U.S. States</a>
                         <a style="${toggleSelected('us-co')}"  onClick="searchView.groupPrefix = 'us-co'">U.S. Counties</a>
                         <a style="${toggleSelected('world')}"  onClick="searchView.groupPrefix = 'world'">Countries</a>
