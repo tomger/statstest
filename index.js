@@ -590,7 +590,7 @@ class DetailView extends HTMLElement {
         style="font-size: 14px;
         cursor: pointer;
         white-space: nowrap;
-        font-weight: 600; display: inline-block;padding: 8px 12px;
+        font-weight: 600; display: inline-block;padding: 8px 16px;
         border-radius: 40px;background: var(--colorBlue); color: #fff">
         Follow
     </div>`;
@@ -618,13 +618,14 @@ class DetailView extends HTMLElement {
             <div style="opacity: .5;line-height: 13px;">Watchlist</div>
         </div>
         ${iff(false && navigator.share, shareButton)}
-    
-        <div>
-            ${isRegionSelected(this.region.path) ? removeButton : addButton}
         </div>
-        </div>
-        <div style="font-size: 30px; line-height: 1.1; margin-top: 32px; margin-bottom: 20px; font-weight: 700;">
-        ${this._region.name}
+        <div style="display:flex; align-items: flex-end">
+            <div style="flex:1; font-size: 28px; line-height: 1.1; margin-top: 32px; margin-bottom: 20px; padding-right: 20px; font-weight: 700;">
+            ${this._region.name}
+            </div>
+            <div>
+                ${isRegionSelected(this.region.path) ? removeButton : addButton}
+            </div>
         </div>
         <div style="padding-bottom: 20px; color: var(--colorSecondaryLabel); font-size: 13px; margin: -15px 0 0px 0">
         ${this.region.byline ? this.region.byline + ' · ' : ''}
