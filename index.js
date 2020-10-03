@@ -590,8 +590,8 @@ class DetailView extends HTMLElement {
         cursor: pointer;
         white-space: nowrap;
         font-weight: 600; display: inline-block;padding: 8px 12px;
-        border-radius: 40px;background: var(--colorBlue); color: #fff)">
-        Add to watchlist
+        border-radius: 40px;background: var(--colorBlue); color: #fff">
+        Follow
     </div>`;
     let addModule = `<div style="font-size: 14px; padding: 20px 20px; text-align: center; border-bottom: 0.5px solid var(--colorSeparator)">
         <div>Follow multiple regions you care about in a single list.<br/>Free and no account needed.</div>
@@ -604,7 +604,7 @@ class DetailView extends HTMLElement {
         font-weight: 500; display: inline-block;padding: 8px 12px;
         border-radius: 40px;
         background: var(--colorBlue); color: #fff">
-        Add to your watchlist
+        Follow on watchlist
         </div>
         
         </div>`;
