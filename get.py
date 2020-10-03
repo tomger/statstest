@@ -29,7 +29,6 @@ def get_ecdc():
         # select fields
         state_df = df.loc[df['countriesAndTerritories'] == state].filter(['dateRep', 'cases'])
 
-        # cummulative to delta
         # already cummulative
 
         # rename fields
@@ -63,6 +62,7 @@ def get_ecdc():
             'change-cases': get_change(state_df),
             'last-updated': state_df.tail(1)['date'].to_string(index=False),
             'last-cases': round(state_df.tail(7)['cases'].mean()),
+            'total-cases': state_df['cases'].sum().astype(int),
         })
 
 def get_counties():
@@ -89,6 +89,7 @@ def get_counties():
             (covid_counties['state'] == state) &
             (covid_counties['county'] == county)].filter(['date', 'cases'])
 
+        total_cases = df.tail(1)['cases'].to_string(index=False)
         # cummulative to delta
         df['cases'] = df['cases'].diff().fillna(0).clip(lower=0).astype(int)
         df['rolling_cases'] = df['cases'].rolling(7).mean().fillna(0).astype(int)
@@ -123,6 +124,7 @@ def get_counties():
             'change-cases': get_change(df),
             'last-updated': df.tail(1)['date'].to_string(index=False),
             'last-cases': round(df.tail(7)['cases'].clip(lower=0).mean()),
+            'total-cases': total_cases,
         })
 
 
@@ -140,6 +142,7 @@ def get_states():
         # select fields
         state_df = df.loc[df['state'] == state].filter(['date', 'cases'])
 
+        total_cases = state_df.tail(1)['cases'].to_string(index=False)
         # cummulative to delta
         state_df['cases'] = state_df['cases'].diff().fillna(0).clip(lower=0).astype(int)
         state_df['rolling_cases'] = state_df['cases'].rolling(7).mean().fillna(0).astype(int)
@@ -163,6 +166,7 @@ def get_states():
             'change-cases': get_change(state_df),
             'last-updated': state_df.tail(1)['date'].to_string(index=False),
             'last-cases': round(state_df.tail(7)['cases'].clip(lower=0).mean()),
+            'total-cases': total_cases,
         })
 
 def write_sitemap(path, array):
