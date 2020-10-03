@@ -649,6 +649,9 @@ class DetailView extends HTMLElement {
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right"><polyline points="9 18 15 12 9 6"></polyline></svg>  
         </div>
         </div>
+        <div class="table-view" style="padding: 20px 0; border-bottom: 0.5px solid var(--colorSeparator)">
+        ${Math.round((parseFloat(this.region['total-cases']) / parseFloat(this.region['population'])*1000))/10}% of the population has had it. ${this.region['total-cases']} total cases.
+        </div>
         ${isRegionSelected(this.region.path) ? '' : addModule}
         <div class="related">
         <div style="margin: 16px 0 16px 0; color: var(--colorSecondaryLabel); font-size: 16px; font-weight: 500;">Fastest risers</div>
