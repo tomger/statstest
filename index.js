@@ -653,25 +653,11 @@ class DetailView extends HTMLElement {
         ${Math.round((parseFloat(this.region['total-cases']) / parseFloat(this.region['population'])*1000))/10}% of the population has had it. ${this.region['total-cases']} total cases.
         </div>
         ${isRegionSelected(this.region.path) ? '' : addModule}
-        <div class="related">
-        <div style="margin: 16px 0 16px 0; color: var(--colorSecondaryLabel); font-size: 16px; font-weight: 500;">Fastest risers</div>
-        </div>
         ${iff(isWarningRegion(this.region), warningModule)}
         <div class="info">
         ${dataDisclaimer()}
         </div>
     `;
-
-    let similar = searchView.regions
-        .filter(d => d.name !== this.region.name)
-        .filter(d => d.path.slice(0, 5) === this.region.path.slice(0, 5))
-        .filter(region => { return (parseInt(region['last-cases'], 10) / parseInt(region['population'], 10) > 0.00009); })
-        .sort((a, b) => { return b['change-cases'] - a['change-cases'] })
-        .slice(0, 3)
-        .forEach(d => {
-            appendListItem(d3.select('.related'), d, false)
-        })
-
 
     d3.csv(`/data/${this.region.path}.csv`).then(data => {
         let options = { month: 'short', day: 'numeric' };
