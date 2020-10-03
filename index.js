@@ -114,6 +114,7 @@ function getRegionFromLocation() {
 function closeDetailView() {
     history.replaceState({}, 'COVID-19 Watchlist', `/`)
     showDetailView(null)
+    onSearchCancel();
 }
 function navigateToDetailView(region) {
     didPushHistoryState = true;
