@@ -215,7 +215,15 @@ function numberColumn(region) {
     `;
 }
 
-function appendListItem(target, region, addButton) {
+function relativeTotalCases(region) {
+    return Math.round((parseFloat(region['total-cases']) / parseFloat(region['population'])*1000))/10;
+}
+
+function totalColumn(region) {
+    return /*html*/`<div style="color: var(--colorBlue);display:flex;flex-direction:column;justify-content:center;font-size: 20px; font-weight:300;">${relativeTotalCases(region)}%</div>`
+}
+
+function appendListItem(target, region, addButton, metric) {
     const sparkStyle = `
             padding-top: 6px;
             margin-right: 5px;
@@ -244,12 +252,12 @@ function appendListItem(target, region, addButton) {
             ${region.byline}${region.byline ? ' · ' : ''}${Number(region.population).toLocaleString()}
         </div>
         </div>
-        ${iff(!addButton, /*html*/`
+        ${iff(!addButton && metric === 'cases', /*html*/`
         <div style="${sparkStyle}">
             <spark-line class="${region["change-cases"] < 0 ? 'isDown' : 'isUp'}" src="/data/${region.path}.csv"></spark-line>
         </div>
         `)}
-        ${numberColumn(region)}
+        ${ metric !== 'cases' ? totalColumn(region) : numberColumn(region)}
     `);
 }
 
@@ -396,7 +404,7 @@ class SearchView extends HTMLElement {
                     return (parseFloat(b['total-cases']) / parseFloat(b['population'])) - (parseFloat(a['total-cases']) / parseFloat(a['population']))
                   })
                   .slice(0, 3);
-                this.appendListItems({target: topLists, regions: spread})
+                this.appendListItems({target: topLists, regions: spread, metric: 'total'})
 
 
                 topLists.append('div').attr('class', 'info').html(dataDisclaimer());
@@ -406,10 +414,10 @@ class SearchView extends HTMLElement {
 
     }
 
-    appendListItems({target, regions = [], addButton = false}) {
+    appendListItems({target, regions = [], addButton = false, metric = "cases"}) {
       regions
           .forEach((region, i, list) => {
-            appendListItem(target, region, addButton)
+            appendListItem(target, region, addButton, metric)
           })
       }
 
@@ -659,7 +667,7 @@ class DetailView extends HTMLElement {
         </div>
         </div>
         <div class="table-view" style="padding: 20px 0; border-bottom: 0.5px solid var(--colorSeparator)">
-        ${Math.round((parseFloat(this.region['total-cases']) / parseFloat(this.region['population'])*1000))/10}% of the population has had it. ${this.region['total-cases']} total cases.
+        ${relativeTotalCases(this.region)}% of the population has had it. ${this.region['total-cases']} total cases.
         </div>
         ${isRegionSelected(this.region.path) ? '' : addModule}
         ${iff(isWarningRegion(this.region), warningModule)}
