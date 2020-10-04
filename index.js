@@ -625,14 +625,17 @@ class DetailView extends HTMLElement {
         
         </div>`;
     this.innerHTML = /*html*/`
-        <div style="position:-webkit-sticky; background: var(--colorBackground); display:flex; flex-direction: row; position: sticky; top: 0; padding: 8px 0 8px 0; display: flex; align-items: center">
+        <div style="position:-webkit-sticky; background: var(--colorBackground); 
+            display:flex; flex-direction: row; align-items: center;
+            position: sticky; top: 0; padding: 8px 0 8px 0;">
         <div onClick="closeDetailView()" style="
             cursor: pointer; flex: 1;
             font-weight: 800;font-size:18px;">
             <div style="line-height: 26px">COVID-19</div>
             <div style="opacity: .5;line-height: 13px;">Watchlist</div>
         </div>
-        ${iff(false && navigator.share, shareButton)}
+        <div onClick="closeDetailView()" style="cursor: pointer; font-size: 13px; margin-right: 16px;">Your list</div>
+        <div onClick="closeDetailView(); document.querySelector('.list-toggle').scrollIntoView()" style="cursor: pointer; font-size: 13px;">Leaderboards</div>
         </div>
         <div style="display:flex; align-items: flex-end">
             <div style="flex:1; font-size: 28px; line-height: 1.1; margin-top: 32px; margin-bottom: 20px; padding-right: 20px; font-weight: 700;">
