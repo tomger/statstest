@@ -38,7 +38,7 @@ def get_ecdc():
         state_df["date"] = state_df["date"].apply(lambda x: datetime.datetime.strptime(x, '%d/%m/%Y').date())
         state_df.sort_values(by='date', inplace=True, ascending=True) 
         state_df['rolling_cases'] = state_df['cases'].rolling(7).mean().fillna(0).astype(int)
-
+        total_cases = state_df['cases'].sum().astype(int)
         # keep 30 days
         state_df = state_df.loc[(state_df['date'] > start_date) & (state_df['date'] <= end_date)]
 
@@ -62,7 +62,7 @@ def get_ecdc():
             'change-cases': get_change(state_df),
             'last-updated': state_df.tail(1)['date'].to_string(index=False),
             'last-cases': round(state_df.tail(7)['cases'].mean()),
-            'total-cases': state_df['cases'].sum().astype(int),
+            'total-cases': total_cases,
         })
 
 def get_counties():
