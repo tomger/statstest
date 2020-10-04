@@ -634,8 +634,8 @@ class DetailView extends HTMLElement {
             <div style="line-height: 26px">COVID-19</div>
             <div style="opacity: .5;line-height: 13px;">Watchlist</div>
         </div>
-        <div onClick="closeDetailView()" style="cursor: pointer; font-size: 13px; margin-right: 16px;">Your list</div>
-        <div onClick="closeDetailView(); document.querySelector('.list-toggle').scrollIntoView()" style="cursor: pointer; font-size: 13px;">Leaderboards</div>
+        <div onClick="closeDetailView()" style="cursor: pointer; font-size: 14px; margin-right: 16px;">Your list</div>
+        <div onClick="closeDetailView(); document.querySelector('.list-toggle').scrollIntoView()" style="cursor: pointer; font-size: 14px;">Leaderboards</div>
         </div>
         <div style="display:flex; align-items: flex-end">
             <div style="flex:1; font-size: 28px; line-height: 1.1; margin-top: 32px; margin-bottom: 20px; padding-right: 20px; font-weight: 700;">
