@@ -385,6 +385,20 @@ class SearchView extends HTMLElement {
                   .slice(0, 3);
                 this.appendListItems({target: topLists, regions: worsening})
 
+
+                topLists.append('div').html(`
+                <div class="list-header">Widest spread</div>`)
+                let spread = this._regions
+                  .filter(region => {
+                    return region.path.indexOf(this.groupPrefix) === 0;
+                  })
+                  .sort((a, b) => {
+                    return (parseFloat(b['total-cases']) / parseFloat(b['population'])) - (parseFloat(a['total-cases']) / parseFloat(a['population']))
+                  })
+                  .slice(0, 3);
+                this.appendListItems({target: topLists, regions: spread})
+
+
                 topLists.append('div').attr('class', 'info').html(dataDisclaimer());
             }
         }
