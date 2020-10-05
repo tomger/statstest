@@ -82,26 +82,7 @@
           display: flex;
           flex-direction: column;
         }
-        .graph-wrapper {
-          position:relative;
-          scroll-margin-top: 70px;
-        }
-        .graph > div > h3 {
-          font-size: 16px;
-          font-weight: 600;
-          margin: 0 0 16px 0;
-        }
-
-        .graph > div > h3 a {
-          color: var(--colorLabel);
-          text-decoration: none
-        }
-        .graph > div{
-          background: var(--colorBackground);
-          padding: 16px 16px 16px 16px;
-          /* border-bottom:1px solid #eee; */
-          margin: 12px 0;
-        }
+       
         .noTicks .tick {
           display: none;
         }
@@ -131,93 +112,6 @@
           padding: 0 16px;
         }
 
-        .titlebar {
-          padding: 0 16px 0 16px;
-          box-sizing: border-box;
-          flex: 1;
-          max-width: 500px;
-          line-height: 26px;
-          margin: 8px 0 16px 0;
-          
-
-          display: flex;
-          flex-direction: row;
-          justify-content: space-between;
-        }
-        .titlebar-header {
-          text-decoration: none;
-        }
-        .titlebar-header > div:first-child{
-          font-size: 18px; 
-          font-weight: 800;
-          display: block;
-        }
-        .titlebar-subheader {
-          font-size: 18px;
-          font-weight: 800;
-          opacity: 0.5;
-          line-height: 13px;
-        }
-        .header-add {
-          display: flex;align-items: center;padding: 0 10px;
-          position:relative;
-
-        }
-        .titlebar-feedback {
-          border: 1px solid rgb(187, 204, 241);
-          text-decoration: none;
-          font-size: 14px;
-          padding: 4px 8px;
-          border-radius: 5px;;
-          color: blue
-        }
-        .titlebar span {
-          display: inline-block;
-          font-weight: 400;
-          /* color: #888; */
-        }
-
-        .legend {
-          font-size: 14px;
-          font-weight: 300;
-          line-height: 32px;
-        }
-        .legend > div {
-          padding: 8px 0 8px 0;
-          border-bottom: 1px solid #ccc;
-          display:flex;justify-content: space-between;
-          font-size:16px;
-        }
-        .state_selector_wrapper {
-
-          border: #ccc; 
-          border-radius: 8px;
-          background: #f0f0f3;
-          box-sizing: border-box;
-          margin: 40px 16px 20px 16px;
-          line-height: 44px;;
-          text-align: center;
-          font-size: 14px;
-          font-weight: 500;;
-          /* width: 100%; */
-          position: relative;
-        }
-        .travel-high {
-          color: #de7c00
-        }
-        .state_selector {
-
-          width: 100%;
-          -moz-appearance: none;
-	        -webkit-appearance: none;
-          opacity: 0;
-          left:0;
-          height: 44px;
-          position: absolute;
-        }
-
-        .lastupdated {
-        }
         .info {
           -webkit-text-size-adjust: none;
           font-size: 12px;
@@ -376,37 +270,20 @@
 
 </head>
 <body>
-      <div class="wrapper">
-        <detail-view></detail-view>
-      </div>
-      <div class="titlebar-wrapper">
-        <div class="titlebar">
-          <div class="titlebar-header">
-            <div>COVID-19</div>
-            <div class="titlebar-subheader">Watchlist</div>
-          </div>
-          
-          <div class="header-add">
-            <div onClick="closeDetailView(); document.querySelector('.list-toggle').scrollIntoView()" style="cursor: pointer; font-size: 14px;">Leaderboards</div>
-          </div>
-        </div>
-      </div>
-      <div class="wrapper listing-wrapper">
-        <div class="search-bar">
-          <input 
-            class="searchinput" 
-            autocomplete="off"
-            autocorrect="off"
-            placeholder="Countries, U.S. counties & states"
-            onfocus="onSearchFocus()"
-            oninput="onSearchInput(event)"/>
-          <a
-            class="search-cancel"
-            onclick="onSearchCancel()"
-            >Cancel</a>
-        </div>
-        <search-view></search-view>
-      </div>
+  <div class="titlebar-wrapper">
+    <header-view></header-view>
+  </div>
+  <div class="wrapper">
+    <detail-view></detail-view>
+  </div>
+  <div class="wrapper listing-wrapper">
+    <div class="search-bar">
+      <input class="searchinput" autocomplete="off" autocorrect="off" placeholder="Countries, U.S. counties & states"
+        onfocus="onSearchFocus()" oninput="onSearchInput(event)" />
+      <a class="search-cancel" onclick="onSearchCancel()">Cancel</a>
+    </div>
+    <search-view></search-view>
+  </div>
 
 <script src="/lib/d3.v5.min.js"></script>
 

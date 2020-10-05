@@ -119,18 +119,19 @@ function closeDetailView() {
 function navigateToDetailView(region) {
     didPushHistoryState = true;
     history.pushState({}, region.name, `/region/${region.path}`)
+    onSearchCancel();
     showDetailView(region)
     window.scrollTo(0,0)
 }
 
 function showDetailView(region) {
-    [...document.querySelectorAll('.listing-wrapper, .titlebar-wrapper')].forEach(e => {
-    e.style.display = !!region ? 'none' : ''
+    [...document.querySelectorAll('.listing-wrapper')].forEach(e => {
+        e.style.display = !!region ? 'none' : ''
     })
     if (region) {
-    document.title = `COVID-19 Watchlist ${region.name}`;
+        document.title = `COVID-19 Watchlist ${region.name}`;
     } else {
-    document.title = `COVID-19 Watchlist`;
+        document.title = `COVID-19 Watchlist`;
     }
     detailView.region = region;
 }
@@ -625,18 +626,6 @@ class DetailView extends HTMLElement {
         
         </div>`;
     this.innerHTML = /*html*/`
-        <div style="position:-webkit-sticky; background: var(--colorBackground); 
-            display:flex; flex-direction: row; align-items: center;
-            position: sticky; top: 0; padding: 8px 0 8px 0;">
-        <div onClick="closeDetailView()" style="
-            cursor: pointer; flex: 1;
-            font-weight: 800;font-size:18px;">
-            <div style="line-height: 26px">COVID-19</div>
-            <div style="opacity: .5;line-height: 13px;">Watchlist</div>
-        </div>
-        <div onClick="closeDetailView()" style="cursor: pointer; font-size: 14px; margin-right: 16px;">Your list</div>
-        <div onClick="closeDetailView(); document.querySelector('.list-toggle').scrollIntoView()" style="cursor: pointer; font-size: 14px;">Leaderboards</div>
-        </div>
         <div style="display:flex; align-items: flex-end">
             <div style="flex:1; font-size: 28px; line-height: 1.1; margin-top: 32px; margin-bottom: 20px; padding-right: 20px; font-weight: 700;">
             ${this._region.name}
@@ -756,6 +745,35 @@ class SparklineElement extends HTMLElement {
 
 }
 customElements.define("spark-line", SparklineElement);
+
+
+customElements.define("header-view", class HeaderView extends HTMLElement {
+  constructor() {
+    super();
+
+    this.style.cssText = `
+    flex: 1;
+    max-width: 500px;
+    line-height: 26px;
+    margin: 8px 0 16px 0;
+    position:-webkit-sticky; background: var(--colorBackground); 
+    display:flex; flex-direction: row; align-items: center;
+    position: sticky; 
+    top: 0;
+    padding: 0 16px 0 16px;
+    `
+    this.innerHTML = /*html*/`
+        <div onClick="closeDetailView()" style="
+    cursor: pointer; flex: 1;
+    font-weight: 800;font-size:18px;">
+    <div style="line-height: 26px">COVID-19</div>
+    <div style="opacity: .5;line-height: 13px;">Watchlist</div>
+    </div>
+    <div onClick="closeDetailView()" style="cursor: pointer; font-size: 14px; margin-right: 16px;">Your list</div>
+    <div onClick="closeDetailView(); document.querySelector('.list-toggle').scrollIntoView();window.scrollTop -= 100" style="cursor: pointer; font-size: 14px;">Leaderboards</div>
+    `;
+  }
+});
 
 
 
