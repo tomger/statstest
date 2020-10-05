@@ -265,6 +265,7 @@ function appendListItem(target, region, addButton, metric) {
 class SearchView extends HTMLElement {
     constructor() {
         super();
+        this._page = 'yourlist' //or leaderboard
         this._groupPrefix = 'us-st';
         this.style.display = "block";
         this.style.marginBottom = "16px";
@@ -316,99 +317,108 @@ class SearchView extends HTMLElement {
                 this.appendListItems({target: banner, regions: regions, addButton: true})
             } else {
                 this.innerHTML = ``;
-                root.append('div').html(`
-                <div class="list-header">Your list</div>
-                `)
-                let selectedRegions = this._regions
+
+
+                if (this.page === 'yourlist') {
+                  root.append('div').html(`
+                  <div class="list-header">Your list</div>
+                  `)
+                  let selectedRegions = this._regions
+                      .filter(region => {
+                      return isRegionSelected(region.path)
+                      })
+                      .sort((a, b) => {
+                      return (a['last-cases'] / a.population) - (b['last-cases'] / b.population)
+                      });
+                  
+                  this.appendListItems({target: root, regions: selectedRegions});
+  
+                  if (selectedRegions.length < 1) {
+  
+                      let banner = root.append('div').attr('style', `
+                      padding: 0 0;
+                      margin-bottom: 60px;
+                      text-align: center;
+                      `).html(/*html*/`
+                      <div style="margin: 32px 10% 12px 10%; font-size: 16px; font-weight: 600;">Create your own watchlist</div>
+                      <div style="margin: 0 10% 16px 10%; font-size: 16px; color: var(--colorSecondaryLabel)">See daily COVID-19 cases per 100,000 residents.</div>
+                      <div style="margin: 0 0 16px 0; font-size: 16px; color: var(--colorBlue);cursor: pointer" onclick="trackEvent('click', 'button-addregion'); onSearchFocus(); document.querySelector('input').focus()">
+                          <svg style="transform:translateY(4px)" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus-circle"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                          <span>Add region</span>
+                      </div>
+                      `);
+                  } else if (selectedRegions.length < 2) {
+                      root.append('div').html(`
+                          <div style="margin: 32px 0; cursor:pointer; font-size: 14px;" onclick="onSearchFocus(); document.querySelector('input').focus()">
+                          <span style="color: var(--colorBlue)">Add one more?</span> Where do your family or friends live?
+                          </div>
+                      `);
+                  }
+                } else {
+                  root.append('div').html(`
+                  <div class="list-header">Leaderboards</div>
+                  `)
+                  let topLists = root.append('div');
+                  let toggleSelected = (v) => v === this.groupPrefix ? 
+                      "padding: 12px 0; border-bottom: 1px solid currentColor;" : 
+                      "padding: 12px 0; border-bottom: 1px solid var(--colorSeparator); cursor:pointer; color: var(--colorSecondaryLabel)";
+  
+                  topLists.append('div').html(`
+                      <div class="list-toggle" style="display: flex; 
+                          padding: 0px 0px; font-size: 15px;  margin: 20px 0 30px 0;">
+                          <a style="${toggleSelected('us-st')}" onClick="searchView.groupPrefix = 'us-st'">U.S. States</a>
+                          <div style="width: 12px; border-bottom: 1px solid var(--colorSeparator)"></div>
+                          <a style="${toggleSelected('us-co')}" onClick="searchView.groupPrefix = 'us-co'">U.S. Counties</a>
+                          <div style="width: 12px; border-bottom: 1px solid var(--colorSeparator)"></div>
+                          <a style="${toggleSelected('world')}" onClick="searchView.groupPrefix = 'world'">Countries</a>
+                          <div style="flex:1; border-bottom: 1px solid var(--colorSeparator)"></div>
+                      </div>
+                  `);
+  
+  
+                  topLists.append('div').html(`
+                  <div class="list-header2">Highest 7 day averages</div>`)
+                  let highest = this._regions
                     .filter(region => {
-                    return isRegionSelected(region.path)
+                      return region.path.indexOf(this.groupPrefix) === 0 && (parseFloat(region['last-cases']) / parseFloat(region['population']) > 0.00012);
                     })
                     .sort((a, b) => {
-                    return (a['last-cases'] / a.population) - (b['last-cases'] / b.population)
-                    });
-                
-                this.appendListItems({target: root, regions: selectedRegions});
-
-                if (selectedRegions.length < 1) {
-
-                    let banner = root.append('div').attr('style', `
-                    padding: 0 0;
-                    margin-bottom: 60px;
-                    text-align: center;
-                    `).html(/*html*/`
-                    <div style="margin: 32px 10% 12px 10%; font-size: 16px; font-weight: 600;">Create your own watchlist</div>
-                    <div style="margin: 0 10% 16px 10%; font-size: 16px; color: var(--colorSecondaryLabel)">See daily COVID-19 cases per 100,000 residents.</div>
-                    <div style="margin: 0 0 16px 0; font-size: 16px; color: var(--colorBlue);cursor: pointer" onclick="trackEvent('click', 'button-addregion'); onSearchFocus(); document.querySelector('input').focus()">
-                        <svg style="transform:translateY(4px)" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus-circle"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
-                        <span>Add region</span>
-                    </div>
-                    `);
-                } else if (selectedRegions.length < 2) {
-                    root.append('div').html(`
-                        <div style="margin: 32px 0; cursor:pointer; font-size: 14px;" onclick="onSearchFocus(); document.querySelector('input').focus()">
-                        <span style="color: var(--colorBlue)">Add one more?</span> Where do your family or friends live?
-                        </div>
-                    `);
+                      return (parseFloat(b['last-cases']) / parseFloat(b['population'])) - (parseFloat(a['last-cases']) / parseFloat(a['population']))
+                    })
+                    .slice(0, 3);
+                  this.appendListItems({target: topLists, regions: highest})
+  
+  
+                  topLists.append('div').html(`
+                  <div class="list-header2">Fastest risers</div>`)
+                  let worsening = this._regions
+                    .filter(region => {
+                      return region.path.indexOf(this.groupPrefix) === 0 && (parseInt(region['last-cases'], 10) / parseInt(region['population'], 10) > 0.00004);
+                    })
+                    .sort((a, b) => {
+                      return parseFloat(b['change-cases']) - parseFloat(a['change-cases'])
+                    })
+                    .slice(0, 3);
+                  this.appendListItems({target: topLists, regions: worsening})
+  
+  
+                  topLists.append('div').html(`
+                  <div class="list-header2">Widest spread</div>`)
+                  let spread = this._regions
+                    .filter(region => {
+                      return region.path.indexOf(this.groupPrefix) === 0;
+                    })
+                    .sort((a, b) => {
+                      return (parseFloat(b['total-cases']) / parseFloat(b['population'])) - (parseFloat(a['total-cases']) / parseFloat(a['population']))
+                    })
+                    .slice(0, 3);
+                  this.appendListItems({target: topLists, regions: spread, metric: 'total'})
+  
+  
                 }
+                root.append('div').attr('class', 'info').html(dataDisclaimer());
+              
 
-                let topLists = root.append('div');
-                let toggleSelected = (v) => v === this.groupPrefix ? 
-                    "padding: 12px 0; border-bottom: 1px solid currentColor;" : 
-                    "padding: 12px 0; border-bottom: 1px solid var(--colorSeparator); cursor:pointer; color: var(--colorSecondaryLabel)";
-
-                topLists.append('div').html(`
-                    <div class="list-toggle" style="display: flex; 
-                        padding: 0px 0px; font-size: 15px;  margin: 50px 0 30px 0;">
-                        <a style="${toggleSelected('us-st')}" onClick="searchView.groupPrefix = 'us-st'">U.S. States</a>
-                        <div style="width: 12px; border-bottom: 1px solid var(--colorSeparator)"></div>
-                        <a style="${toggleSelected('us-co')}" onClick="searchView.groupPrefix = 'us-co'">U.S. Counties</a>
-                        <div style="width: 12px; border-bottom: 1px solid var(--colorSeparator)"></div>
-                        <a style="${toggleSelected('world')}" onClick="searchView.groupPrefix = 'world'">Countries</a>
-                        <div style="flex:1; border-bottom: 1px solid var(--colorSeparator)"></div>
-                    </div>
-                `);
-
-
-                topLists.append('div').html(`
-                <div class="list-header">Highest 7 day averages</div>`)
-                let highest = this._regions
-                  .filter(region => {
-                    return region.path.indexOf(this.groupPrefix) === 0 && (parseFloat(region['last-cases']) / parseFloat(region['population']) > 0.00012);
-                  })
-                  .sort((a, b) => {
-                    return (parseFloat(b['last-cases']) / parseFloat(b['population'])) - (parseFloat(a['last-cases']) / parseFloat(a['population']))
-                  })
-                  .slice(0, 3);
-                this.appendListItems({target: topLists, regions: highest})
-
-
-                topLists.append('div').html(`
-                <div class="list-header">Fastest risers</div>`)
-                let worsening = this._regions
-                  .filter(region => {
-                    return region.path.indexOf(this.groupPrefix) === 0 && (parseInt(region['last-cases'], 10) / parseInt(region['population'], 10) > 0.00004);
-                  })
-                  .sort((a, b) => {
-                    return parseFloat(b['change-cases']) - parseFloat(a['change-cases'])
-                  })
-                  .slice(0, 3);
-                this.appendListItems({target: topLists, regions: worsening})
-
-
-                topLists.append('div').html(`
-                <div class="list-header">Widest spread</div>`)
-                let spread = this._regions
-                  .filter(region => {
-                    return region.path.indexOf(this.groupPrefix) === 0;
-                  })
-                  .sort((a, b) => {
-                    return (parseFloat(b['total-cases']) / parseFloat(b['population'])) - (parseFloat(a['total-cases']) / parseFloat(a['population']))
-                  })
-                  .slice(0, 3);
-                this.appendListItems({target: topLists, regions: spread, metric: 'total'})
-
-
-                topLists.append('div').attr('class', 'info').html(dataDisclaimer());
             }
         }
     
@@ -433,12 +443,21 @@ class SearchView extends HTMLElement {
     }
 
     set query(value) {
-    this._query = value;
-    this.update();
+      this._query = value;
+      this.update();
     }
 
     get query() {
-    return this._query;
+      return this._query;
+    }
+
+    set page(value) {
+      this._page = value;
+      this.update();
+    }
+
+    get page() {
+      return this._page;
     }
 
     set regions(value) {
@@ -755,7 +774,7 @@ customElements.define("header-view", class HeaderView extends HTMLElement {
     flex: 1;
     max-width: 500px;
     line-height: 26px;
-    margin: 8px 0 16px 0;
+    margin: 16px 0 16px 0;
     position:-webkit-sticky; background: var(--colorBackground); 
     display:flex; flex-direction: row; align-items: center;
     position: sticky; 
@@ -763,14 +782,16 @@ customElements.define("header-view", class HeaderView extends HTMLElement {
     padding: 0 16px 0 16px;
     `
     this.innerHTML = /*html*/`
-        <div onClick="closeDetailView()" style="
-    cursor: pointer; flex: 1;
-    font-weight: 800;font-size:18px;">
-    <div style="line-height: 26px">COVID-19</div>
-    <div style="opacity: .5;line-height: 13px;">Watchlist</div>
+    <div onClick="closeDetailView()" style="
+          cursor: pointer; flex: 1;top:-2px;position:relative;
+          font-weight: 800;font-size:18px;">
+      <div style="line-height: 26px">COVID-19</div>
+      <div style="opacity: .5;line-height: 13px;">Watchlist</div>
     </div>
-    <div onClick="closeDetailView()" style="cursor: pointer; font-size: 14px; margin-right: 16px;">Your list</div>
-    <div onClick="closeDetailView(); document.querySelector('.list-toggle').scrollIntoView();window.scrollTop -= 100" style="cursor: pointer; font-size: 14px;">Leaderboards</div>
+    <div onClick="closeDetailView(); searchView.page = 'yourlist';" style="cursor: pointer; font-weight: 500; font-size: 14px; margin-right: 16px;">Your list</div>
+    <div 
+      onClick="closeDetailView(); searchView.page = 'leaderboard';" 
+      style="font-weight: 500; cursor: pointer; font-size: 14px;">Leaderboards</div>
     `;
   }
 });
