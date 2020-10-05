@@ -775,7 +775,7 @@ customElements.define("header-view", class HeaderView extends HTMLElement {
     max-width: 500px;
     line-height: 26px;
     margin: 16px 0 16px 0;
-    position:-webkit-sticky; background: var(--colorBackground); 
+    position:-webkit-sticky;; 
     display:flex; flex-direction: row; align-items: center;
     position: sticky; 
     top: 0;
