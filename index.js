@@ -646,7 +646,7 @@ class DetailView extends HTMLElement {
         </div>`;
     this.innerHTML = /*html*/`
         <div style="display:flex; align-items: flex-end">
-            <div style="flex:1; font-size: 26px; line-height: 1.1; margin-top: 32px; margin-bottom: 20px; padding-right: 20px; font-weight: 700;">
+            <div style="flex:1; font-size: 25px; line-height: 1.1; margin-top: 32px; margin-bottom: 20px; padding-right: 20px; font-weight: 700;">
             ${this._region.name}
             </div>
             <div>
