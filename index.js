@@ -321,7 +321,7 @@ class SearchView extends HTMLElement {
 
                 if (this.page === 'yourlist') {
                   root.append('div').html(`
-                  <div class="list-header">Your list</div>
+                  <div class="list-header">Following</div>
                   `)
                   let selectedRegions = this._regions
                       .filter(region => {
@@ -365,7 +365,7 @@ class SearchView extends HTMLElement {
   
                   topLists.append('div').html(`
                       <div class="list-toggle" style="display: flex; 
-                          padding: 0px 0px; font-size: 15px;  margin: 20px 0 30px 0;">
+                          padding: 0px 0px; font-size: 14px; font-weight: 500; margin: 20px 0 30px 0;">
                           <a style="${toggleSelected('us-st')}" onClick="searchView.groupPrefix = 'us-st'">U.S. States</a>
                           <div style="width: 12px; border-bottom: 1px solid var(--colorSeparator)"></div>
                           <a style="${toggleSelected('us-co')}" onClick="searchView.groupPrefix = 'us-co'">U.S. Counties</a>
@@ -646,7 +646,7 @@ class DetailView extends HTMLElement {
         </div>`;
     this.innerHTML = /*html*/`
         <div style="display:flex; align-items: flex-end">
-            <div style="flex:1; font-size: 28px; line-height: 1.1; margin-top: 32px; margin-bottom: 20px; padding-right: 20px; font-weight: 700;">
+            <div style="flex:1; font-size: 26px; line-height: 1.1; margin-top: 32px; margin-bottom: 20px; padding-right: 20px; font-weight: 700;">
             ${this._region.name}
             </div>
             <div>
@@ -788,7 +788,7 @@ customElements.define("header-view", class HeaderView extends HTMLElement {
       <div style="line-height: 26px">COVID-19</div>
       <div style="opacity: .5;line-height: 13px;">Watchlist</div>
     </div>
-    <div onClick="closeDetailView(); searchView.page = 'yourlist';" style="cursor: pointer; font-weight: 500; font-size: 14px; margin-right: 16px;">Your list</div>
+    <div onClick="closeDetailView(); searchView.page = 'yourlist';" style="cursor: pointer; font-weight: 500; font-size: 14px; margin-right: 16px;">Following</div>
     <div 
       onClick="closeDetailView(); searchView.page = 'leaderboard';" 
       style="font-weight: 500; cursor: pointer; font-size: 14px;">Leaderboards</div>
