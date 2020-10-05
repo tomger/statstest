@@ -338,13 +338,12 @@ class SearchView extends HTMLElement {
                       let banner = root.append('div').attr('style', `
                       padding: 0 0;
                       margin-bottom: 60px;
-                      text-align: center;
+                      text-align: left;
                       `).html(/*html*/`
-                      <div style="margin: 32px 10% 12px 10%; font-size: 16px; font-weight: 600;">Create your own watchlist</div>
-                      <div style="margin: 0 10% 16px 10%; font-size: 16px; color: var(--colorSecondaryLabel)">See daily COVID-19 cases per 100,000 residents.</div>
+                      <div style="margin: 0 0 16px 0; font-size: 16px; color: var(--colorSecondaryLabel)">Monitor COVID-19 cases in areas you're interested in. Get started by adding some now.</div>
                       <div style="margin: 0 0 16px 0; font-size: 16px; color: var(--colorBlue);cursor: pointer" onclick="trackEvent('click', 'button-addregion'); onSearchFocus(); document.querySelector('input').focus()">
                           <svg style="transform:translateY(4px)" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus-circle"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
-                          <span>Add region</span>
+                          <span>Follow regions</span>
                       </div>
                       `);
                   } else if (selectedRegions.length < 2) {
