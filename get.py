@@ -7,9 +7,9 @@ import sys
 
 WRITE_FILES = True
 
-path_mask = "data/{}.csv"
-end_date = (datetime.datetime.now() - pd.to_timedelta("1day")).date()
-start_date = end_date - pd.to_timedelta("30day")
+CSV_PATH = "data/{}.csv"
+END_DATE = (datetime.datetime.now() - pd.to_timedelta("1day")).date()
+START_DATE = END_DATE - pd.to_timedelta("30day")
 
 def get_change(df):
     start = df.head(1)['rolling_cases'].mean()
@@ -41,11 +41,11 @@ def get_ecdc():
         state_df['rolling_cases'] = state_df['cases'].rolling(7).mean().fillna(0).astype(int)
         total_cases = state_df['cases'].sum().astype(int)
         # keep 30 days
-        state_df = state_df.loc[(state_df['date'] > start_date) & (state_df['date'] <= end_date)]
+        state_df = state_df.loc[(state_df['date'] > START_DATE) & (state_df['date'] <= END_DATE)]
 
         path = "world-{}".format(state).replace(" ", "-").lower()
         if WRITE_FILES:
-            state_df.to_csv(path_mask.format(path), index = False, header=True)
+            state_df.to_csv(CSV_PATH.format(path), index = False, header=True)
 
         # find population
         population = df.loc[df['countriesAndTerritories'] == state].tail(1)['popData2019'].item()
@@ -99,7 +99,7 @@ def get_counties():
 
         # format date
         df['date'] = pd.to_datetime(df['date']).dt.date
-        df = df.loc[df['date'] > start_date]
+        df = df.loc[df['date'] > START_DATE]
         
 
         # rename fields
@@ -111,7 +111,7 @@ def get_counties():
 
         path = "us-co-{}-{}".format(county, state).replace(" ", "-").lower()
         if WRITE_FILES:
-            df.to_csv(path_mask.format(path), index = False, header=True)
+            df.to_csv(CSV_PATH.format(path), index = False, header=True)
 
         if county == "New York City":
             name = county
@@ -152,11 +152,11 @@ def get_states():
         state_df['cases'] = state_df['cases'].diff().fillna(0).clip(lower=0).astype(int)
         state_df['rolling_cases'] = state_df['cases'].rolling(7).mean().fillna(0).astype(int)
         
-        state_df = state_df.loc[df['date'] > start_date]
+        state_df = state_df.loc[df['date'] > START_DATE]
 
         path = "us-st-{}".format(state).replace(" ", "-").lower()
         if WRITE_FILES:
-            state_df.to_csv(path_mask.format(path), index = False, header=True)
+            state_df.to_csv(CSV_PATH.format(path), index = False, header=True)
 
         # find population
         population_row = population_states.query("NAME == '{}'".format(state))
