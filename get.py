@@ -19,7 +19,7 @@ def get_change(df):
         return 0
     return round(change * 100)
 
-def get_ecdc(write_file = True):
+def get_ecdc():
     output_array = []
     request = urllib2.urlopen('https://opendata.ecdc.europa.eu/covid19/casedistribution/csv/')
     csv_data = request.read()
@@ -44,7 +44,7 @@ def get_ecdc(write_file = True):
         state_df = state_df.loc[(state_df['date'] > start_date) & (state_df['date'] <= end_date)]
 
         path = "world-{}".format(state).replace(" ", "-").lower()
-        if write_file:
+        if WRITE_FILES:
             state_df.to_csv(path_mask.format(path), index = False, header=True)
 
         # find population
@@ -67,7 +67,7 @@ def get_ecdc(write_file = True):
         })
     return output_array
 
-def get_counties(write_file = True):
+def get_counties():
     output_array = []
     population_counties = pd.read_csv('lib/co-est2019.csv')
     population_counties = population_counties
@@ -110,7 +110,7 @@ def get_counties(write_file = True):
             continue
 
         path = "us-co-{}-{}".format(county, state).replace(" ", "-").lower()
-        if write_file:
+        if WRITE_FILES:
             df.to_csv(path_mask.format(path), index = False, header=True)
 
         if county == "New York City":
@@ -134,7 +134,7 @@ def get_counties(write_file = True):
 
 # States
 
-def get_states(write_file = True):
+def get_states():
     output_array = []
     population_states = pd.read_csv('lib/nst-est2019-alldata.csv')
     request = urllib2.urlopen('https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv')
@@ -155,7 +155,7 @@ def get_states(write_file = True):
         state_df = state_df.loc[df['date'] > start_date]
 
         path = "us-st-{}".format(state).replace(" ", "-").lower()
-        if write_file:
+        if WRITE_FILES:
             state_df.to_csv(path_mask.format(path), index = False, header=True)
 
         # find population
@@ -202,14 +202,17 @@ def write_indexes(array):
 
 
 region_index = []
-region_index.extend(get_states(WRITE_FILES))
-region_index.extend(get_counties(WRITE_FILES))
-region_index.extend(get_ecdc(WRITE_FILES))
+region_index.extend(get_states())
+region_index.extend(get_counties())
+region_index.extend(get_ecdc())
 
-pd.DataFrame(region_index).to_csv(sys.stdout if not WRITE_FILES else "data/regions.csv", index = False, header=True)
 
 if WRITE_FILES:
+    pd.DataFrame(region_index).to_csv("data/regions.csv", index = False, header=True)
     write_indexes(region_index)
     write_sitemap('sitemap.xml', region_index)
+else:
+    pd.DataFrame(region_index).to_csv(sys.stdout)
+
 
 
