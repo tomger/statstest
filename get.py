@@ -4,7 +4,6 @@ import math
 import pandas as pd
 import datetime
 
-region_index = []
 path_mask = "data/{}.csv"
 end_date = (datetime.datetime.now() - pd.to_timedelta("1day")).date()
 start_date = end_date - pd.to_timedelta("30day")
@@ -18,8 +17,7 @@ def get_change(df):
     return round(change * 100)
 
 def get_ecdc():
-    # https://opendata.ecdc.europa.eu/covid19/casedistribution/csv
-    # data = pd.read_csv('tmpcache')
+    output_array = []
     request = urllib2.urlopen('https://opendata.ecdc.europa.eu/covid19/casedistribution/csv/')
     csv_data = request.read()
     data = pd.read_csv(io.StringIO(csv_data.decode('utf-8')))
@@ -54,7 +52,7 @@ def get_ecdc():
             continue
 
         # add to index
-        region_index.append({
+        output_array.append({
             'path': path,
             'name': state.replace("_", " "),
             'byline': '',
@@ -64,8 +62,10 @@ def get_ecdc():
             'last-cases': round(state_df.tail(7)['cases'].mean()),
             'total-cases': total_cases,
         })
+    return output_array
 
 def get_counties():
+    output_array = []
     population_counties = pd.read_csv('lib/co-est2019.csv')
     population_counties = population_counties
 
@@ -116,7 +116,7 @@ def get_counties():
             name = "{} County".format(county)
 
         # add to index
-        region_index.append({
+        output_array.append({
             'path': path,
             'name': name,
             'byline': "{}".format(state),
@@ -126,11 +126,13 @@ def get_counties():
             'last-cases': round(df.tail(7)['cases'].clip(lower=0).mean()),
             'total-cases': total_cases,
         })
+    return output_array
 
 
 # States
 
 def get_states():
+    output_array = []
     population_states = pd.read_csv('lib/nst-est2019-alldata.csv')
     request = urllib2.urlopen('https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv')
     csv_data = request.read()
@@ -158,7 +160,7 @@ def get_states():
         population = population_row['POPESTIMATE2019'].to_string(index=False)
 
         # add to index
-        region_index.append({
+        output_array.append({
             'path': path,
             'name': state,
             'byline': 'United States',
@@ -168,6 +170,7 @@ def get_states():
             'last-cases': round(state_df.tail(7)['cases'].clip(lower=0).mean()),
             'total-cases': total_cases,
         })
+    return output_array
 
 def write_sitemap(path, array):
     sitemap_head = '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">'
@@ -193,12 +196,13 @@ def write_indexes(array):
         file.write(template.replace('<title>COVID-19 Watchlist</title>', '<title>COVID-19 Watchlist {}</title>'.format(region['name'])))
         file.close()
 
-get_states()
-get_counties()
-get_ecdc()
 
-region_index_df = pd.DataFrame(region_index)
-region_index_df.to_csv("data/regions.csv", index = False, header=True)
+region_index = []
+region_index.extend(get_states())
+region_index.extend(get_counties())
+region_index.extend(get_ecdc())
+
+pd.DataFrame(region_index).to_csv("data/regions.csv", index = False, header=True)
 write_indexes(region_index)
 write_sitemap('sitemap.xml', region_index)
 
