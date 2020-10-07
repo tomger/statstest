@@ -11,6 +11,12 @@ CSV_PATH = "data/{}.csv"
 END_DATE = (datetime.datetime.now() - pd.to_timedelta("1day")).date()
 START_DATE = END_DATE - pd.to_timedelta("30day")
 
+def get_url_as_dataframe(url):
+    request = urllib2.urlopen(url)
+    csv_data = request.read()
+    data = pd.read_csv(io.StringIO(csv_data.decode('utf-8')))
+    return pd.DataFrame(data)
+
 def get_change(df):
     start = df.head(1)['rolling_cases'].mean()
     end = df.tail(1)['rolling_cases'].mean()
@@ -21,16 +27,17 @@ def get_change(df):
 
 def get_ecdc():
     output_array = []
-    request = urllib2.urlopen('https://opendata.ecdc.europa.eu/covid19/casedistribution/csv/')
-    csv_data = request.read()
-    data = pd.read_csv(io.StringIO(csv_data.decode('utf-8')))
-    df = pd.DataFrame(data)
+    df = get_url_as_dataframe('https://opendata.ecdc.europa.eu/covid19/casedistribution/csv/')
 
     for state in df['countriesAndTerritories'].unique():
         # select fields
         state_df = df.loc[df['countriesAndTerritories'] == state].filter(['dateRep', 'cases'])
+        # find population
+        population = df.loc[df['countriesAndTerritories'] == state].tail(1)['popData2019'].item()
 
-        # already cummulative
+        # skip small countries
+        if population < 350000:
+            continue
 
         # rename fields
         state_df = state_df.rename(columns={"dateRep": "date"})
@@ -40,19 +47,12 @@ def get_ecdc():
         state_df.sort_values(by='date', inplace=True, ascending=True) 
         state_df['rolling_cases'] = state_df['cases'].rolling(7).mean().fillna(0).astype(int)
         total_cases = state_df['cases'].sum().astype(int)
-        # keep 30 days
-        state_df = state_df.loc[(state_df['date'] > START_DATE) & (state_df['date'] <= END_DATE)]
 
         path = "world-{}".format(state).replace(" ", "-").lower()
+
+        window_df = state_df.loc[(state_df['date'] > START_DATE) & (state_df['date'] <= END_DATE)]
         if WRITE_FILES:
-            state_df.to_csv(CSV_PATH.format(path), index = False, header=True)
-
-        # find population
-        population = df.loc[df['countriesAndTerritories'] == state].tail(1)['popData2019'].item()
-
-        # skip small countries
-        if population < 100000:
-            continue
+            window_df.to_csv(CSV_PATH.format(path), index = False, header=True)
 
         # add to index
         output_array.append({
@@ -60,9 +60,9 @@ def get_ecdc():
             'name': state.replace("_", " "),
             'byline': '',
             'population': population,
-            'change-cases': get_change(state_df),
-            'last-updated': state_df.tail(1)['date'].to_string(index=False),
-            'last-cases': round(state_df.tail(7)['cases'].mean()),
+            'change-cases': get_change(window_df),
+            'last-updated': window_df.tail(1)['date'].to_string(index=False),
+            'last-cases': round(window_df.tail(7)['cases'].mean()),
             'total-cases': total_cases,
         })
     return output_array
