@@ -5,9 +5,14 @@ import socketserver
 
 PORT = 8080
 
-Handler = http.server.SimpleHTTPRequestHandler
+class MyHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
+    def do_GET(self):
+        if self.path == '/' or self.path == '/board' or self.path.startswith('/region'):
+            self.path = 'index.html'
+        return http.server.SimpleHTTPRequestHandler.do_GET(self)
 
-Handler.extensions_map={
+
+MyHttpRequestHandler.extensions_map={
 	'.html': 'text/html',
     '.png': 'image/png',
 	'.jpg': 'image/jpg',
@@ -17,7 +22,7 @@ Handler.extensions_map={
 	'': 'text/html', # Default
     }
 
-httpd = socketserver.TCPServer(("", PORT), Handler)
+httpd = socketserver.TCPServer(("", PORT), MyHttpRequestHandler)
 
 print("serving at port", PORT)
 httpd.serve_forever()
