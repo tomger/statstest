@@ -80,16 +80,19 @@ function shuffleArray(array) {
 
 function loadRegions() {
     d3.csv("/data/regions.csv").then(data => {
-    searchView.regions = data;
+        searchView.regions = data;
 
-    suggestedRegions.push(...shuffleArray(data.filter(d => {
-        return d.path.indexOf('us-st') === 0 && (parseInt(d['last-cases'], 10) / parseInt(d['population'], 10) > 0.00014)
-    }).map(d=>d.path)))
+        suggestedRegions.push(...shuffleArray(data.filter(d => {
+            return d.path.indexOf('us-st') === 0 && (parseInt(d['last-cases'], 10) / parseInt(d['population'], 10) > 0.00014)
+        }).map(d => d.path)))
 
-    let region = getRegionFromLocation();
-    if (region) {
-        showDetailView(region)
-    }
+        let region = getRegionFromLocation();
+        if (region) {
+            showDetailView(region)
+        }
+        if (location.pathname === '/board'){
+            searchView.page = 'leaderboard';
+        }
     });
 }
 
@@ -121,6 +124,14 @@ function navigateToDetailView(region) {
     didPushHistoryState = true;
     history.pushState({}, region.name, `/region/${region.path}`)
     showDetailView(region)
+    window.scrollTo(0,0)
+}
+
+function navigateToLeaderboard() {
+    onSearchCancel();
+    didPushHistoryState = true;
+    history.pushState({}, '', `/board`)
+    searchView.page = 'leaderboard';
     window.scrollTo(0,0)
 }
 
@@ -796,7 +807,7 @@ customElements.define("header-view", class HeaderView extends HTMLElement {
     </div>
     <div onClick="closeDetailView(); searchView.page = 'yourlist'; window.scrollTo(0,0)" style="cursor: pointer; font-weight: 500; font-size: 14px; margin-right: 16px;">Following</div>
     <div 
-      onClick="closeDetailView(); searchView.page = 'leaderboard'; window.scrollTo(0,0)" 
+      onClick="closeDetailView(); navigateToLeaderboard()" 
       style="font-weight: 500; cursor: pointer; font-size: 14px;">Leaderboards</div>
     `;
   }
