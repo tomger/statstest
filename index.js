@@ -232,7 +232,7 @@ function relativeTotalCases(region) {
 }
 
 function totalColumn(region) {
-    return /*html*/`<div style="color: var(--colorBlue);display:flex;flex-direction:column;justify-content:center;font-size: 20px; font-weight:300;">${relativeTotalCases(region)}%</div>`
+    return /*html*/`<div style="color: var(--colorPurple);display:flex;flex-direction:column;justify-content:center;font-size: 20px; font-weight:500;">${relativeTotalCases(region)}%</div>`
 }
 
 function appendListItem(target, region, addButton, metric) {
@@ -590,7 +590,6 @@ class DetailView extends HTMLElement {
         border: 0.5px solid var(--colorSeparator);
         border-width: 0.5px 0 0.5px 0;
         padding: 16px 0;
-        gap: 40px;
     `;
     let captionStyle = ``;
     
@@ -678,12 +677,12 @@ class DetailView extends HTMLElement {
         <div style="flex: 1; padding-right: 16px;">
             <div style="${captionStyle}">New cases</div>
             <div style="${bigNumberStyle}">${cases}</div>
-            <div style="${bigNumberCaptionStyle}">Last 7 day average per 100,000 residents</div>
+            <div style="${bigNumberCaptionStyle}">Last 7 day average per <span style="white-space:nowrap">100,000 residents</span></div>
         </div>
         <div style="flex: 1">
             <div style="${captionStyle}">Last 30 days</div>
             <div style="${bigNumberStyle}">${changeNumber(this.region)}</div>
-            <div style="${bigNumberCaptionStyle}">First and last 7 day averages compared</div>
+            <div style="${bigNumberCaptionStyle}">First and last 7 day <span style="white-space:nowrap">averages compared</span></div>
         </div>
         </div>
         <div class="chart-view" style="padding: 20px 0;">
@@ -694,8 +693,9 @@ class DetailView extends HTMLElement {
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right"><polyline points="9 18 15 12 9 6"></polyline></svg>  
         </div>
         </div>
-        <div class="table-view" style="padding: 20px 0; border-bottom: 0.5px solid var(--colorSeparator)">
-        ${relativeTotalCases(this.region)}% of the population has had it. ${this.region['total-cases']} total cases.
+        <div style="padding: 20px 0; border-bottom: 0.5px solid var(--colorSeparator); display: flex; ">
+            <div style="padding-right: 12px;font-weight:500;font-size: 32px; color:var(--colorPurple)">${relativeTotalCases(this.region)}%</div>
+            <span style="font-size:13px;">Total spread. ${Number(this.region['total-cases']).toLocaleString()} total cases divided by the number of residents.</span>
         </div>
         ${isRegionSelected(this.region.path) ? '' : addModule}
         ${iff(isWarningRegion(this.region), warningModule)}
