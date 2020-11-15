@@ -26,8 +26,7 @@ function debounce(callback, wait, immediate = false) {
 }
 
 function onSearchFocus() {
-    showDetailView(null)
-    document.querySelector('.searchinput').focus();
+    showDetailView(null);
 
     document.querySelector('.titlebar-wrapper').classList.add('isSearchMode')
     document.querySelector('.listing-wrapper').classList.add('isSearchMode')
@@ -651,7 +650,7 @@ class DetailView extends HTMLElement {
         </div>`;
     this.innerHTML = /*html*/`
     <div class="search-barx">
-      <div class="searchinput-label" onclick="onSearchFocus()" >Countries, U.S. counties & states</div>
+      <div class="searchinput-label" onclick="onSearchFocus(); document.querySelector('input').focus()" >Countries, U.S. counties & states</div>
 
     </div>
         <div style="display:flex; align-items: flex-end">
