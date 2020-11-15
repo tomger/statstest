@@ -693,9 +693,9 @@ class DetailView extends HTMLElement {
             <span style="font-size:13px;">Total spread. ${Number(this.region['total-cases']).toLocaleString()} total cases divided by the number of residents.</span>
         </div>
         ${isRegionSelected(this.region.path) ? '' : addModule}
-        ${iff(isWarningRegion(this.region), warningModule)}
+        ${iff(false && isWarningRegion(this.region), warningModule)}
         <div class="info">
-        ${dataDisclaimer()}
+        ${iff(false, dataDisclaimer() )}
         </div>
     `;
 
