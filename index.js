@@ -319,17 +319,9 @@ class SearchView extends HTMLElement {
                     margin-top: 0px;
                 
                 `).html(/*html*/`
-                    <div class="list-header">You might be interested in</div>
+
                 `);
-                let regions = this._regions
-                    .filter(region => {
-                    return suggestedRegions.indexOf(region.path) !== -1 && !isRegionSelected(region.path)
-                    })
-                    .sort((a, b) => {
-                    return suggestedRegions.indexOf(a.path) - suggestedRegions.indexOf(b.path)
-                    })
-                    .slice(0, 5);
-                this.appendListItems({target: banner, regions: regions, addButton: true})
+
             } else {
                 this.innerHTML = ``;
 
