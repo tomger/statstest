@@ -1,5 +1,6 @@
+const selectedRegions = readSettings();
 let lastupdatedDate = '';
-
+let lastViewedRegion = null;
 const suggestedRegions = [
     'world-united_states_of_america',
     'world-france',
@@ -25,7 +26,9 @@ function debounce(callback, wait, immediate = false) {
     }
 }
 
+
 function onSearchFocus() {
+    lastViewedRegion = detailView.region;
     showDetailView(null);
 
     document.querySelector('.titlebar-wrapper').classList.add('isSearchMode')
@@ -37,6 +40,7 @@ function onSearchFocus() {
 }
 
 function onSearchCancel() {
+
     document.querySelector('.searchinput').value='';
     document.querySelector('.searchinput').blur();
     document.querySelector('.titlebar-wrapper').classList.remove('isSearchMode')
@@ -44,7 +48,11 @@ function onSearchCancel() {
     document.querySelector('.search-bar').classList.remove('isFocussed')
     searchView.query = null
     searchView.isSearching = false;
-    history.replaceState({}, 'COVID-19 Watchlist', `/`)
+    if (lastViewedRegion) {
+        showDetailView(lastViewedRegion)
+    } else {
+        history.replaceState({}, 'COVID-19 Watchlist', `/`)
+    }
 }
 
 function trackEvent(name, value) {
@@ -131,6 +139,7 @@ function navigateToDetailView(region) {
 }
 
 function navigateToLeaderboard() {
+    lastViewedRegion = null;
     onSearchCancel();
     didPushHistoryState = true;
     history.pushState({}, '', `/board`)
@@ -139,9 +148,6 @@ function navigateToLeaderboard() {
 }
 
 function showDetailView(region) {
-    [...document.querySelectorAll('.listing-wrapper')].forEach(e => {
-        e.style.display = !!region ? 'none' : ''
-    })
     if (region) {
         document.title = `COVID-19 Watchlist ${region.name}`;
     } else {
@@ -178,6 +184,7 @@ function toggleRegion(state) {
     localStorage.setItem('states0', selectedRegions.join(','))
 
     // DEBUG
+    headerView.render()
     searchView.update();
     onSearchCancel();
 }
@@ -254,13 +261,6 @@ function appendListItem(target, region, addButton, metric) {
         navigateToDetailView(region);
         })
         .html(/*html*/`
-        ${iff(addButton, /*html*/`
-        <div
-        onclick="event.stopPropagation();event.preventDefault();trackEvent('list-follow','${region.path}');toggleRegion('${region.path}');closeDetailView()"
-        style="display:flex; align-items: center; padding-right: 16px; color: var(--colorBlue)">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus-circle"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
-        </div>
-        `)}
         <div style="flex:1">
         <div class="primaryLabel">${region.name.replace(/_/g, ' ')}</div>
         <div class="secondaryLabel">
@@ -649,10 +649,6 @@ class DetailView extends HTMLElement {
         
         </div>`;
     this.innerHTML = /*html*/`
-    <div class="search-barx">
-      <div class="searchinput-label" onclick="onSearchFocus(); document.querySelector('input').focus()" >Countries, U.S. counties & states</div>
-
-    </div>
         <div style="display:flex; align-items: flex-end">
             <div style="
                 flex:1; 
@@ -795,8 +791,11 @@ customElements.define("header-view", class HeaderView extends HTMLElement {
     display:flex; flex-direction: row; align-items: center;
     position: sticky; 
     top: 0;
-    padding: 0 16px 0 16px;
-    `
+    padding: 0 16px 0 16px;    `
+    this.render();
+  }
+  render() {
+
     this.innerHTML = /*html*/`
     <div onClick="closeDetailView()" style="
           cursor: pointer; flex: 1;top:-2px;position:relative;
@@ -804,7 +803,7 @@ customElements.define("header-view", class HeaderView extends HTMLElement {
       <div style="line-height: 26px">COVID-19</div>
       <div style="opacity: .5;line-height: 13px;">Watchlist</div>
     </div>
-    <div onClick="closeDetailView(); searchView.page = 'yourlist'; window.scrollTo(0,0)" style="cursor: pointer; font-weight: 500; font-size: 14px; margin-right: 16px;">Following</div>
+    <div onClick="closeDetailView(); searchView.page = 'yourlist'; window.scrollTo(0,0)" style="cursor: pointer; font-weight: 500; font-size: 14px; margin-right: 16px;">Following (${selectedRegions.length})</div>
     <div 
       onClick="closeDetailView(); navigateToLeaderboard()" 
       style="font-weight: 500; cursor: pointer; font-size: 14px;">Leaderboards</div>
@@ -817,6 +816,7 @@ customElements.define("header-view", class HeaderView extends HTMLElement {
 let didPushHistoryState = false;
 const searchView = document.querySelector('search-view');
 const detailView = document.querySelector('detail-view');
-const selectedRegions = readSettings();
+const headerView = document.querySelector('header-view');
+
 init();
     
