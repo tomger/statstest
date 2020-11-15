@@ -26,9 +26,13 @@ function debounce(callback, wait, immediate = false) {
 }
 
 function onSearchFocus() {
+    showDetailView(null)
+    document.querySelector('.searchinput').focus();
+
     document.querySelector('.titlebar-wrapper').classList.add('isSearchMode')
     document.querySelector('.listing-wrapper').classList.add('isSearchMode')
     document.querySelector('.search-bar').classList.add('isFocussed')
+    
     searchView.isSearching = true;
     history.pushState({}, 'COVID-19 Watchlist', `#search`)
 }
@@ -654,11 +658,15 @@ class DetailView extends HTMLElement {
         
         </div>`;
     this.innerHTML = /*html*/`
+    <div class="search-barx">
+      <div class="searchinput-label" onclick="onSearchFocus()" >Countries, U.S. counties & states</div>
+
+    </div>
         <div style="display:flex; align-items: flex-end">
             <div style="
                 flex:1; 
                 font-size: 26px; font-weight: 700; line-height: 1.1; 
-                margin-top: 32px; margin-bottom: 20px; 
+                margin-top: 12px; margin-bottom: 20px; 
                 padding-right: 20px;">
             ${this._region.name}
             </div>
