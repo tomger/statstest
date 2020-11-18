@@ -352,12 +352,6 @@ class SearchView extends HTMLElement {
                           <span>Follow regions</span>
                       </div>
                       `);
-                  } else if (selectedRegions.length < 2) {
-                      root.append('div').html(`
-                          <div style="margin: 32px 0; cursor:pointer; font-size: 14px;" onclick="onSearchFocus(); document.querySelector('input').focus()">
-                          <span style="color: var(--colorBlue)">Add one more?</span> Where do your family or friends live?
-                          </div>
-                      `);
                   }
                 } else {
                   root.append('div').html(`
