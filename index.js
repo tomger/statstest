@@ -1,12 +1,12 @@
-const selectedRegions = readSettings();
-let lastupdatedDate = '';
-let lastViewedRegion = null;
 const suggestedRegions = [
     'world-united_states_of_america',
     'world-france',
     'us-co-los-angeles-california',
     // 'us-co-san-francisco-california',
     ]
+const selectedRegions = readSettings();
+let lastupdatedDate = '';
+let lastViewedRegion = null;
 
 const iff = (condition, result) => condition ? result : '';
 const dateParse = d3.timeParse("%Y-%m-%d");
@@ -153,14 +153,16 @@ function showDetailView(region) {
 }
 
 function readSettings() {
-    try {
-        let storage =  localStorage.getItem('states0');
-        if (storage) {
-        return localStorage.getItem('states0').split(',')
-        }
-    } catch(e) {
+  // try {
+    let storage = localStorage.getItem('states0');
+    if (storage === null) {
+      // never set before
+      return suggestedRegions;
+    } else {
+      return localStorage.getItem('states0').split(',')
     }
-    return [];
+  // } catch (e) {}
+  return [];
 }
 
 function isRegionSelected(state) {
