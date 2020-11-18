@@ -1,8 +1,7 @@
 const suggestedRegions = [
     'world-united_states_of_america',
     'world-france',
-    'us-co-los-angeles-california',
-    // 'us-co-san-francisco-california',
+    'us-co-los-angeles-california'
     ]
 const selectedRegions = readSettings();
 let lastupdatedDate = '';
