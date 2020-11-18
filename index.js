@@ -93,10 +93,6 @@ function loadRegions() {
     d3.csv("/data/regions.csv").then(data => {
         searchView.regions = data;
 
-        suggestedRegions.push(...shuffleArray(data.filter(d => {
-            return d.path.indexOf('us-st') === 0 && (parseInt(d['last-cases'], 10) / parseInt(d['population'], 10) > 0.00014)
-        }).map(d => d.path)))
-
         let region = getRegionFromLocation();
         if (region) {
             showDetailView(region)
