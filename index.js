@@ -659,16 +659,23 @@ class DetailView extends HTMLElement {
         ${this.region.byline ? this.region.byline + ' · ' : ''}
         ${Number(this.region.population).toLocaleString()} residents
         </div>
-        <div style="${numberWrapperStyle}">
-        <div style="flex: 1; padding-right: 16px;">
+        <div style="overflow-x: scroll; -webkit-overflow-scrolling: touch;">
+        <div style="${numberWrapperStyle}; width: 480px">
+        <div style="width: 160px; display: inline-block">
             <div style="${captionStyle}">New cases</div>
             <div style="${bigNumberStyle}">${cases}</div>
             <div style="${bigNumberCaptionStyle}">Last 7 day average per <span style="white-space:nowrap">100,000 residents</span></div>
         </div>
-        <div style="flex: 1">
+        <div style="width: 160px; display: inline-block">
             <div style="${captionStyle}">Last 30 days</div>
             <div style="${bigNumberStyle}">${changeNumber(this.region)}</div>
             <div style="${bigNumberCaptionStyle}">First and last 7 day <span style="white-space:nowrap">averages compared</span></div>
+        </div>
+        <div style="width: 160px; display: inline-block">
+          <div style="${captionStyle}">Total spread</div>
+          <div style="${bigNumberStyle}; color:var(--colorPurple)">${relativeTotalCases(this.region)}%</div>
+          <div style="${bigNumberCaptionStyle}">Total cases per capita. ${Number(this.region['total-cases']).toLocaleString()} since onset.</div>
+        </div>
         </div>
         </div>
         <div class="chart-view" style="padding: 20px 0;">
@@ -679,11 +686,6 @@ class DetailView extends HTMLElement {
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right"><polyline points="9 18 15 12 9 6"></polyline></svg>  
         </div>
         </div>
-        <div style="padding: 20px 0; border-bottom: 0.5px solid var(--colorSeparator); display: flex; ">
-            <div style="padding-right: 12px;font-weight:500;font-size: 32px; color:var(--colorPurple)">${relativeTotalCases(this.region)}%</div>
-            <span style="font-size:13px;">Total spread. ${Number(this.region['total-cases']).toLocaleString()} total cases divided by the number of residents.</span>
-        </div>
-        ${isRegionSelected(this.region.path) ? '' : addModule}
         ${iff(false && isWarningRegion(this.region), warningModule)}
         <div class="info">
         ${iff(false, dataDisclaimer() )}
