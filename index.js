@@ -570,13 +570,6 @@ class DetailView extends HTMLElement {
         font-size: 12px;
         color: var(--colorSecondaryLabel);
     `
-    let numberWrapperStyle = /*css*/`
-        display: flex; 
-        flex-direction: row;
-        border: 0.5px solid var(--colorSeparator);
-        border-width: 0.5px 0 0.5px 0;
-        padding: 16px 0;
-    `;
     let captionStyle = ``;
     
     let warningModule = /*html*/`
@@ -659,8 +652,9 @@ class DetailView extends HTMLElement {
         ${this.region.byline ? this.region.byline + ' · ' : ''}
         ${Number(this.region.population).toLocaleString()} residents
         </div>
-        <div style="overflow-x: scroll; -webkit-overflow-scrolling: touch;">
-        <div style="${numberWrapperStyle}; width: 480px">
+        <div style="border: 0.5px solid var(--colorSeparator);border-width: 0.5px 0 0.5px 0;padding: 16px 0;">
+        <div style="overflow-x: scroll; -webkit-overflow-scrolling: touch; margin-left: -16px; width: calc(100% + 32px)">
+        <div style="width: 520px;padding-left: 16px;">
         <div style="width: 160px; display: inline-block">
             <div style="${captionStyle}">New cases</div>
             <div style="${bigNumberStyle}">${cases}</div>
@@ -675,6 +669,7 @@ class DetailView extends HTMLElement {
           <div style="${captionStyle}">Total spread</div>
           <div style="${bigNumberStyle}; color:var(--colorPurple)">${relativeTotalCases(this.region)}%</div>
           <div style="${bigNumberCaptionStyle}">Total cases per capita. ${Number(this.region['total-cases']).toLocaleString()} since onset.</div>
+        </div>
         </div>
         </div>
         </div>
