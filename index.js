@@ -784,7 +784,7 @@ customElements.define("header-view", class HeaderView extends HTMLElement {
   render() {
 
     this.innerHTML = /*html*/`
-    <div onClick="closeDetailView()" style="
+    <div onClick="closeDetailView(); searchView.page = 'yourlist'; window.scrollTo(0,0)" style="
           cursor: pointer; flex: 1;top:-2px;position:relative;
           font-weight: 800;font-size:18px;">
       <div style="line-height: 26px">COVID-19</div>
