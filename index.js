@@ -183,7 +183,6 @@ function toggleRegion(state) {
     // DEBUG
     headerView.render()
     searchView.update();
-    onSearchCancel();
 }
 
 function changeNumber(region) {
@@ -229,7 +228,7 @@ function numberColumn(region) {
     }
     return /*html*/`
     <div style="text-align: right; font-size: 16px; width: 54px;">
-        <div>${isWarningRegion(region) ? warnSign : '' }${relativeCases}</div><span style="font-size: 14px;">${changeRow}</span>
+        <div>${false && isWarningRegion(region) ? warnSign : '' }${relativeCases}</div><span style="font-size: 14px;">${changeRow}</span>
     </div>
     `;
 }
