@@ -207,7 +207,7 @@ function dataDisclaimer() {
     <a href="https://github.com/nytimes/covid-19-data">The New York Times</a>. 
     World data provided by
     <a href="https://www.ecdc.europa.eu/en/publications-data/download-todays-data-geographic-distribution-covid-19-cases-worldwide">European Centre for Disease Prevention and Control</a>.
-    Feel free to leave feedback on this <a href="https://news.ycombinator.com/item?id=25132185">Hacker News thread</a>`;
+    Feel free to leave feedback on this <a style="color:#ff6600" href="https://news.ycombinator.com/item?id=25132185">Hacker News thread</a>`;
 }
 
 function isWarningRegion(region) {
