@@ -390,20 +390,6 @@ class SearchView extends HTMLElement {
           .slice(0, 4);
         this.appendListItems({ target: topLists, regions: worsening })
 
-
-        topLists.append('div').html(`
-                  <div class="list-header2">Widest spread</div>`)
-        let spread = this._regions
-          .filter(region => {
-            return region.path.indexOf(this.groupPrefix) === 0;
-          })
-          .sort((a, b) => {
-            return (parseFloat(b['total-cases']) / parseFloat(b['population'])) - (parseFloat(a['total-cases']) / parseFloat(a['population']))
-          })
-          .slice(0, 4);
-        this.appendListItems({ target: topLists, regions: spread, metric: 'total' })
-
-
       }
       root.append('div').attr('class', 'info').html(dataDisclaimer());
     }
@@ -656,7 +642,7 @@ class DetailView extends HTMLElement {
             <div style="${bigNumberCaptionStyle}">First and last 7 day <span style="white-space:nowrap">averages compared</span></div>
         </div>
         <div style="width: 160px; display: inline-block">
-          <div style="${captionStyle}">Total spread</div>
+          <div style="${captionStyle}">Cases per capita</div>
           <div style="${bigNumberStyle}; color:var(--colorPurple)">${relativeTotalCases(this.region)}%</div>
           <div style="${bigNumberCaptionStyle}">Total cases per capita. ${Number(this.region['total-cases']).toLocaleString()} since onset.</div>
         </div>
