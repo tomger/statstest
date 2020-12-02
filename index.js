@@ -1,8 +1,8 @@
 const suggestedRegions = [
-    'world-united_states_of_america',
-    'world-france',
-    'us-co-los-angeles-california'
-    ]
+  'world-united_states_of_america',
+  'world-france',
+  'us-co-los-angeles-california'
+]
 const selectedRegions = readSettings();
 let lastupdatedDate = '';
 let lastViewedRegion = null;
@@ -10,184 +10,184 @@ let lastViewedRegion = null;
 const iff = (condition, result) => condition ? result : '';
 const dateParse = d3.timeParse("%Y-%m-%d");
 function debounce(callback, wait, immediate = false) {
-    let timeout = null 
-    
-    return function() {
+  let timeout = null
+
+  return function () {
     const callNow = immediate && !timeout
     const next = () => callback.apply(this, arguments)
-    
+
     clearTimeout(timeout)
     timeout = setTimeout(next, wait)
 
     if (callNow) {
-        next()
+      next()
     }
-    }
+  }
 }
 
 
 function onSearchFocus() {
-    lastViewedRegion = detailView.region;
-    showDetailView(null);
+  lastViewedRegion = detailView.region;
+  showDetailView(null);
 
-    document.querySelector('.titlebar-wrapper').classList.add('isSearchMode')
-    document.querySelector('.listing-wrapper').classList.add('isSearchMode')
-    document.querySelector('.search-bar').classList.add('isFocussed')
-    
-    searchView.isSearching = true;
-    history.pushState({}, 'COVID-19 Watchlist', `#search`)
+  document.querySelector('.titlebar-wrapper').classList.add('isSearchMode')
+  document.querySelector('.listing-wrapper').classList.add('isSearchMode')
+  document.querySelector('.search-bar').classList.add('isFocussed')
+
+  searchView.isSearching = true;
+  history.pushState({}, 'COVID-19 Watchlist', `#search`)
 }
 
 function onSearchCancel() {
 
-    document.querySelector('.searchinput').value='';
-    document.querySelector('.searchinput').blur();
-    document.querySelector('.titlebar-wrapper').classList.remove('isSearchMode')
-    document.querySelector('.listing-wrapper').classList.remove('isSearchMode')
-    document.querySelector('.search-bar').classList.remove('isFocussed')
-    searchView.query = null
-    searchView.isSearching = false;
-    if (lastViewedRegion) {
-        showDetailView(lastViewedRegion)
-    } else {
-        history.replaceState({}, 'COVID-19 Watchlist', `/`)
-    }
+  document.querySelector('.searchinput').value = '';
+  document.querySelector('.searchinput').blur();
+  document.querySelector('.titlebar-wrapper').classList.remove('isSearchMode')
+  document.querySelector('.listing-wrapper').classList.remove('isSearchMode')
+  document.querySelector('.search-bar').classList.remove('isFocussed')
+  searchView.query = null
+  searchView.isSearching = false;
+  if (lastViewedRegion) {
+    showDetailView(lastViewedRegion)
+  } else {
+    history.replaceState({}, 'COVID-19 Watchlist', `/`)
+  }
 }
 
 function trackEvent(name, value) {
-    fetch(`/learn?${name}=${value}`, { cache: 'no-cache' });
-    if (window.mixpanel) {
-        mixpanel.track(name, {"value" : value});
-    }
+  fetch(`/learn?${name}=${value}`, { cache: 'no-cache' });
+  if (window.mixpanel) {
+    mixpanel.track(name, { "value": value });
+  }
 }
 
 var trackInput = debounce(value => trackEvent('search', value), 1500)
 
 function onSearchInput(event) {
-    searchView.query = event.target.value;
-    trackInput(event.target.value)
+  searchView.query = event.target.value;
+  trackInput(event.target.value)
 }
 
 function init() {
-    loadRegions();
-    if (window.mixpanel) {
-        mixpanel.track('page', {url: window.location.href});
-    }
-    d3.csv("/lastupdate").then(data => {
-        lastupdatedDate = data[0].date;
-        let span = document.querySelector('.lastupdated');
-        if (span) span.innerHTML = lastUpdatedSpan();
-    })
+  loadRegions();
+  if (window.mixpanel) {
+    mixpanel.track('page', { url: window.location.href });
+  }
+  d3.csv("/lastupdate").then(data => {
+    lastupdatedDate = data[0].date;
+    let span = document.querySelector('.lastupdated');
+    if (span) span.innerHTML = lastUpdatedSpan();
+  })
 }
 
 function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
+  for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array
+  }
+  return array
 }
 
 function loadRegions() {
-    d3.csv("/data/regions.csv").then(data => {
-        searchView.regions = data;
+  d3.csv("/data/regions.csv").then(data => {
+    searchView.regions = data;
 
-        let region = getRegionFromLocation();
-        if (region) {
-            showDetailView(region)
-        }
-        if (location.pathname === '/board'){
-            searchView.page = 'leaderboard';
-        }
-    });
+    let region = getRegionFromLocation();
+    if (region) {
+      showDetailView(region)
+    }
+    if (location.pathname === '/board') {
+      searchView.page = 'leaderboard';
+    }
+  });
 }
 
-window.onpopstate = function() {
-    let region = getRegionFromLocation();
-    showDetailView(region);
-    onSearchCancel();
+window.onpopstate = function () {
+  let region = getRegionFromLocation();
+  showDetailView(region);
+  onSearchCancel();
 }
 
 function getRegionFromLocation() {
-    // let pathname = '/region/us-st-maine';
-    let pathname = location.pathname;
-    let pathMatch = pathname.match(/region\/(.*)/);
-    if (pathMatch) {
+  // let pathname = '/region/us-st-maine';
+  let pathname = location.pathname;
+  let pathMatch = pathname.match(/region\/(.*)/);
+  if (pathMatch) {
     let needlePath = pathMatch[1];
     let region = searchView.regions.find(line => line.path === needlePath);
     return region;
-    }
-    return null;
+  }
+  return null;
 }
 
 function closeDetailView() {
-    onSearchCancel();
-    history.replaceState({}, 'COVID-19 Watchlist', `/`)
-    showDetailView(null)
+  onSearchCancel();
+  history.replaceState({}, 'COVID-19 Watchlist', `/`)
+  showDetailView(null)
 }
 function navigateToDetailView(region) {
-    onSearchCancel();
-    didPushHistoryState = true;
-    history.pushState({}, region.name, `/region/${region.path}`)
-    showDetailView(region)
-    window.scrollTo(0,0)
+  onSearchCancel();
+  didPushHistoryState = true;
+  history.pushState({}, region.name, `/region/${region.path}`)
+  showDetailView(region)
+  window.scrollTo(0, 0)
 }
 
 function navigateToLeaderboard() {
-    lastViewedRegion = null;
-    onSearchCancel();
-    didPushHistoryState = true;
-    history.pushState({}, '', `/board`)
-    searchView.page = 'leaderboard';
-    window.scrollTo(0,0)
+  lastViewedRegion = null;
+  onSearchCancel();
+  didPushHistoryState = true;
+  history.pushState({}, '', `/board`)
+  searchView.page = 'leaderboard';
+  window.scrollTo(0, 0)
 }
 
 function showDetailView(region) {
-    if (region) {
-        document.title = `COVID-19 Watchlist ${region.name}`;
-    } else {
-        document.title = `COVID-19 Watchlist`;
-    }
-    detailView.region = region;
+  if (region) {
+    document.title = `COVID-19 Watchlist ${region.name}`;
+  } else {
+    document.title = `COVID-19 Watchlist`;
+  }
+  detailView.region = region;
 }
 
 function readSettings() {
   // try {
-    let storage = localStorage.getItem('states0');
-    if (storage === null) {
-      // never set before
-      return suggestedRegions;
-    } else {
-      return localStorage.getItem('states0').split(',')
-    }
+  let storage = localStorage.getItem('states0');
+  if (storage === null) {
+    // never set before
+    return suggestedRegions;
+  } else {
+    return localStorage.getItem('states0').split(',')
+  }
   // } catch (e) {}
   return [];
 }
 
 function isRegionSelected(state) {
-    return selectedRegions.indexOf(state) !== -1;
+  return selectedRegions.indexOf(state) !== -1;
 }
 
 function toggleRegion(state) {
-    if (!state) {
+  if (!state) {
     return
-    }
-    let index = selectedRegions.indexOf(state);
-    if (index === -1) {
+  }
+  let index = selectedRegions.indexOf(state);
+  if (index === -1) {
     selectedRegions.push(state)
-    } else {
+  } else {
     selectedRegions.splice(index, 1)
-    }
-    localStorage.setItem('states0', selectedRegions.join(','))
+  }
+  localStorage.setItem('states0', selectedRegions.join(','))
 
-    // DEBUG
-    headerView.render()
-    searchView.update();
+  // DEBUG
+  headerView.render()
+  searchView.update();
 }
 
 function changeNumber(region) {
-    let change = region['change-cases'];
-    return /*html*/`
+  let change = region['change-cases'];
+  return /*html*/`
     <div class="${change < 0 ? 'isDown' : 'isUp'}">
         ${change > 0 ? '+' : ''}${change}%
     </div>
@@ -195,14 +195,14 @@ function changeNumber(region) {
 }
 
 function lastUpdatedSpan() {
-    let options = { month: 'short', day: 'numeric', hour: 'numeric', minute:'numeric' };
+  let options = { month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric' };
 
-    return `Last updated ${new Date(lastupdatedDate).toLocaleString(undefined, options)}. `;
+  return `Last updated ${new Date(lastupdatedDate).toLocaleString(undefined, options)}. `;
 }
 
 function dataDisclaimer() {
-    
-    return /*html*/`
+
+  return /*html*/`
     <span class="lastupdated">${lastUpdatedSpan()}</span>United States data provided by 
     <a href="https://github.com/nytimes/covid-19-data">The New York Times</a>. 
     World data provided by
@@ -211,52 +211,52 @@ function dataDisclaimer() {
 }
 
 function isWarningRegion(region) {
-    return ((region['last-cases'] / region.population) * 100000) > 10;
+  return ((region['last-cases'] / region.population) * 100000) > 10;
 }
 
 function numberColumn(region) {
-    const warnSign = `
+  const warnSign = `
     <svg style="transform:translateY(1px)" width="13" height="13" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path fill-rule="evenodd" clip-rule="evenodd" d="M6.02051 2.52216C6.45587 1.82595 7.54427 1.82595 7.97963 2.52216L12.6326 9.96293C13.0679 10.6591 12.5237 11.5294 11.653 11.5294H2.34714C1.47642 11.5294 0.932221 10.6591 1.36758 9.96293L6.02051 2.52216ZM7.8266 9.43878C7.8266 9.89526 7.45655 10.2653 7.00007 10.2653C6.54359 10.2653 6.17354 9.89526 6.17354 9.43878C6.17354 8.9823 6.54359 8.61224 7.00007 8.61224C7.45655 8.61224 7.8266 8.9823 7.8266 9.43878ZM7.00007 4.47959C6.5674 4.47959 6.23829 4.8681 6.30942 5.29488L6.67927 7.51395C6.7054 7.67077 6.84109 7.78571 7.00007 7.78571C7.15905 7.78571 7.29474 7.67077 7.32087 7.51395L7.69072 5.29488C7.76185 4.8681 7.43274 4.47959 7.00007 4.47959Z" fill="#EAAF17"/>
     </svg>
     `;
 
-    let relativeCases = ((region['last-cases'] / region.population) * 100000).toFixed(1);
-    let changeRow = '<span class="secondaryLabel">–</span>';
-    if (relativeCases > 1) {
+  let relativeCases = ((region['last-cases'] / region.population) * 100000).toFixed(1);
+  let changeRow = '<span class="secondaryLabel">–</span>';
+  if (relativeCases > 1) {
     changeRow = changeNumber(region)
-    }
-    return /*html*/`
+  }
+  return /*html*/`
     <div style="text-align: right; font-size: 16px; width: 54px;">
-        <div>${false && isWarningRegion(region) ? warnSign : '' }${relativeCases}</div><span style="font-size: 14px;">${changeRow}</span>
+        <div>${false && isWarningRegion(region) ? warnSign : ''}${relativeCases}</div><span style="font-size: 14px;">${changeRow}</span>
     </div>
     `;
 }
 
 function relativeTotalCases(region) {
-    return Math.round((parseFloat(region['total-cases']) / parseFloat(region['population'])*1000))/10;
+  return Math.round((parseFloat(region['total-cases']) / parseFloat(region['population']) * 1000)) / 10;
 }
 
 function totalColumn(region) {
-    return /*html*/`<div style="color: var(--colorPurple);display:flex;flex-direction:column;justify-content:center;font-size: 20px; font-weight:500;">${relativeTotalCases(region)}%</div>`
+  return /*html*/`<div style="color: var(--colorPurple);display:flex;flex-direction:column;justify-content:center;font-size: 20px; font-weight:500;">${relativeTotalCases(region)}%</div>`
 }
 
 function appendListItem(target, region, addButton, metric) {
-    const sparkStyle = `
+  const sparkStyle = `
             padding-top: 6px;
             margin-right: 5px;
             display: flex;
             align-items: top;
         `;
-    let menuitem = target.append('a')
-        .attr('class', `menuitem-wrapper`)
-        .attr('href', `/region/${region.path}`)
-        .on('click', function(event) { 
-        d3.event.preventDefault();
-        trackEvent('click-listitem', region.path);
-        navigateToDetailView(region);
-        })
-        .html(/*html*/`
+  let menuitem = target.append('a')
+    .attr('class', `menuitem-wrapper`)
+    .attr('href', `/region/${region.path}`)
+    .on('click', function (event) {
+      d3.event.preventDefault();
+      trackEvent('click-listitem', region.path);
+      navigateToDetailView(region);
+    })
+    .html(/*html*/`
         <div style="flex:1">
         <div class="primaryLabel">${region.name.replace(/_/g, ' ')}</div>
         <div class="secondaryLabel">
@@ -268,76 +268,70 @@ function appendListItem(target, region, addButton, metric) {
             <spark-line class="${region["change-cases"] < 0 ? 'isDown' : 'isUp'}" src="/data/${region.path}.csv"></spark-line>
         </div>
         `)}
-        ${ metric !== 'cases' ? totalColumn(region) : numberColumn(region)}
+        ${metric !== 'cases' ? totalColumn(region) : numberColumn(region)}
     `);
 }
 
 class SearchView extends HTMLElement {
-    constructor() {
-        super();
-        this._page = 'yourlist' //or leaderboard
-        this._groupPrefix = 'us-st';
-        this.style.display = "block";
-        this.style.marginBottom = "16px";
-        this.style.transition = "opacity 50ms ease";
-        this.update();
-    }
+  constructor() {
+    super();
+    this._page = 'yourlist' //or leaderboard
+    this._groupPrefix = 'us-st';
+    this.style.display = "block";
+    this.style.marginBottom = "16px";
+    this.style.transition = "opacity 50ms ease";
+    this.update();
+  }
 
-    update() {
-        let root = d3.select(this);
-        if (!this.regions || this.regions.length === 0) {
-            this.innerHTML = `
+  update() {
+    let root = d3.select(this);
+    if (!this.regions || this.regions.length === 0) {
+      // loading
+      this.innerHTML = `
             <div style="display:flex; flex:1; justify-content: center; margin-top: 40px">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="rotating feather-loader"><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line></svg>
             </div>
             `;
-        } else if (this.isSearching && this.query) {
-            this.innerHTML = ``;
-            this.style.opacity = "1";
+    } else if (this.isSearching && this.query) {
+      // search results
+      this.innerHTML = ``;
+      this.style.opacity = "1";
 
-            let searchResults = this._regions
-            .filter(region => {
-                return region.name.toLowerCase().indexOf(this.query.toLowerCase()) !== -1;
-            })
-            .sort((a, b) => {
-                return b.population - a.population;
-            })
-            .slice(0, 20);
-            this.appendListItems({target: root, regions: searchResults, addButton: true})
-        
-            root.append('div').attr('class', 'info').html(dataDisclaimer());
-        } else {
-            if (this.isSearching) {
-                this.innerHTML = ``;
-                let banner = root.append('div').attr('style', `
-                    padding: 0 0;
-                    margin-top: 0px;
-                
-                `).html(/*html*/`
+      let searchResults = this._regions
+        .filter(region => {
+          return region.name.toLowerCase().indexOf(this.query.toLowerCase()) !== -1;
+        })
+        .sort((a, b) => {
+          return b.population - a.population;
+        })
+        .slice(0, 20);
+      this.appendListItems({ target: root, regions: searchResults, addButton: true })
 
-                `);
-
-            } else {
-                this.innerHTML = ``;
-
-
-                if (this.page === 'yourlist') {
-                  root.append('div').html(`
+      root.append('div').attr('class', 'info').html(dataDisclaimer());
+    } else if (this.isSearching && !this.query) {
+      // no query yet
+      this.innerHTML = ``;
+    } else {
+      // show your following or leaderboard pages
+      this.innerHTML = ``;
+      if (this.page === 'yourlist') {
+        root.append('div').html(`
                   <div class="list-header">Following</div>
                   `)
-                  let selectedRegions = this._regions
-                      .filter(region => {
-                      return isRegionSelected(region.path)
-                      })
-                      .sort((a, b) => {
-                      return (a['last-cases'] / a.population) - (b['last-cases'] / b.population)
-                      });
-                  
-                  this.appendListItems({target: root, regions: selectedRegions});
-  
-                  if (selectedRegions.length < 1) {
-  
-                      let banner = root.append('div').attr('style', `
+        let selectedRegions = this._regions
+          .filter(region => {
+            return isRegionSelected(region.path)
+          })
+          .sort((a, b) => {
+            return a.name > b.name ? 1 : -1;
+            // return (a['last-cases'] / a.population) - (b['last-cases'] / b.population)
+          });
+
+        this.appendListItems({ target: root, regions: selectedRegions });
+
+        if (selectedRegions.length < 1) {
+
+          let banner = root.append('div').attr('style', `
                       padding: 0 0;
                       margin-bottom: 60px;
                       text-align: left;
@@ -348,17 +342,17 @@ class SearchView extends HTMLElement {
                           <span>Follow regions</span>
                       </div>
                       `);
-                  }
-                } else {
-                  root.append('div').html(`
+        }
+      } else {
+        root.append('div').html(`
                   <div class="list-header">Leaderboards</div>
                   `)
-                  let topLists = root.append('div');
-                  let toggleSelected = (v) => v === this.groupPrefix ? 
-                      "padding: 12px 0; border-bottom: 1px solid currentColor;" : 
-                      "padding: 12px 0; border-bottom: 1px solid var(--colorSeparator); cursor:pointer; color: var(--colorSecondaryLabel)";
-  
-                  topLists.append('div').html(`
+        let topLists = root.append('div');
+        let toggleSelected = (v) => v === this.groupPrefix ?
+          "padding: 12px 0; border-bottom: 1px solid currentColor;" :
+          "padding: 12px 0; border-bottom: 1px solid var(--colorSeparator); cursor:pointer; color: var(--colorSecondaryLabel)";
+
+        topLists.append('div').html(`
                       <div class="list-toggle" style="display: flex; 
                           padding: 0px 0px; font-size: 14px; font-weight: 500; margin: 20px 0 30px 0;">
                           <a style="${toggleSelected('us-st')}" onClick="searchView.groupPrefix = 'us-st'">U.S. States</a>
@@ -369,109 +363,106 @@ class SearchView extends HTMLElement {
                           <div style="flex:1; border-bottom: 1px solid var(--colorSeparator)"></div>
                       </div>
                   `);
-  
-  
-                  topLists.append('div').html(`
+
+
+        topLists.append('div').html(`
                   <div class="list-header2">Highest 7 day averages</div>`)
-                  let highest = this._regions
-                    .filter(region => {
-                      return region.path.indexOf(this.groupPrefix) === 0 && (parseFloat(region['last-cases']) / parseFloat(region['population']) > 0.00012);
-                    })
-                    .sort((a, b) => {
-                      return (parseFloat(b['last-cases']) / parseFloat(b['population'])) - (parseFloat(a['last-cases']) / parseFloat(a['population']))
-                    })
-                    .slice(0, 3);
-                  this.appendListItems({target: topLists, regions: highest})
-  
-  
-                  topLists.append('div').html(`
-                  <div class="list-header2">Fastest risers</div>`)
-                  let worsening = this._regions
-                    .filter(region => {
-                      return region.path.indexOf(this.groupPrefix) === 0 && (parseInt(region['last-cases'], 10) / parseInt(region['population'], 10) > 0.00004);
-                    })
-                    .sort((a, b) => {
-                      return parseFloat(b['change-cases']) - parseFloat(a['change-cases'])
-                    })
-                    .slice(0, 3);
-                  this.appendListItems({target: topLists, regions: worsening})
-  
-  
-                  topLists.append('div').html(`
-                  <div class="list-header2">Widest spread</div>`)
-                  let spread = this._regions
-                    .filter(region => {
-                      return region.path.indexOf(this.groupPrefix) === 0;
-                    })
-                    .sort((a, b) => {
-                      return (parseFloat(b['total-cases']) / parseFloat(b['population'])) - (parseFloat(a['total-cases']) / parseFloat(a['population']))
-                    })
-                    .slice(0, 3);
-                  this.appendListItems({target: topLists, regions: spread, metric: 'total'})
-  
-  
-                }
-                root.append('div').attr('class', 'info').html(dataDisclaimer());
-              
-
-            }
-        }
-    
-
-    }
-
-    appendListItems({target, regions = [], addButton = false, metric = "cases"}) {
-      regions
-          .forEach((region, i, list) => {
-            appendListItem(target, region, addButton, metric)
+        let highest = this._regions
+          .filter(region => {
+            return region.path.indexOf(this.groupPrefix) === 0 && (parseFloat(region['last-cases']) / parseFloat(region['population']) > 0.00012);
           })
+          .sort((a, b) => {
+            return (parseFloat(b['last-cases']) / parseFloat(b['population'])) - (parseFloat(a['last-cases']) / parseFloat(a['population']))
+          })
+          .slice(0, 4);
+        this.appendListItems({ target: topLists, regions: highest })
+
+
+        topLists.append('div').html(`
+                  <div class="list-header2">Fastest risers</div>`)
+        let worsening = this._regions
+          .filter(region => {
+            return region.path.indexOf(this.groupPrefix) === 0 && (parseInt(region['last-cases'], 10) / parseInt(region['population'], 10) > 0.00004);
+          })
+          .sort((a, b) => {
+            return parseFloat(b['change-cases']) - parseFloat(a['change-cases'])
+          })
+          .slice(0, 4);
+        this.appendListItems({ target: topLists, regions: worsening })
+
+
+        topLists.append('div').html(`
+                  <div class="list-header2">Widest spread</div>`)
+        let spread = this._regions
+          .filter(region => {
+            return region.path.indexOf(this.groupPrefix) === 0;
+          })
+          .sort((a, b) => {
+            return (parseFloat(b['total-cases']) / parseFloat(b['population'])) - (parseFloat(a['total-cases']) / parseFloat(a['population']))
+          })
+          .slice(0, 4);
+        this.appendListItems({ target: topLists, regions: spread, metric: 'total' })
+
+
       }
-
-
-    set isSearching(value) {
-      this._isSearching = value;
-      this.update();
+      root.append('div').attr('class', 'info').html(dataDisclaimer());
     }
 
-    get isSearching() {
-      return this._isSearching;
-    }
 
-    set query(value) {
-      this._query = value;
-      this.update();
-    }
+  }
 
-    get query() {
-      return this._query;
-    }
+  appendListItems({ target, regions = [], addButton = false, metric = "cases" }) {
+    regions
+      .forEach((region, i, list) => {
+        appendListItem(target, region, addButton, metric)
+      })
+  }
 
-    set page(value) {
-      this._page = value;
-      this.update();
-    }
 
-    get page() {
-      return this._page;
-    }
+  set isSearching(value) {
+    this._isSearching = value;
+    this.update();
+  }
 
-    set regions(value) {
+  get isSearching() {
+    return this._isSearching;
+  }
+
+  set query(value) {
+    this._query = value;
+    this.update();
+  }
+
+  get query() {
+    return this._query;
+  }
+
+  set page(value) {
+    this._page = value;
+    this.update();
+  }
+
+  get page() {
+    return this._page;
+  }
+
+  set regions(value) {
     this._regions = value;
     this.update();
-    }
+  }
 
-    get regions() {
+  get regions() {
     return this._regions;
-    }
+  }
 
-    set groupPrefix(value) {
-        this._groupPrefix = value;
-        this.update();
-    }
+  set groupPrefix(value) {
+    this._groupPrefix = value;
+    this.update();
+  }
 
-    get groupPrefix() {
-        return this._groupPrefix;
-    }
+  get groupPrefix() {
+    return this._groupPrefix;
+  }
 
 }
 
@@ -480,80 +471,80 @@ customElements.define("search-view", SearchView);
 
 
 class DetailView extends HTMLElement {
-    constructor() {
+  constructor() {
     super();
-    }
+  }
 
-    drawChart(node, data) {
+  drawChart(node, data) {
     const rightPadding = 30;
     const width = node.node().getBoundingClientRect().width - rightPadding;
     const height = width / 2.2;
     const color = 'currentColor';
 
     let svg = node.append("svg")
-        .html("")
-        .attr("width", width)
-        .attr("height", height)
+      .html("")
+      .attr("width", width)
+      .attr("height", height)
 
     let denominator = this.region.population / 100000;
     let values = data.map(d => parseInt(d['rolling_cases'], 10) / denominator);
-    const scaleX = d3.scaleLinear().range([0, width]).domain([0, values.length-1]);
+    const scaleX = d3.scaleLinear().range([0, width]).domain([0, values.length - 1]);
     const scaleY = d3.scaleLinear().range([height, 0]).domain([0, Math.max(10, d3.max(values))]);
 
     const scaleXBand = d3.scaleBand()
-        .range([0, width/30])
-        .padding(0)
-        .align(1)
-        .domain([0, d3.max(values)]);
+      .range([0, width / 30])
+      .padding(0)
+      .align(1)
+      .domain([0, d3.max(values)]);
 
     svg.append("g")
-        .attr("transform", `translate(0, 0)`)
-        .call(d3.axisLeft(scaleY).tickValues(scaleY.ticks(4))) //.ticks(2)
-        .call(g => g.selectAll(".tick text")
+      .attr("transform", `translate(0, 0)`)
+      .call(d3.axisLeft(scaleY).tickValues(scaleY.ticks(4))) //.ticks(2)
+      .call(g => g.selectAll(".tick text")
         .attr('style', 'fill:var(--colorSecondaryLabel)')
-        .attr("transform", `translate(${width+37}, -7)`))
-        .call(g => g.selectAll(".tick line")
-        .attr('x2', width+rightPadding)
+        .attr("transform", `translate(${width + 37}, -7)`))
+      .call(g => g.selectAll(".tick line")
+        .attr('x2', width + rightPadding)
         .attr('color', 'var(--colorSecondaryLabel)')
         .attr('stroke-dasharray', 1)
         .attr('style', 'opacity:.8; stroke-width: .5px'))
-        .call(g => g.selectAll(".domain").attr('stroke', 'transparent'))
+      .call(g => g.selectAll(".domain").attr('stroke', 'transparent'))
 
     svg.append("g")
-        .call(d3.axisBottom(scaleX).tickFormat(d => {
-        let options = {day: 'numeric'};
+      .call(d3.axisBottom(scaleX).tickFormat(d => {
+        let options = { day: 'numeric' };
         if (d === 0) options.month = "short";
         return `${dateParse(data[d].date).toLocaleString(undefined, options)}`;
-        }).tickValues(scaleX.ticks(7)))
-        .call(g => g.selectAll(".tick text")
+      }).tickValues(scaleX.ticks(7)))
+      .call(g => g.selectAll(".tick text")
         .attr('style', 'fill:var(--colorSecondaryLabel)')
         .attr("transform", `translate(0, ${height})`))
-        .attr("text-anchor", "start")
-        .call(g => g.selectAll(".tick line")
+      .attr("text-anchor", "start")
+      .call(g => g.selectAll(".tick line")
         .attr('y2', 0))
-        .call(g => g.selectAll(".domain").attr('stroke', 'transparent'))
-    
+      .call(g => g.selectAll(".domain").attr('stroke', 'transparent'))
+
     svg
-        .selectAll('rect')
-        .data(values)
-        .enter()
-        .append("g")
-        .attr("opacity", 1)
-        .append("rect")
-        .attr("x", function(d, i) { return scaleX(i); })
-        .attr("y", function(d) { return scaleY(d); })
-        .attr("fill", 'currentColor')
-        .attr("rx", 2)
-        .attr("ry", 2)
-        .attr("width", scaleXBand.bandwidth()*1.3)
-        .attr("height", function(d) { return (height) - scaleY(d); });
+      .selectAll('rect')
+      .data(values)
+      .enter()
+      .append("g")
+      .attr("opacity", 1)
+      .append("rect")
+      .attr("x", function (d, i) { return scaleX(i); })
+      .attr("y", function (d) { return scaleY(d); })
+      .attr("fill", 'currentColor')
+      .attr("rx", 2)
+      .attr("ry", 2)
+      .attr("width", scaleXBand.bandwidth() * 1.3)
+      .attr("height", function (d) { return (height) - scaleY(d); });
 
-    }
+  }
 
-    update() {
+  update() {
     if (!this.region) {
-        this.style.display = "none";
-        return;
+      this.style.display = "none";
+      return;
     }
     this.style.cssText = `
         padding: 0 0;
@@ -570,7 +561,7 @@ class DetailView extends HTMLElement {
         color: var(--colorSecondaryLabel);
     `
     let captionStyle = ``;
-    
+
     let warningModule = /*html*/`
         <div style="display: flex; flex-direction: column;padding: 20px 0; border-bottom: 0.5px solid var(--colorSeparator)">
         <svg style="transform:translateY(-2px)" width="24" height="24" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -682,13 +673,13 @@ class DetailView extends HTMLElement {
         </div>
         ${iff(false && isWarningRegion(this.region), warningModule)}
         <div class="info">
-        ${iff(false, dataDisclaimer() )}
+        ${iff(false, dataDisclaimer())}
         </div>
     `;
 
     d3.csv(`/data/${this.region.path}.csv`).then(data => {
-        let options = { month: 'short', day: 'numeric' };
-        d3.select('.chart-view').html(/*html*/`
+      let options = { month: 'short', day: 'numeric' };
+      d3.select('.chart-view').html(/*html*/`
         <div style="margin-bottom: 20px">
         7 day averages
         from ${dateParse(data[0].date).toLocaleString(undefined, options)} to
@@ -696,70 +687,70 @@ class DetailView extends HTMLElement {
             
         </div>
         `)
-        this.drawChart(d3.select('.chart-view'), data)
+      this.drawChart(d3.select('.chart-view'), data)
 
-        d3.select('.chart-view svg').attr('class', this.region["change-cases"] < 0 ? 'isDown' : 'isUp')
-        this.data = data;
+      d3.select('.chart-view svg').attr('class', this.region["change-cases"] < 0 ? 'isDown' : 'isUp')
+      this.data = data;
     })
 
-    }
+  }
 
-    drawTable() {
+  drawTable() {
     d3.select('.table-view')
-        .html(
+      .html(
         `<table style="font-size: 13px; border-spacing: 0"><tr><td>Date</td><td>New cases</td><td>New cases (7 day avg)</td><td>New cases 7 day avg per 100k</td></tr>
         ${this.data.map(l => {
-            return `<tr><td style="color:var(--colorSecondaryLabel);white-space: nowrap ">${l.date}</td><td>${l.cases}</td><td>${l['rolling_cases']}</td><td>${Number((l['rolling_cases'] / this.region.population) * 100000).toFixed(1)}</td></tr>`
+          return `<tr><td style="color:var(--colorSecondaryLabel);white-space: nowrap ">${l.date}</td><td>${l.cases}</td><td>${l['rolling_cases']}</td><td>${Number((l['rolling_cases'] / this.region.population) * 100000).toFixed(1)}</td></tr>`
         }).join('')}
         </table>`
-        )
-    }
+      )
+  }
 
-    set region(value) {
+  set region(value) {
     this._region = value;
     this.update();
-    }
+  }
 
-    get region() {
+  get region() {
     return this._region;
-    }
+  }
 }
 customElements.define("detail-view", DetailView);
 
 class SparklineElement extends HTMLElement {
-    constructor() {
+  constructor() {
     super();
-    const width = this.getAttribute('width') ||  55;
+    const width = this.getAttribute('width') || 55;
     const height = this.getAttribute('height') || 24;
     const color = this.getAttribute('color') || 'currentColor';
     d3.csv(this.getAttribute('src')).then(data => {
-        this.innerHTML = ''
-        let svg = d3.select(this).append("svg")
+      this.innerHTML = ''
+      let svg = d3.select(this).append("svg")
         .html("")
         .attr("width", width)
         .attr("height", height)
 
-        let values = data.map(d => parseInt(d['rolling_cases'], 10));
-        const scaleX = d3.scaleLinear().range([0, width]).domain([0, values.length]);
-        const scaleY = d3.scaleLinear().range([height, 0]).domain([
+      let values = data.map(d => parseInt(d['rolling_cases'], 10));
+      const scaleX = d3.scaleLinear().range([0, width]).domain([0, values.length]);
+      const scaleY = d3.scaleLinear().range([height, 0]).domain([
         d3.min(values), d3.max(values)
-        ]);
-        svg
+      ]);
+      svg
         .datum(values)
         .append("path")
         .attr("fill", "none")
         .attr("stroke", color)
-        .attr("stroke-width",1.75)
+        .attr("stroke-width", 1.75)
         .attr("d", d3.line()
-            .x(function(d, i) { 
-                return scaleX(i);
-            })
-            .y(function(d) {  
-                return scaleY(d)
-            })
+          .x(function (d, i) {
+            return scaleX(i);
+          })
+          .y(function (d) {
+            return scaleY(d)
+          })
         )
     })
-    }
+  }
 
 }
 customElements.define("spark-line", SparklineElement);
@@ -806,4 +797,3 @@ const detailView = document.querySelector('detail-view');
 const headerView = document.querySelector('header-view');
 
 init();
-    
