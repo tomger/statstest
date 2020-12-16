@@ -227,8 +227,11 @@ function numberColumn(region) {
     changeRow = changeNumber(region)
   }
   return /*html*/`
-    <div style="text-align: right; font-size: 16px; width: 54px;">
-        <div>${false && isWarningRegion(region) ? warnSign : ''}${relativeCases}</div><span style="font-size: 14px;">${changeRow}</span>
+    <div style="text-align: right; font-size: 16px;
+      width: 54px; font-weight: 500;
+      flex-direction: column;
+      display: flex; justify-content: center">
+        <div>${relativeCases}</div><span style="font-size: 14px;">${changeRow}</span>
     </div>
     `;
 }
@@ -246,7 +249,7 @@ function appendListItem(target, region, addButton, metric) {
             padding-top: 6px;
             margin-right: 5px;
             display: flex;
-            align-items: top;
+            align-items: center;
         `;
   let menuitem = target.append('a')
     .attr('class', `menuitem-wrapper`)
@@ -258,7 +261,7 @@ function appendListItem(target, region, addButton, metric) {
     })
     .html(/*html*/`
         <div style="flex:1">
-        <div class="primaryLabel">${region.name.replace(/_/g, ' ')}</div>
+        <div class="primaryLabel" style="font-size: 18px">${region.name.replace(/_/g, ' ')}</div>
         <div class="secondaryLabel">
             ${region.byline}${region.byline ? ' · ' : ''}${Number(region.population).toLocaleString()}
         </div>
@@ -323,8 +326,8 @@ class SearchView extends HTMLElement {
             return isRegionSelected(region.path)
           })
           .sort((a, b) => {
-            return a.name > b.name ? 1 : -1;
-            // return (a['last-cases'] / a.population) - (b['last-cases'] / b.population)
+            // return a.name > b.name ? 1 : -1;
+            return (a['last-cases'] / a.population) - (b['last-cases'] / b.population)
           });
 
         this.appendListItems({ target: root, regions: selectedRegions });
