@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Well Hi!</title>
+</head>
+
+<body>
+  <a href="https://www.figma.com/oauth?
+client_id=1CoimHxalLJjNM0hbh8lm1&
+redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Ftest.html&
+scope=file_read&
+state=:state&
+response_type=code
+">Authenticate</a>
+</body>
+<script>
+  const FIGMA_API = 'https://www.figma.com/api'
+  async function init() {
+    const code = location.search.split("code=")[1];
+    if (!code) {  
+      console.log('no code')
+      return;
+    }
+    const client_id = '1CoimHxalLJjNM0hbh8lm1';
+    const client_secret = 'ZqLGM7my2kvFC5MiScrc3QX2tZJLTm';
+    const callback = encodeURIComponent(location.href.split('?')[0])
+    const url = `${FIGMA_API}/oauth/token?client_id=${client_id}&client_secret=${client_secret}&redirect_uri=${callback}&code=${code}&grant_type=authorization_code`;
+
+    let response = await fetch(url, {
+      method: 'POST', // *GET, POST, PUT, DELETE, etc.
+      // body: JSON.stringify(data) // body data type must match "Content-Type" header
+    });
+    const access = await response.json();
+    localStorage.setItem('access', JSON.stringify(access));
+
+    let data = {
+      event_type: 'FILE_COMMENT', // 'FILE_UPDATE',
+      team_id: '778691464693104245',
+      endpoint: 'https://iterator.us/figma',
+      passcode: 'noway'
+    }
+    response = await fetch(`https://api.figma.com/v1/images/6KSefi5kHdc1Gsh3rxPe7p?ids=178:1511&format=jpg`, {
+    // response = await fetch(`https://api.figma.com/v1/files/6KSefi5kHdc1Gsh3rxPe7p/comments`, {
+      mode: 'cors',
+      headers: {
+        'X-FIGMA-TOKEN': "68156-dfe605f5-9651-4eeb-b197-064e53be212f", ////access.access_token,
+        "Content-Type": "application/json"
+      },
+      method: 'GET'//,
+      // body: JSON.stringify(data) // body data type must match "Content-Type" header
+    });
+    const hook = await response.json();
+    console.log(hook)
+  }
+  init();
+  // {id: "649", team_id: "778691464693104245", event_type: "FILE_UPDATE", client_id: null, endpoint: "https://iterator.us/figma", …}
+
+
+  async function addWebhook() {
+    let data = {
+      event_type: 'FILE_COMMENT', // 'FILE_UPDATE',
+      team_id: '778691464693104245',
+      endpoint: 'https://iterator.us/figma',
+      passcode: 'noway'
+    }
+    response = await fetch(`https://api.figma.com/v2/webhooks`, {
+      mode: 'cors',
+      headers: {
+        'X-FIGMA-TOKEN': "68156-dfe605f5-9651-4eeb-b197-064e53be212f", ////access.access_token,
+        "Content-Type": "application/json"
+      },      
+      method: 'POST',
+      body: JSON.stringify(data) // body data type must match "Content-Type" header
+    });
+    const hook = await response.json();
+    console.log(hook)
+  }
+</script>
+
+</html>
