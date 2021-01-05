@@ -31,7 +31,7 @@ def get_ecdc():
 
     for state in df['countriesAndTerritories'].unique():
         # select fields
-        state_df = df.loc[df['countriesAndTerritories'] == state].filter(['dateRep', 'cases'])
+        state_df = df.loc[df['countriesAndTerritories'] == state].filter(['dateRep', 'cases_weekly'])
         # find population
         population = df.loc[df['countriesAndTerritories'] == state].tail(1)['popData2019'].item()
 
@@ -40,12 +40,13 @@ def get_ecdc():
             continue
 
         # rename fields
-        state_df = state_df.rename(columns={"dateRep": "date"})
+        state_df = state_df.rename(columns={"dateRep": "date", "cases_weekly": "cases"})
         
         # format date
         state_df["date"] = state_df["date"].apply(lambda x: datetime.datetime.strptime(x, '%d/%m/%Y').date())
         state_df.sort_values(by='date', inplace=True, ascending=True) 
-        state_df['rolling_cases'] = state_df['cases'].rolling(7).mean().fillna(0).astype(int)
+        # XXX FIX data source only provides weekly numbers since 12/2020
+        state_df['rolling_cases'] = state_df['cases'].fillna(0).astype(int) 
         total_cases = state_df['cases'].sum().astype(int)
 
         path = "world-{}".format(state).replace(" ", "-").lower()
