@@ -1,4 +1,6 @@
-import urllib2
+#!ENV/bin/python
+
+import requests
 import io
 import math
 import pandas as pd
@@ -12,28 +14,34 @@ END_DATE = (datetime.datetime.now() - pd.to_timedelta("1day")).date()
 START_DATE = END_DATE - pd.to_timedelta("30day")
 
 def get_url_as_dataframe(url):
-    request = urllib2.urlopen(url)
-    csv_data = request.read()
-    data = pd.read_csv(io.StringIO(csv_data.decode('utf-8')))
+    request = requests.get(url)
+    csv_data = request.text
+    data = pd.read_csv(io.StringIO(csv_data))
     return pd.DataFrame(data)
 
 def get_change(df):
     start = df.head(1)['rolling_cases'].mean()
     end = df.tail(1)['rolling_cases'].mean()
     change = (end - start) / start
-    if math.isnan(change):
+    if start == 0 or math.isnan(change):
         return 0
     return round(change * 100)
 
+def roundnan(x):
+    if math.isnan(x):
+        return 0
+    else:
+        return round(x)
+
 def get_ecdc():
     output_array = []
-    df = get_url_as_dataframe('https://opendata.ecdc.europa.eu/covid19/casedistribution/csv/')
+    df = get_url_as_dataframe('https://opendata.ecdc.europa.eu/covid19/nationalcasedeath_eueea_daily_ei/csv/data.csv')
 
     for state in df['countriesAndTerritories'].unique():
         # select fields
-        state_df = df.loc[df['countriesAndTerritories'] == state].filter(['dateRep', 'cases_weekly'])
+        state_df = df.loc[df['countriesAndTerritories'] == state].filter(['dateRep', 'cases'])
         # find population
-        population = df.loc[df['countriesAndTerritories'] == state].tail(1)['popData2019'].item()
+        population = df.loc[df['countriesAndTerritories'] == state].tail(1)['popData2020'].item()
 
         # skip small countries
         if population < 350000:
@@ -63,7 +71,7 @@ def get_ecdc():
             'population': population,
             'change-cases': get_change(window_df),
             'last-updated': window_df.tail(1)['date'].to_string(index=False),
-            'last-cases': round(window_df.tail(7)['cases'].mean()),
+            'last-cases': roundnan(window_df.tail(7)['cases'].mean()),
             'total-cases': total_cases,
         })
     return output_array
@@ -75,9 +83,9 @@ def get_counties():
 
     # covid_counties = pd.read_csv('us-counties.csv')
 
-    request = urllib2.urlopen('https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv')
-    csv_data = request.read()
-    covid_counties = pd.read_csv(io.StringIO(csv_data.decode('utf-8')))
+    request = requests.get('https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv')
+    csv_data = request.text
+    covid_counties = pd.read_csv(io.StringIO(csv_data))
 
     # Test: .query("CTYNAME == 'New York City'")
     for index, row in population_counties.iterrows():
@@ -138,10 +146,8 @@ def get_counties():
 def get_states():
     output_array = []
     population_states = pd.read_csv('lib/nst-est2019-alldata.csv')
-    request = urllib2.urlopen('https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv')
-    csv_data = request.read()
-    data = pd.read_csv(io.StringIO(csv_data.decode('utf-8')))
-    df = pd.DataFrame(data)
+
+    df = get_url_as_dataframe('https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv')
     df['date'] = pd.to_datetime(df['date']).dt.date
 
     for state in df['state'].unique():
@@ -212,6 +218,8 @@ if WRITE_FILES:
     pd.DataFrame(region_index).to_csv("data/regions.csv", index = False, header=True)
     write_indexes(region_index)
     write_sitemap('sitemap.xml', region_index)
+    with open('lastupdate', 'w') as f:
+        f.write('date\n' + str(datetime.datetime.today()))
 else:
     pd.DataFrame(region_index).to_csv(sys.stdout)
 
