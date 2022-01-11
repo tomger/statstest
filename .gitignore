@@ -6,3 +6,6 @@ region/*
 !region/README
 .vscode/settings.json
 .DS_Store
+ENV/*
+raw_data/*
+*.swp
