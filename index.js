@@ -768,9 +768,6 @@ customElements.define("header-view", class HeaderView extends HTMLElement {
       <div style="opacity: .5;line-height: 13px;">Watchlist</div>
     </div>
     <div onClick="closeDetailView(); searchView.page = 'yourlist'; window.scrollTo(0,0)" style="cursor: pointer; font-weight: 500; font-size: 14px; margin-right: 16px;">Following (${selectedRegions.length})</div>
-    <div 
-      onClick="closeDetailView(); navigateToLeaderboard()" 
-      style="font-weight: 500; cursor: pointer; font-size: 14px;">Leaderboards</div>
     `;
   }
 });
