@@ -203,11 +203,8 @@ function lastUpdatedSpan() {
 function dataDisclaimer() {
 
   return /*html*/`
-    <span class="lastupdated">${lastUpdatedSpan()}</span>United States data provided by 
-    <a href="https://github.com/nytimes/covid-19-data">The New York Times</a>. 
-    World data provided by
-    <a href="https://www.ecdc.europa.eu/en/publications-data/download-todays-data-geographic-distribution-covid-19-cases-worldwide">European Centre for Disease Prevention and Control</a>.
-    Feel free to leave feedback on this <a style="color:#ff6600" href="https://news.ycombinator.com/item?id=25132185">Hacker News thread</a>`;
+    <span class="lastupdated">${lastUpdatedSpan()}</span>
+    Data from <a href="https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data">JHU CSSE COVID-19 Dataset</a>.`;
 }
 
 function isWarningRegion(region) {
@@ -302,7 +299,7 @@ class SearchView extends HTMLElement {
 
       let searchResults = this._regions
         .filter(region => {
-          return region.name.toLowerCase().indexOf(this.query.toLowerCase()) !== -1;
+          return region.name.toLowerCase().indexOf(this.query.toLowerCase()) !== -1 || region.byline.toLowerCase().indexOf(this.query.toLowerCase()) !== -1;
         })
         .sort((a, b) => {
           return b.population - a.population;
