@@ -18,16 +18,30 @@ BASE_DATA_URL = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/maste
 DAYS = 30
 DAYS_BUFFER = DAYS + 7 + 1
 
+# days until a newly infected person becomes infectious
+DAYS_UNTIL_INFECTIOUS = 4
 
-def get_change(df):
-    start = df.head(1)['rolling_cases'].mean()
-    end = df.tail(1)['rolling_cases'].mean()
-    if start == 0:
-        return 0
-    change = (end - start) / start
-    if math.isnan(change):
-        return 0
-    return round(change * 100)
+
+def get_rt(df):
+    # figure out current Rt (Cases(t) = Cases(t-1)*Rt^(1/DAYS_UNTIL_INFECTIOUS))
+    Rt_avg_sum = 0
+    Rt_avg_weights = 0
+    cur_cases = df.iloc[-1].rolling_cases
+
+    for i in range(1, DAYS_UNTIL_INFECTIOUS+1):
+        prev_cases = df.iloc[-i-1].rolling_cases
+        if prev_cases == 0:
+            continue
+
+        Rt = (cur_cases / prev_cases) ** (DAYS_UNTIL_INFECTIOUS/i)
+        weight = 1/(2**(i-1))
+
+        Rt_avg_sum += Rt * weight
+        Rt_avg_weights += weight
+
+    cur_Rt = Rt_avg_sum / Rt_avg_weights if Rt_avg_weights else float("NaN")
+
+    return cur_Rt
 
 
 def get_dates():
@@ -179,7 +193,7 @@ def process_df(df):
         'name': name,
         'byline': byline,
         'population': population,
-        'change-cases': get_change(df),
+        'change-cases': get_rt(df),
         'last-updated': last.Last_Update.split()[0],
         'last-cases': last.rolling_cases,
         'total-cases': last.Confirmed,

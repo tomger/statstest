@@ -187,9 +187,10 @@ function toggleRegion(state) {
 
 function changeNumber(region) {
   let change = region['change-cases'];
+  change = Math.round(change * 100) / 100;
   return /*html*/`
-    <div class="${change < 0 ? 'isDown' : 'isUp'}">
-        ${change > 0 ? '+' : ''}${change}%
+    <div class="${change < 1 ? 'isDown' : 'isUp'}">
+        ${change}
     </div>
     `;
 }
@@ -265,7 +266,7 @@ function appendListItem(target, region, addButton, metric) {
         </div>
         ${iff(!addButton && metric === 'cases', /*html*/`
         <div style="${sparkStyle}">
-            <spark-line class="${region["change-cases"] < 0 ? 'isDown' : 'isUp'}" src="/data/${region.path}.csv"></spark-line>
+            <spark-line class="${region["change-cases"] < 1 ? 'isDown' : 'isUp'}" src="/data/${region.path}.csv"></spark-line>
         </div>
         `)}
         ${metric !== 'cases' ? totalColumn(region) : numberColumn(region)}
@@ -637,9 +638,9 @@ class DetailView extends HTMLElement {
             <div style="${bigNumberCaptionStyle}">Last 7 day average per <span style="white-space:nowrap">100,000 residents</span></div>
         </div>
         <div style="width: 160px; display: inline-block">
-            <div style="${captionStyle}">Last 30 days</div>
+            <div style="${captionStyle}">Rt</div>
             <div style="${bigNumberStyle}">${changeNumber(this.region)}</div>
-            <div style="${bigNumberCaptionStyle}">First and last 7 day <span style="white-space:nowrap">averages compared</span></div>
+            <div style="${bigNumberCaptionStyle}">Reproduction number. <span style="white-space:nowrap">Based on the last 4 days.</span></div>
         </div>
         <div style="width: 160px; display: inline-block">
           <div style="${captionStyle}">Cases per capita</div>
@@ -675,7 +676,7 @@ class DetailView extends HTMLElement {
         `)
       this.drawChart(d3.select('.chart-view'), data)
 
-      d3.select('.chart-view svg').attr('class', this.region["change-cases"] < 0 ? 'isDown' : 'isUp')
+      d3.select('.chart-view svg').attr('class', this.region["change-cases"] < 1 ? 'isDown' : 'isUp')
       this.data = data;
     })
 
