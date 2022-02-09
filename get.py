@@ -26,9 +26,9 @@ def get_rt(df):
     # figure out current Rt (Cases(t) = Cases(t-1)*Rt^(1/DAYS_UNTIL_INFECTIOUS))
     Rt_avg_sum = 0
     Rt_avg_weights = 0
-    cur_cases = df.iloc[-1].rolling_cases
 
     for i in range(1, DAYS_UNTIL_INFECTIOUS+1):
+        cur_cases = df.iloc[-i].rolling_cases
         prev_cases = df.iloc[-i-1].rolling_cases
         if prev_cases == 0:
             continue
