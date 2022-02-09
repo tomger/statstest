@@ -71,14 +71,73 @@ def process_data():
         arr.append(data)
 
     data = pd.concat(arr, ignore_index=True)
+
+    # uncomment for debugging faster, lol
+    # data = data[(data['Country_Region'] == 'Belgium') | ((data['Country_Region'] == 'US') & (data['Province_State'] == 'Wyoming'))]
+
     places = data['Combined_Key'].unique()
+    arr = []
+    for p in places:
+        df = data.loc[data['Combined_Key'] == p].copy()
+        confirmed = df['Confirmed'].max()
+        incident_rate = df['Incident_Rate'].max()
+        df['population'] = round(100e3 * confirmed / incident_rate) if (
+            not math.isnan(incident_rate) and incident_rate) else 0
+        arr.append(df)
+        print(p)
+    data = pd.concat(arr, ignore_index=True)
+
     region_index = []
+
+    countries = data['Country_Region'].unique()
+    for c in countries:
+        cdf = data[data['Country_Region'] == c]
+        nrows = len(cdf)
+        df = cdf.groupby('date', as_index=False).agg({
+            'Admin2': lambda x: None,
+            'Province_State': lambda x: None,
+            'Country_Region': 'first',
+            'Combined_Key': lambda x: c,
+            'population': sum,
+            'Confirmed': sum,
+            'Last_Update': max,
+        })
+
+        if len(df) == nrows:
+            continue
+
+        region_data = process_df(df)
+        if region_data:
+            region_index.append(region_data)
+
+        states = cdf['Province_State'].unique()
+        for s in states:
+            sdf = cdf[cdf['Province_State'] == s]
+            nrows = len(sdf)
+
+            df = sdf.groupby('date', as_index=False).agg({
+                'Admin2': lambda x: None,
+                'Province_State': 'first',
+                'Country_Region': 'first',
+                'Combined_Key': lambda x: "%s, %s" % (s, c),
+                'population': sum,
+                'Confirmed': sum,
+                'Last_Update': max,
+            })
+
+            if len(df) == nrows:
+                continue
+
+            region_data = process_df(df)
+            if region_data:
+                region_index.append(region_data)
+
+
     for p in places:
         df = data.loc[data['Combined_Key'] == p]
         region_data = process_df(df)
         if region_data:
             region_index.append(region_data)
-
 
     pd.DataFrame(region_index).to_csv("data/regions.csv", index=False, header=True)
     write_sitemap(region_index)
@@ -98,10 +157,9 @@ def process_df(df):
     name = last.Combined_Key
     path = re.sub(r'\s?,\s?', '_', name).replace(' ', '-').lower()
 
-    if math.isnan(last.Incident_Rate):
+    population = last.population
+    if population == 0:
         return
-
-    population = round(100e3 * last.Confirmed / last.Incident_Rate) if last.Incident_Rate else 0
 
     # figure out name and byline
     byline = ''
