@@ -1,190 +1,199 @@
 #!ENV/bin/python
 
-import requests
-import io
-import math
-import pandas as pd
 import datetime
-import sys
+import pathlib
+import os
+import argparse
+import math
+import re
 
-WRITE_FILES = True
+import requests
+import pandas as pd
 
+
+URL_PREFIX = "https://covid.iterator.us"
+RAW_DATA_DIR = "raw_data"
 CSV_PATH = "data/{}.csv"
-END_DATE = (datetime.datetime.now() - pd.to_timedelta("1day")).date()
-START_DATE = END_DATE - pd.to_timedelta("30day")
+BASE_DATA_URL = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports"
+DAYS = 30
+DAYS_BUFFER = DAYS + 7 + 1
 
-def get_url_as_dataframe(url):
-    request = requests.get(url)
-    csv_data = request.text
-    data = pd.read_csv(io.StringIO(csv_data))
-    return pd.DataFrame(data)
 
 def get_change(df):
     start = df.head(1)['rolling_cases'].mean()
     end = df.tail(1)['rolling_cases'].mean()
+    if start == 0:
+        return 0
     change = (end - start) / start
-    if start == 0 or math.isnan(change):
+    if math.isnan(change):
         return 0
     return round(change * 100)
 
-def roundnan(x):
-    if math.isnan(x):
-        return 0
-    else:
-        return round(x)
 
-def get_ecdc():
-    output_array = []
-    df = get_url_as_dataframe('https://opendata.ecdc.europa.eu/covid19/nationalcasedeath_eueea_daily_ei/csv/data.csv')
+def get_dates():
+    dates = []
+    cur = datetime.date.today()
+    for _ in range(DAYS_BUFFER):
+        cur -= datetime.timedelta(1)
+        dates.append(cur)
+    return dates
 
-    for state in df['countriesAndTerritories'].unique():
-        # select fields
-        state_df = df.loc[df['countriesAndTerritories'] == state].filter(['dateRep', 'cases'])
-        # find population
-        population = df.loc[df['countriesAndTerritories'] == state].tail(1)['popData2020'].item()
 
-        # skip small countries
-        if population < 350000:
+def get_date_files():
+    return [d.strftime("%m-%d-%Y.csv") for d in get_dates()]
+
+
+def get_raw_data(*, refetch):
+    date_files = get_date_files()
+
+    pathlib.Path(RAW_DATA_DIR).mkdir(parents=True, exist_ok=True)
+    for filename in date_files:
+        filepath = os.path.join(RAW_DATA_DIR, filename)
+        if not refetch and os.path.isfile(filepath):
+            continue
+        print("Downloading", filename)
+        r = requests.get("%s/%s" % (BASE_DATA_URL, filename))
+        with open(filepath, "wb") as f:
+            f.write(r.content)
+
+
+def process_data():
+    date_files = get_date_files()
+    dates = get_dates()
+
+    # ensure the dates exist in raw data
+    filepaths = [os.path.join(RAW_DATA_DIR, fn) for fn in date_files]
+    if not all(os.path.isfile(fp) for fp in filepaths):
+        raise RuntimeError("Need to download some files, rerun with --raw")
+
+    arr = []
+    for d, fp in zip(dates, filepaths):
+        data = pd.read_csv(fp)
+        data['date'] = d
+        arr.append(data)
+
+    data = pd.concat(arr, ignore_index=True)
+
+    # uncomment for debugging faster, lol
+    # data = data[(data['Country_Region'] == 'Belgium') | ((data['Country_Region'] == 'US') & (data['Province_State'] == 'Wyoming'))]
+
+    places = data['Combined_Key'].unique()
+    arr = []
+    for p in places:
+        df = data.loc[data['Combined_Key'] == p].copy()
+        confirmed = df['Confirmed'].max()
+        incident_rate = df['Incident_Rate'].max()
+        df['population'] = round(100e3 * confirmed / incident_rate) if (
+            not math.isnan(incident_rate) and incident_rate) else 0
+        arr.append(df)
+    data = pd.concat(arr, ignore_index=True)
+
+    region_index = []
+
+    countries = data['Country_Region'].unique()
+    for c in countries:
+        cdf = data[data['Country_Region'] == c]
+        nrows = len(cdf)
+        df = cdf.groupby('date', as_index=False).agg({
+            'Admin2': lambda x: None,
+            'Province_State': lambda x: None,
+            'Country_Region': 'first',
+            'Combined_Key': lambda x: c,
+            'population': sum,
+            'Confirmed': sum,
+            'Last_Update': max,
+        })
+
+        if len(df) == nrows:
             continue
 
-        # rename fields
-        state_df = state_df.rename(columns={"dateRep": "date", "cases_weekly": "cases"})
-        
-        # format date
-        state_df["date"] = state_df["date"].apply(lambda x: datetime.datetime.strptime(x, '%d/%m/%Y').date())
-        state_df.sort_values(by='date', inplace=True, ascending=True) 
-        # XXX FIX data source only provides weekly numbers since 12/2020
-        state_df['rolling_cases'] = state_df['cases'].fillna(0).astype(int) 
-        total_cases = state_df['cases'].sum().astype(int)
+        region_data = process_df(df)
+        if region_data:
+            region_index.append(region_data)
 
-        path = "world-{}".format(state).replace(" ", "-").lower()
+        states = cdf['Province_State'].unique()
+        for s in states:
+            sdf = cdf[cdf['Province_State'] == s]
+            nrows = len(sdf)
 
-        window_df = state_df.loc[(state_df['date'] > START_DATE) & (state_df['date'] <= END_DATE)]
-        if WRITE_FILES:
-            window_df.to_csv(CSV_PATH.format(path), index = False, header=True)
+            df = sdf.groupby('date', as_index=False).agg({
+                'Admin2': lambda x: None,
+                'Province_State': 'first',
+                'Country_Region': 'first',
+                'Combined_Key': lambda x: "%s, %s" % (s, c),
+                'population': sum,
+                'Confirmed': sum,
+                'Last_Update': max,
+            })
 
-        # add to index
-        output_array.append({
-            'path': path,
-            'name': state.replace("_", " "),
-            'byline': '',
-            'population': population,
-            'change-cases': get_change(window_df),
-            'last-updated': window_df.tail(1)['date'].to_string(index=False),
-            'last-cases': roundnan(window_df.tail(7)['cases'].mean()),
-            'total-cases': total_cases,
-        })
-    return output_array
+            if len(df) == nrows:
+                continue
 
-def get_counties():
-    output_array = []
-    population_counties = pd.read_csv('lib/co-est2019.csv')
-    population_counties = population_counties
-
-    # covid_counties = pd.read_csv('us-counties.csv')
-
-    request = requests.get('https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv')
-    csv_data = request.text
-    covid_counties = pd.read_csv(io.StringIO(csv_data))
-
-    # Test: .query("CTYNAME == 'New York City'")
-    for index, row in population_counties.iterrows():
-        state = row['STNAME']
-        county = row['CTYNAME'].replace(" County", "")
-        population = row['POPESTIMATE2019']
-
-        # skip small counties
-        if population < 100000:
-            continue
-
-        df = covid_counties.loc[
-            (covid_counties['state'] == state) &
-            (covid_counties['county'] == county)].filter(['date', 'cases'])
-
-        total_cases = df.tail(1)['cases'].to_string(index=False)
-        # cummulative to delta
-        df['cases'] = df['cases'].diff().fillna(0).clip(lower=0).astype(int)
-        df['rolling_cases'] = df['cases'].rolling(7).mean().fillna(0).astype(int)
-
-        # format date
-        df['date'] = pd.to_datetime(df['date']).dt.date
-        df = df.loc[df['date'] > START_DATE]
-        
-
-        # rename fields
-        # state_df = state_df.rename(columns={"date": "Date"})
-
-        # no data found
-        if len(df.index) < 10:
-            continue
-
-        path = "us-co-{}-{}".format(county, state).replace(" ", "-").lower()
-        if WRITE_FILES:
-            df.to_csv(CSV_PATH.format(path), index = False, header=True)
-
-        if county == "New York City":
-            name = county
-        else:
-            name = "{} County".format(county)
-
-        # add to index
-        output_array.append({
-            'path': path,
-            'name': name,
-            'byline': "{}".format(state),
-            'population': population,
-            'change-cases': get_change(df),
-            'last-updated': df.tail(1)['date'].to_string(index=False),
-            'last-cases': round(df.tail(7)['cases'].clip(lower=0).mean()),
-            'total-cases': total_cases,
-        })
-    return output_array
+            region_data = process_df(df)
+            if region_data:
+                region_index.append(region_data)
 
 
-# States
+    for p in places:
+        df = data.loc[data['Combined_Key'] == p]
+        region_data = process_df(df)
+        if region_data:
+            region_index.append(region_data)
 
-def get_states():
-    output_array = []
-    population_states = pd.read_csv('lib/nst-est2019-alldata.csv')
+    pd.DataFrame(region_index).to_csv("data/regions.csv", index=False, header=True)
+    write_sitemap(region_index)
+    with open('lastupdate', 'w') as f:
+        f.write('date\n' + str(datetime.datetime.today()))
 
-    df = get_url_as_dataframe('https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv')
-    df['date'] = pd.to_datetime(df['date']).dt.date
 
-    for state in df['state'].unique():
-        # select fields
-        state_df = df.loc[df['state'] == state].filter(['date', 'cases'])
+def process_df(df):
+    df = df.sort_values('date')
 
-        total_cases = state_df.tail(1)['cases'].to_string(index=False)
-        # cummulative to delta
-        state_df['cases'] = state_df['cases'].diff().fillna(0).clip(lower=0).astype(int)
-        state_df['rolling_cases'] = state_df['cases'].rolling(7).mean().fillna(0).astype(int)
-        
-        state_df = state_df.loc[df['date'] > START_DATE]
+    df['cases'] = df['Confirmed'].diff().fillna(0).clip(lower=0).astype(int)
+    df['rolling_cases'] = df['cases'].rolling(7).mean().fillna(0).astype(int)
 
-        path = "us-st-{}".format(state).replace(" ", "-").lower()
-        if WRITE_FILES:
-            state_df.to_csv(CSV_PATH.format(path), index = False, header=True)
+    df = df[df.date >= datetime.date.today() - datetime.timedelta(days=DAYS)]
 
-        # find population
-        population_row = population_states.query("NAME == '{}'".format(state))
-        population = population_row['POPESTIMATE2019'].to_string(index=False)
+    last = df.iloc[-1]
+    name = last.Combined_Key
+    path = re.sub(r'\s?,\s?', '_', name).replace(' ', '-').lower()
 
-        # add to index
-        output_array.append({
-            'path': path,
-            'name': state,
-            'byline': 'United States',
-            'population': population,
-            'change-cases': get_change(state_df),
-            'last-updated': state_df.tail(1)['date'].to_string(index=False),
-            'last-cases': round(state_df.tail(7)['cases'].clip(lower=0).mean()),
-            'total-cases': total_cases,
-        })
-    return output_array
+    population = last.population
+    if population == 0:
+        return
 
-def write_sitemap(path, array):
+    # figure out name and byline
+    byline = ''
+    exists = lambda s: isinstance(s, str) and s.strip()
+    if exists(last.Province_State):
+        name = last.Province_State
+        byline = last.Country_Region
+    if exists(last.Admin2):
+        name = last.Admin2
+        if last.Country_Region == 'US':
+            name += " County"
+        byline = "%s, %s" % (last.Province_State, last.Country_Region)
+
+    pdata = {
+        'path': path,
+        'name': name,
+        'byline': byline,
+        'population': population,
+        'change-cases': get_change(df),
+        'last-updated': last.Last_Update.split()[0],
+        'last-cases': last.rolling_cases,
+        'total-cases': last.Confirmed,
+    }
+    df.to_csv(CSV_PATH.format(path),
+              columns=['date', 'cases', 'rolling_cases'],
+              index=False,
+              header=True)
+    return pdata
+
+
+def write_sitemap(array):
     sitemap_head = '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">'
-    sitemap_item = '<url><loc>https://covid.iterator.us/region/{}</loc></url>'
+    sitemap_item = '<url><loc>%s/region/{}</loc></url>' % URL_PREFIX
     sitemap_foot = '</urlset>'
 
     output = [sitemap_head]
@@ -192,36 +201,27 @@ def write_sitemap(path, array):
         output.append(sitemap_item.format(region['path']))
     output.append(sitemap_foot)
 
-    file = open(path, "w")
-    file.write(''.join(output))
-    file.close()
-
-def write_indexes(array):
-    template_file = open('index.html', 'r')
-    template = template_file.read()
-    template_file.close()
-
-    for region in array:
-        file = open('region/{}'.format(region['path']), "w")
-        file.write(template.replace('<title>COVID-19 Watchlist</title>', '<title>COVID-19 Watchlist {}</title>'.format(region['name'])))
-        file.close()
+    with open("sitemap.xml", "w") as f:
+        f.write(''.join(output))
 
 
+def main():
+    parser = argparse.ArgumentParser(description="TODO")
+    parser.add_argument("--raw", default=True,
+                        action=argparse.BooleanOptionalAction,
+                        help="Fetch raw data")
+    parser.add_argument("--refetch", default=False,
+                        action=argparse.BooleanOptionalAction,
+                        help="Fetch raw data even if data already exists locally")
+    parser.add_argument("--process", default=True,
+                        action=argparse.BooleanOptionalAction,
+                        help="Process and write data")
+    args = parser.parse_args()
 
-region_index = []
-region_index.extend(get_states())
-region_index.extend(get_counties())
-region_index.extend(get_ecdc())
+    if args.raw:
+        get_raw_data(refetch=args.refetch)
+    if args.process:
+        process_data()
 
-
-if WRITE_FILES:
-    pd.DataFrame(region_index).to_csv("data/regions.csv", index = False, header=True)
-    write_indexes(region_index)
-    write_sitemap('sitemap.xml', region_index)
-    with open('lastupdate', 'w') as f:
-        f.write('date\n' + str(datetime.datetime.today()))
-else:
-    pd.DataFrame(region_index).to_csv(sys.stdout)
-
-
-
+if __name__ == '__main__':
+    main()
