@@ -23,7 +23,7 @@ DAYS_BUFFER = DAYS + 7 + 1
 DAYS_UNTIL_INFECTIOUS = 4
 
 
-def get_rt(df):
+def calc_rt(df):
     # figure out current Rt (Cases(t) = Cases(t-1)*Rt^(1/DAYS_UNTIL_INFECTIOUS))
     Rt_avg_sum = 0
     Rt_avg_weights = 0
@@ -212,7 +212,7 @@ def process_df(df):
         'name': name,
         'byline': byline,
         'population': population,
-        'change-cases': get_rt(df),
+        'change-cases': calc_rt(df),
         'last-updated': last.Last_Update.split()[0],
         'last-cases': last.rolling_cases,
         'total-cases': last.Confirmed,
