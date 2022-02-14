@@ -26,7 +26,13 @@ function debounce(callback, wait, immediate = false) {
 }
 
 function changeClass(change) {
-  return change < 1 ? 'isDown' : 'isUp';
+  if (Math.round(change*100) < 96) {
+    return 'isDown';
+  } else if (Math.round(change*100) <= 104) {
+    return 'isStable';
+  } else {
+    return 'isUp';
+  }
 }
 
 
