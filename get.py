@@ -35,7 +35,7 @@ def calc_rt(df):
             continue
 
         Rt = (cur_cases / prev_cases) ** (DAYS_UNTIL_INFECTIOUS/i)
-        weight = 1/(2**(i-1))
+        weight = 1/(i+1)
 
         Rt_avg_sum += Rt * weight
         Rt_avg_weights += weight
