@@ -25,6 +25,10 @@ function debounce(callback, wait, immediate = false) {
   }
 }
 
+function changeClass(change) {
+  return change < 1 ? 'isDown' : 'isUp';
+}
+
 
 function onSearchFocus() {
   lastViewedRegion = detailView.region;
@@ -189,7 +193,7 @@ function changeNumber(region) {
   let change = region['change-cases'];
   change = Math.round(change * 100) / 100;
   return /*html*/`
-    <div class="${change < 1 ? 'isDown' : 'isUp'}">
+    <div class="${changeClass(change)}">
         ${change}
     </div>
     `;
@@ -266,7 +270,7 @@ function appendListItem(target, region, addButton, metric) {
         </div>
         ${iff(!addButton && metric === 'cases', /*html*/`
         <div style="${sparkStyle}">
-            <spark-line class="${region["change-cases"] < 1 ? 'isDown' : 'isUp'}" src="/data/${region.path}.csv"></spark-line>
+            <spark-line class="${changeClass(region["change-cases"])}" src="/data/${region.path}.csv"></spark-line>
         </div>
         `)}
         ${metric !== 'cases' ? totalColumn(region) : numberColumn(region)}
@@ -676,7 +680,7 @@ class DetailView extends HTMLElement {
         `)
       this.drawChart(d3.select('.chart-view'), data)
 
-      d3.select('.chart-view svg').attr('class', this.region["change-cases"] < 1 ? 'isDown' : 'isUp')
+      d3.select('.chart-view svg').attr('class', changeClass(this.region["change-cases"]))
       this.data = data;
     })
 
