@@ -6,6 +6,7 @@ import os
 import argparse
 import math
 import re
+from collections import Counter
 
 import requests
 import pandas as pd
@@ -89,7 +90,13 @@ def process_data():
     data = pd.concat(arr, ignore_index=True)
 
     # uncomment for debugging faster, lol
-    # data = data[(data['Country_Region'] == 'Belgium') | ((data['Country_Region'] == 'US') & (data['Province_State'] == 'Wyoming'))]
+    """
+    data = data[
+        (data['Country_Region'] == 'Denmark') |
+        (data['Country_Region'] == 'Belgium') |
+        ((data['Country_Region'] == 'US') & (data['Province_State'] == 'Wyoming'))
+    ]
+    """
 
     places = data['Combined_Key'].unique()
     arr = []
@@ -101,6 +108,12 @@ def process_data():
             not math.isnan(incident_rate) and incident_rate) else 0
         arr.append(df)
     data = pd.concat(arr, ignore_index=True)
+
+    # HACK(vadim): fix for duplicate paths, because some countries have extra
+    # regions that are kinda not considered part of that country but are
+    # technically part of it (ex: Greenland is in Denmark)
+    for country in ['Denmark', 'France', 'New Zealand']:
+        data.loc[data['Combined_Key'] == country, 'Province_State'] = country
 
     region_index = []
 
@@ -154,6 +167,10 @@ def process_data():
         if region_data:
             region_index.append(region_data)
 
+    paths = Counter(r['path'] for r in region_index)
+    dup_paths = {k: v for k, v in paths.items() if v > 1}
+    assert not dup_paths, ("Paths have duplicates: " + ", ".join(dup_paths.keys()))
+
     pd.DataFrame(region_index).to_csv("data/regions.csv", index=False, header=True)
     write_sitemap(region_index)
     with open('lastupdate', 'w') as f:
@@ -169,14 +186,13 @@ def process_df(df):
     df = df[df.date >= datetime.date.today() - datetime.timedelta(days=DAYS)]
 
     last = df.iloc[-1]
-    name = last.Combined_Key
-    path = re.sub(r'\s?,\s?', '_', name).replace(' ', '-').lower()
 
     population = last.population
     if population == 0:
         return
 
     # figure out name and byline
+    name = last.Country_Region
     byline = ''
     exists = lambda s: isinstance(s, str) and s.strip()
     if exists(last.Province_State):
@@ -187,6 +203,9 @@ def process_df(df):
         if last.Country_Region == 'US':
             name += " County"
         byline = "%s, %s" % (last.Province_State, last.Country_Region)
+
+    path = name if not byline else "%s, %s" % (name, byline)
+    path = re.sub(r'\s?,\s?', '_', path).replace(' ', '-').lower()
 
     pdata = {
         'path': path,
